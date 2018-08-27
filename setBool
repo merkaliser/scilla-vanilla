@@ -1,0 +1,30 @@
+contract SetBool
+(owner: Address)
+
+field x : Bool = true
+field y : Bool = true
+
+transition setter ()
+  is_status = builtin eq x y;
+  match is_owner with   
+  | False =>
+    x=true  
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : not_owner_code};
+    msgs = one_msg msg;
+    send msgs
+  | True =>
+    x=false  
+    welcome_msg := msg;
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : set_hello_code};
+    msgs = one_msg msg;
+    send msgs
+  end
+end
+
+
+transition getHello ()
+    r <- welcome_msg;
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : r};
+    msgs = one_msg msg;
+    send msgs
+end
