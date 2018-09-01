@@ -1,28 +1,41 @@
-contract SetBool
+library HelloWorld
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let not_true = Int32 1
+let not_false = Int32 2
+
+
+
+contract HelloWorld
 (owner: Address)
 
-field x : Bool = true
-field y : Bool = true
+field welcome_msg : String = ""
+field fixed : String = "FALSE"
+field fexe : String = "TRUE"
 
-transition setter ()
-  is_status = builtin eq x y;
-  match is_owner with   
+transition setstatus (msg : String)
+  welcome_msg := msg;
+  is_status = builtin eq welcome_msg fixed;
+  match is_status with
   | False =>
-    x=true  
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : not_owner_code};
+    welcome_msg := fixed;  
+    msg = {_tag : "getstatus"; _recipient : _sender; _amount : Uint128 0; code : not_true};
     msgs = one_msg msg;
     send msgs
   | True =>
-    x=false  
-    welcome_msg := msg;
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : set_hello_code};
+    welcome_msg := fexe;
+    msg = {_tag : "getstatus"; _recipient : _sender; _amount : Uint128 0; code : not_false};
     msgs = one_msg msg;
     send msgs
   end
 end
 
 
-transition getHello ()
+transition getstatus ()
     r <- welcome_msg;
     msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : r};
     msgs = one_msg msg;
