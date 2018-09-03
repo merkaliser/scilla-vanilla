@@ -4,6 +4,6 @@ In this code a boolean value is passed and the reverse of that boolean value is 
 For now string is used everywhere instead of bool just to run the code
 
 # ISSUES:
-*code gets parsed successfully but does not run.
+* code gets parsed successfully but does not run.
 
 
