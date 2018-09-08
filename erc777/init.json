@@ -1,0 +1,34 @@
+[
+    {
+        "vname" : "name",
+        "type" : "String ",
+        "value" : "ERC777token"
+    },
+    {
+        "vname" : "symbol",
+        "type" : "String ",
+        "value" : "MYT"
+    },
+    {
+        "vname" : "totalSupply",
+        "type" : "Uint128",
+        "value" : "1000"
+    },
+    
+    {
+        "vname" : "owner",
+        "type" : "ByStr20",
+        "value" : "0x1234567890123456789012345678901234567890"
+    },
+    
+    {
+        "vname" : "granularity",
+        "type" : "Uint128",
+        "value" : "1"
+    },    
+    {
+        "vname" : "_creation_block",
+        "type" : "BNum",
+        "value" : "1"
+    }
+]
