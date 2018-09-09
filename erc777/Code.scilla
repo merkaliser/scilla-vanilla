@@ -261,7 +261,7 @@ end
 
 
 
-transition AuthorizeOperator (operator : ByStr20)
+transition authorizeOperator (operator : ByStr20)
     al <- allowed;
     is_operator=builtin eq operator _sender;
     match is_operator with
@@ -274,6 +274,49 @@ transition AuthorizeOperator (operator : ByStr20)
         send no_msg
 
     end
+end
+
+
+
+transition revokeOperator (operator : ByStr20)
+    al <- allowed;
+    is_operator=builtin eq operator _sender;
+    match is_operator with
+    | True=>
+        send no_msg
+    | False=>
+        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m operator totalSupply ;
+        allowed_new = builtin remove al _sender allowed_operators;
+        allowed := allowed_new;
+        send no_msg
+
+    end
+end
+
+
+transition isOperatorFor ( _operator : ByStr20, _tokenHolder : ByStr20)
+  al <- allowed;
+  has_operator = builtin get al _tokenHolder;
+  match has_operator with
+  | Some {Map ByStr20 Uint128} m =>
+      is_operator= builtin get m _operator
+      match is_operator with
+          | Some m =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : bool true };
+              msgs = one_msg msg;
+              send msgs
+          | None =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : bool false};
+              msgs = one_msg msg;
+              send msgs
+              end
+       
+ | None=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : bool false };
+        msgs = one_msg msg;
+        send msgs
+    end
+  
 end
 
 
