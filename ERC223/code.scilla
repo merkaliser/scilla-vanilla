@@ -1,0 +1,75 @@
+(* HelloWorld contract *)
+
+
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+library ERC223Token
+
+let one_msg=
+    fun(msg:Message)=>
+    let nil_msg =Nil {Message} in 
+    Cons {Message} msg nil_msg
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract ERC223Token
+(owner: ByStr20)
+
+field codeLength : Uint128 = 0 
+
+field balances : Map ByStr20 Uint128 = Emp ByStr20 (Map ByStr20 Uint128)
+
+transition Transfer(to : ByStr20, value : Uint128 , data : String)
+
+(*line 31 to 35*)
+
+
+  bl <- balances;
+  bal = builtin get bl _sender;
+  match bal with
+    Some b =>
+    new_sender_bal = builtin sub b value;
+    new_balances = builtin put bl _sender new_sender_bal;
+    to_bal = builtin get new_balances to;
+    match to_bal with
+      Some x => 
+      new_to_bal =  builtin add x value;
+      new_balances2 = builtin put new_balances to new_to_bal;
+      balances :=new_balances2
+      None =>
+      new_balances3 = builtin put new_balances to value;
+      balances := new_balance3;
+    end;
+    msg = {_tag : "Main"; _recipient : _sender ; _amount : Uint128 ; transferred : value };
+    msgs = one_msg msg;
+    send msgs
+  end
+  None =>
+  msg = {_tag : "Main"; _recipient : _sender ; _amount : Uint128 ; transferred : 0 };
+  msgs = one_msg msg;
+  send msgs
+end    
+    
+    
+transition balanceOf(owner : ByStr20)    
+  bl <- balances;
+  val = builtin get bl owner;
+  match val with
+    Some v =>
+    msg = {_tag : "Main"; _recipient : _sender ; _amount : Uint128 ; balance : v };
+    msgs = one_msg msg;
+    send msgs   
+    None =>
+    msg = {_tag : "Main"; _recipient : _sender ; _amount : Uint128 ; balance : 0 };
+    msgs = one_msg msg;
+    send msgs    
+  end
+end    
+    
+    
+    
+    
