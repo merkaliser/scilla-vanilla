@@ -298,21 +298,21 @@ transition isOperatorFor ( _operator : ByStr20, _tokenHolder : ByStr20)
   al <- allowed;
   has_operator = builtin get al _tokenHolder;
   match has_operator with
-  | Some {Map ByStr20 Uint128} m =>
-      is_operator= builtin get m _operator
+  | Some m =>
+      is_operator= builtin contains m _operator;
       match is_operator with
-          | Some m =>
-              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : bool true };
+          | True =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : Uint128 0 };
               msgs = one_msg msg;
               send msgs
-          | None =>
-              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : bool false};
+          | False =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : Uint128 0};
               msgs = one_msg msg;
               send msgs
               end
        
  | None=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : bool false };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : Uint128 0 };
         msgs = one_msg msg;
         send msgs
     end
@@ -321,23 +321,13 @@ end
 
 
 
-(* transition defaultOperators ()*)
-(*  al <- allowed;*)
-  (*operators_map = builtin to_list al;*)
-  (*match operators_map with*)
-  (*| Some m =>*)
-    (*msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; allowed : List m  };*)
-    (*msgs = one_msg msg;*)
-    (*send msgs*)
 
-  (*| None =>*)
-    (*msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; allowed : List Emp };*)
-    (*msgs = one_msg msg;*)
-    (*send msgs*)
-  (*end*)
-  
-(*end*)
-  
+
+
+
+
+
+
 
 transition Approve (spender : ByStr20, tokens : Uint128)
   al <- allowed;
