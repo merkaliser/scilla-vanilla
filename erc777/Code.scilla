@@ -156,12 +156,12 @@ end
 
 
 
-transition isOperatorFor ( _operator : ByStr20, _tokenHolder : ByStr20)
+transition isOperatorFor ( operator : ByStr20, tokenHolder : ByStr20)
   al <- allowed;
-  has_operator = builtin get al _operator;
+  has_operator = builtin get al operator;
   match has_operator with
   | Some m =>
-      is_operator= builtin contains m _tokenHolder;
+      is_operator= builtin contains m tokenHolder;
       match is_operator with
           | True =>
               msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : Uint128 1 };
@@ -186,11 +186,21 @@ end
 
 
 
-   
 
 
 
-transition Send (_to : ByStr20 , amount : Uint128 , _userData : Uint128)
+
+transition Send (to : ByStr20 , amount : Uint128 , _userData : String)
+
+isMultiple1= builtin div amount  granularity;
+isMultiple2= builtin mul isMultiple1  granularity;
+notgranular="Not granular";
+
+isMultiple=builtin eq isMultiple2 amount ;
+ match  isMultiple with
+  | True =>
+      
+      
   bl <- balances;
   bal = builtin get bl _sender;
   match bal with
@@ -201,14 +211,14 @@ transition Send (_to : ByStr20 , amount : Uint128 , _userData : Uint128)
       (* subtract amount from _sender and add it to to *)
       new_sender_bal = builtin sub b amount;
       new_balances = builtin put bl _sender new_sender_bal;
-      to_bal = builtin get new_balances _to;
+      to_bal = builtin get new_balances to;
       match to_bal with
       | Some x =>
         new_to_bal = builtin add x amount;
-        new_balances2 = builtin put new_balances _to new_to_bal;
+        new_balances2 = builtin put new_balances to new_to_bal;
         balances := new_balances2
       | None =>
-        new_balances3 = builtin put new_balances _to amount;
+        new_balances3 = builtin put new_balances to amount;
         balances := new_balances3
       end;
       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : _amount; userdata :_userData};
@@ -226,6 +236,12 @@ transition Send (_to : ByStr20 , amount : Uint128 , _userData : Uint128)
     msgs = one_msg msg;
     send msgs
   end
+
+| False =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; message :notgranular};
+msgs = one_msg msg;
+send msgs
+end
 end
 
 
@@ -233,27 +249,41 @@ end
 
 
 
+transition operatorSend (from : ByStr20, to : ByStr20, amount : Uint128 , userData : String , operatorData : String)
+  
+  isMultiple1= builtin div amount  granularity;
+isMultiple2= builtin mul isMultiple1  granularity;
+notgranular="Not granular";
 
+isMultiple=builtin eq isMultiple2 amount ;
+ match  isMultiple with
+  | True =>
+      
 
-
-
-transition operatorSend (_from : ByStr20, _to : ByStr20, amount : Uint128 , userData : ByStr20 , operatorData : ByStr20)
   bl <- balances;
   al <- allowed;
   m_disallowed = "Transfer not allowed";
-  bal = builtin get bl _from;
-  isSender=builtin eq _to _sender;
+  bal = builtin get bl from;
+  isSender=builtin eq from _sender ;
   match isSender with
   | True=>
     send no_msg
  
   | False=>  
-  (* Check if _sender has been authorized by "from" *)
-  allowed_from = builtin get al _from;
+      
+  isSender1=builtin eq to _sender ;
+  match isSender1 with
+  | True=>
+    send no_msg
+ 
+  | False=>  
+      
+  (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
+  allowed_from = builtin get al _sender;
   match allowed_from with
   | Some m =>
     (* How many tokens has _sender been authorized to transfer, by "from" *)
-    sender_allowed_from = builtin get m _to;
+    sender_allowed_from = builtin get m from;
     all = Pair {Option(Uint128) Option(Uint128)} bal sender_allowed_from;
     match all with
     | Pair (Some a) (Some b) =>
@@ -264,25 +294,25 @@ transition operatorSend (_from : ByStr20, _to : ByStr20, amount : Uint128 , user
       | True =>
         (* tokens is what we should subtract from "from" and add to "to" *)
         new_from_bal = builtin sub a amount;
-        balances_1 = builtin put bl _from new_from_bal;
+        balances_1 = builtin put bl from new_from_bal;
         balances := balances_1;
-        to_bal = builtin get balances_1 _to;
+        to_bal = builtin get balances_1 to;
         match to_bal with
         | Some tb =>
           to_bal_new = builtin add tb amount;
-          balances_2 = builtin put balances_1 _to to_bal_new;
+          balances_2 = builtin put balances_1 to to_bal_new;
           balances := balances_2;
           send no_msg
         | None =>
           (* "to" has no balance. So just set it to amount *)
-          balances_3 = builtin put balances_1 _to amount;
+          balances_3 = builtin put balances_1 to amount;
           balances := balances_3;
           send no_msg
         end;
         (* reduce "allowed" by "amount" *)
         new_allowed = builtin sub b amount;
-        new_m = builtin put m _sender new_allowed;
-        new_allowed = builtin put al _from new_m;
+        new_m = builtin put m from new_allowed;
+        new_allowed = builtin put al _sender new_m;
         allowed := new_allowed
       | False =>
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
@@ -301,10 +331,12 @@ transition operatorSend (_from : ByStr20, _to : ByStr20, amount : Uint128 , user
   end
 end
 end
-
-
-
-
+| False =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; message :notgranular};
+msgs = one_msg msg;
+send msgs
+end
+end
 
 
 
