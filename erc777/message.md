@@ -1,4 +1,5 @@
 ### Name
+```
 {
     "_tag" : "name",
     "_amount" : "0",
@@ -7,8 +8,9 @@
        
     ]
 }
-
+```
 ### symbol
+```
 {
     "_tag" : "symbol",
     "_amount" : "0",
@@ -17,8 +19,9 @@
        
     ]
 }
-
+```
 ### granularity
+```
 {
     "_tag" : "granularity",
     "_amount" : "0",
@@ -27,8 +30,9 @@
        
     ]
 }
-
+```
 ### totalSupply
+```
 {
     "_tag" : "totalSupply",
     "_amount" : "0",
@@ -37,9 +41,10 @@
        
     ]
 }
-
+```
 
 ### balanceof
+```
 {
     "_tag" : "balanceOf",
     "_amount" : "0",
@@ -52,10 +57,10 @@
         }
     ]
 }
-
-
+```
 
 ### Send
+```
 {
     "_tag" : "Send",
     "_amount" : "0",
@@ -78,9 +83,10 @@
         }
     ]
 }
-
+```
 
 ### authorizeOperator
+```
 {
     "_tag" : "authorizeOperator",
     "_amount" : "0",
@@ -93,9 +99,10 @@
         }
     ]
 }
-
+```
 
 ### isOperatorFor
+```
 {
     "_tag" : "isOperatorFor",
     "_amount" : "0",
@@ -113,10 +120,9 @@
         }
     ]
 }
-
+```
 ### operatorSend
-
-
+```
 {
     "_tag" : "operatorSend",
     "_amount" : "0",
@@ -149,9 +155,10 @@
         }
     ]
 }
-
+```
 
 ### revokeOperator
+```
 {
     "_tag" : "revokeOperator",
     "_amount" : "0",
@@ -164,3 +171,4 @@
         }
     ]
 }
+```
