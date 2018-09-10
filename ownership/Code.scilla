@@ -1,0 +1,97 @@
+(* Ownership contract *)
+
+import ListUtils
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+library Ownable 
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract Ownable 
+(owner : ByStr20)
+
+field _owner : ByStr20 = owner
+
+
+(*owner address*)
+
+transition owner ()
+    owner1<-_owner;
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; owner : owner1};
+    msgs = one_msg msg;
+    send msgs
+end
+
+
+(*  true if _sender is the owner of the contract.*)
+
+transition isOwner ()
+owner1<-_owner;
+isowner=builtin eq _sender owner1;
+t="true";
+f="false";
+match isowner with
+|True=>
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; is_owner : t};
+    msgs = one_msg msg;
+    send msgs
+|False=>
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; is_owner : f};
+    msgs = one_msg msg;
+    send msgs
+end
+end
+
+
+(*Allows the current owner to transfer control of the contract to a newOwner.*)
+
+transition transferOwnership (newOwner : ByStr20)
+owner1<-_owner;
+isowner=builtin eq _sender owner1;
+msg1 = "Transfer Ownership successful";
+msg2 = "not an owner";
+match isowner with
+|True=>
+     _owner:=newOwner;
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg1};
+    msgs = one_msg msg;
+    send msgs
+|False=>
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg2};
+    msgs = one_msg msg;
+    send msgs
+end
+end 
+ 
+(* Allows the current owner to relinquish control of the contract.*)
+(*Renouncing to ownership will leave the contract without an owner*)
+
+transition renounceOwnership ()
+owner1<-_owner;
+isowner=builtin eq _sender owner1;
+msg1 = "Renounce Ownership successful";
+msg2 = "Not an owner";
+no_owner="no_owner";
+
+match isowner with
+|True=>
+    _owner:=no_owner;
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg1};
+    msgs = one_msg msg;
+    send msgs
+|False=>
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg2};
+    msgs = one_msg msg;
+    send msgs
+end
+end
