@@ -1,3 +1,59 @@
+### Name
+{
+    "_tag" : "name",
+    "_amount" : "0",
+    "_sender" : "0x1234567890123456789012345678901234567890",
+    "params" : [
+       
+    ]
+}
+
+### symbol
+{
+    "_tag" : "symbol",
+    "_amount" : "0",
+    "_sender" : "0x1234567890123456789012345678901234567890",
+    "params" : [
+       
+    ]
+}
+
+### granularity
+{
+    "_tag" : "granularity",
+    "_amount" : "0",
+    "_sender" : "0x1234567890123456789012345678901234567890",
+    "params" : [
+       
+    ]
+}
+
+### totalSupply
+{
+    "_tag" : "totalSupply",
+    "_amount" : "0",
+    "_sender" : "0x1234567890123456789012345678901234567890",
+    "params" : [
+       
+    ]
+}
+
+
+### balanceof
+{
+    "_tag" : "balanceOf",
+    "_amount" : "0",
+    "_sender" : "0x1234567890123456789012345678901234567890",
+    "params" : [
+          {
+            "vname": "tokenOwner",
+            "type" : "ByStr20",
+            "value" : "0x1234567890123456789012345678901234567850"
+        }
+    ]
+}
+
+
 
 ### Send
 {
@@ -19,20 +75,6 @@
             "vname": "_userData",
             "type" : "String",
             "value" : "userdata"
-        }
-    ]
-}
-
-### balanceof
-{
-    "_tag" : "balanceOf",
-    "_amount" : "0",
-    "_sender" : "0x1234567890123456789012345678901234567890",
-    "params" : [
-          {
-            "vname": "tokenOwner",
-            "type" : "ByStr20",
-            "value" : "0x1234567890123456789012345678901234567850"
         }
     ]
 }
