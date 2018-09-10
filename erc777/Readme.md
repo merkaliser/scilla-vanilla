@@ -1,4 +1,4 @@
-# ERC777
+# ERC777 Token Contract
 It contains ERC777 Token Contract implementation in Scilla.
 It contains the functions required for ERC777 token implementation.
 

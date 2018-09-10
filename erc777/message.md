@@ -1,4 +1,4 @@
-### Name
+### name
 ```
 {
     "_tag" : "name",
@@ -168,6 +168,60 @@
             "vname": "operator",
             "type" : "ByStr20",
             "value" : "0x1234567890123456789012345678901234563350"
+        }
+    ]
+}
+```
+
+### burn
+```
+{
+    "_tag" : "burn",
+    "_amount" : "0",
+    "_sender" : "0x1234567890123456789012345678901234567890",
+    "params" : [
+       
+          {
+            "vname": "amount",
+            "type" : "Uint128",
+            "value" : "3"
+        },
+          {
+            "vname": "data",
+            "type" : "String",
+            "value" : "userdata"
+        }
+    ]
+}
+```
+
+### operatorBurn
+```
+{
+    "_tag" : "operatorBurn",
+    "_amount" : "0",
+    "_sender" : "0x1234567890123456789012345678901234567870",
+    "params" : [
+       
+          {
+            "vname": "amount",
+            "type" : "Uint128",
+            "value" : "30"
+        },
+          {
+            "vname": "userData",
+            "type" : "String",
+            "value" : "userdata"
+        },
+          {
+            "vname": "from",
+            "type" : "ByStr20",
+            "value" : "0x1234567890123456789012345678901234567890"
+        },
+          {
+            "vname": "operatorData",
+            "type" : "String",
+            "value" : "userdata"
         }
     ]
 }
