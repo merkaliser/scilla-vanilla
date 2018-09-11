@@ -1,0 +1,22 @@
+[
+    {
+        "vname" : "payee",
+        "type" : "ByStr20",
+        "value" : "0x1234567890123456789012345678901234567890"
+    },
+    {
+        "vname" : "deposits",
+        "type" : "Uint128",
+        "value" : "10000"
+    },
+    {
+        "vname" : "_creation_block",
+        "type" : "BNum",
+        "value" : "1"
+    },
+    {
+        "vname" : "primary",
+        "type" : "ByStr20",
+        "value" : "0x1234567890123456789012345678901234567890"
+    }
+]
