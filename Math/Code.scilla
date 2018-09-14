@@ -32,17 +32,8 @@ let le_int =
     
 
 
-
-
-
-
-
-
-
 contract Math
 ()
-
-
 
 
 transition Mul (a : Uint256, b:Uint256)
@@ -89,9 +80,10 @@ _zero= Uint256 0;
 is_ltzero=builtin lt b _zero;
 match is_ltzero with
   | False =>
+    
     c=builtin div a b;
-    c1=builtin  mod a  b;
     c2=builtin mul b c;
+    c1=builtin sub a c2;
     ch=builtin add c1 c2;
     ch1=builtin eq ch a;
     match ch1 with
@@ -171,7 +163,10 @@ is_zero=builtin eq b _zero;
 
 match is_zero with
   | False =>
-        c= builtin mod a b;
+        c1= builtin div a b;
+        c2=builtin mul b c1;
+        c=builtin sub a c2;
+        
         msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : c};
         msgs = one_msg msg;
         send msgs
@@ -182,4 +177,53 @@ match is_zero with
     send msgs  
     
  end
+end
+
+
+transition Max (a : Uint256, b:Uint256)
+
+is_max=le_int a b;
+match is_max with
+  | False =>
+        msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : a};
+        msgs = one_msg msg;
+        send msgs
+  
+  | True =>
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : b};
+    msgs = one_msg msg;
+    send msgs  
+    
+ end
+end
+
+
+
+transition Min (a : Uint256, b:Uint256)
+is_max=le_int a b;
+
+match is_max with
+  | False =>
+        msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : b};
+        msgs = one_msg msg;
+        send msgs
+  
+  | True =>
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : a};
+    msgs = one_msg msg;
+    send msgs  
+    
+ end
+end
+
+
+
+
+transition Average (a : Uint256, b:Uint256)
+  _two= Uint256 2;
+   c= builtin add a b;
+   av=builtin div c _two;
+   msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : av};
+   msgs = one_msg msg;
+   send msgs
 end
