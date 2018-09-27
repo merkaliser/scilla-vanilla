@@ -1,0 +1,99 @@
+(*Priority Queue Contract*)
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+import PairUtils
+import ListUtils
+
+library PriorityQueue
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let code_success = Uint32 0
+let code_failure = Uint32 1
+let code_not_authorized = Uint32 2
+
+
+let id = Int128 0 
+let intial_priority = Int128 0 
+let index = Uint128 0
+let id_count = Int128 0
+(***************************************************)
+(*              Contract Defination                *)
+(***************************************************)
+
+contract PriorityQueue
+(owner : ByStr20,
+ root_index : Uint128 1)
+(* Will define node with Pair but currently having error *)
+field node : Pair Int128 Int128 = Emp Int128 Int128
+field lastID: Option Uint32 = None {Uint32}
+field node_index : Map Int128 Uint256 = Emp Int128 Uint256
+field data: Map Int128(Pair (List(Pair Int128 Int128)) (Map Int128 Uint256))
+                = Emp Int128(Pair (List(Pair Int128 Int128)) (Map Int128 Uint256))
+
+transition init(self : Data)
+    is_authorized = builtin eq _sender owner;
+    match is_authorized with
+    | True =>
+        tempdata <- data;
+        tempnode <- node;
+        tempnodeindex <- nodeindex;
+        len = @list_length Int32 in;
+        (* need to match length of nodes list in data struct with len *)
+        p = Pair{(Int128) (Int128)} id intial_priority;
+        add_node = p;
+        add_nodeindex = builtin put temp_node_index id index;
+        p = Pair{(List(Pair Int128 Int128))(Map Int128 Uint256)} add_node add_node_index;
+        add_data = builtin put temp_data id_count p;
+        self:= add_data;
+        msg = {_tag: "Main"; 
+                _recipient: _sender; 
+                _amount: Uint128 0; 
+                code: code_success};
+        msgs = one_msg msg;
+        send msgs 
+    | False =>
+        (* Unauthorized transaction *)
+        msg = {_tag: "Main";
+                _recipient: _sender;
+                _amount: Uint128 0;
+                code: code_not_authorized};
+        msgs = one_msg msg;
+        send msgs
+    end
+end
+
+transition insert(self: data, priority: Int128)
+    tempdata <- data;
+    tempnode <- node;
+    tempnodeindex <- nodeindex;
+    (* have a doubt if we can increment the library variables like this or not*)
+    id = id+1;
+    p = Pair{(Int128) (Int128)} id priority;
+    add_node = p;
+    (* Need to extract list from data struct to append new list in it*)
+    add_nodeindex = builtin put temp_node_index id index;
+    p = Pair{(List(Pair Int128 Int128))(Map Int128 Uint256)} add_node add_node_index;
+    add_data = builtin put temp_data id_count p;
+    self:= add_data;
+    msg = {_tag: "Main"; 
+            _recipient: _sender; 
+            _amount: Uint128 0; 
+            code: code_success};
+    msgs = one_msg msg;
+    send msgs 
+end
+
+transition extractMax(self: data)
+    (* todo *)
+end
+
+transition extractById(self: data, id: Int128)
+    value = @list_nth Int128 in;
+    (* todo *)
+end
