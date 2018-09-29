@@ -1,185 +1,51 @@
-(* HelloWorld contract *)
-
-import ListUtils
-
-(***************************************************)
-(*               Associated library                *)
-(***************************************************)
 library Math
 
-let one_msg = 
-  fun (msg : Message) => 
-  let nil_msg = Nil {Message} in
-  Cons {Message} msg nil_msg
 
-
-(***************************************************)
-(*             The contract definition             *)
-(***************************************************)
-
-let le_int =
-  fun (a : Uint128) => fun (b : Uint128) =>
-    let x = builtin lt a b in
-    match x with
-    | True => True
-    | False =>
-      let y = builtin eq a b in
-      match y with
-      | True => True
-      | False => False
-      end
-    end
-    
-
-
-
-
-
-
-
-
-
-contract Math
-()
-
-
-
-
-transition Mul (a : Uint256, b:Uint256)
-
- (* Gas optimization: this is cheaper than requiring 'a' not being zero, but the*)
- (*  benefit is lost if 'b' is also tested.*)
- (*  See: https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522*)
- 
-msg1="check failed";
-_zero=Uint256 0;
-
-isZero = builtin eq a _zero;
-match iszero with
-  | False =>
-    c=builtin mul a b;
-    ch=builtin div c a;
-    ch1=builtin eq ch b;
-    match ch1 with
-        | True =>
-        msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : c};
-        msgs = one_msg msg;
-        send msgs
-        | False =>
-        msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : msg1};
-        msgs = one_msg msg;
-        send msgs
-        end
-  | True =>
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : a};
-    msgs = one_msg msg;
-    send msgs  
-    
- end
-end
-
-
-
-(*)Integer division of two numbers truncating the quotient, reverts on division by zero.*)
-
-transition Div (a : Uint256, b:Uint256)
-
-msg1="check failed";
-_zero= Uint256 0;
-is_ltzero=builtin lt b _zero;
-match is_ltzero with
-  | False =>
-    c=builtin div a b;
-    c1=builtin  mod a  b;
-    c2=builtin mul b c;
-    ch=builtin add c1 c2;
-    ch1=builtin eq ch a;
-    match ch1 with
-        | True =>
-        msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : c};
-        msgs = one_msg msg;
-        send msgs
-        | False =>
-        msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : msg1};
-        msgs = one_msg msg;
-        send msgs
-        end
-  | True =>
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : msg1};
-    msgs = one_msg msg;
-    send msgs  
-    
- end
-end
-
-  
-  
-(* Subtracts two numbers, reverts on overflow (i.e. if subtrahend is greater than minuend).*)
-  
-transition Sub (a : Uint256, b:Uint256)
-
-msg1="check failed";
-is_lt=le_int b a;
-match is_lt with
-  | False =>
-        msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : msg1};
-        msgs = one_msg msg;
-        send msgs
-  
-  | True =>
-    c= builtin sub a b;
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : c};
-    msgs = one_msg msg;
-    send msgs  
-    
- end
-end
-  
-  
-  
-  
-(*  Adds two numbers, reverts on overflow.*)
-  
-transition Add (a : Uint256, b:Uint256)
-
-msg1="check failed";
-c=builtin add a b;
-is_lt=le_int a c;
-match is_lt with
-  | False =>
-        msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : msg1};
-        msgs = one_msg msg;
-        send msgs
-  
-  | True =>
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : c};
-    msgs = one_msg msg;
-    send msgs  
-    
- end
-end
-
-  
-  
 (*) Divides two numbers and returns the remainder (unsigned integer modulo),reverts when dividing by zero.*)
-  
-transition Mod (a : Uint256, b:Uint256)
-
-msg1="check failed";
-_zero= Uint256 0;
-is_zero=builtin eq b _zero;
-
-match is_zero with
+let mod =
+fun (a : Uint128) => fun (b : Uint128) =>
+ let _zero= Uint128 0 in
+ let is_zero=builtin eq b _zero in
+ match is_zero with
   | False =>
-        c= builtin mod a b;
-        msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : c};
-        msgs = one_msg msg;
-        send msgs
-  
-  | True =>
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; answer : msg1};
-    msgs = one_msg msg;
-    send msgs  
-    
- end
+        let c1= builtin div a b in
+        let c2=builtin mul b c1 in
+        let c =builtin sub a c2 in
+        match c with
+      | None => None {Uint128}
+      | Some m1 => m1
+      end
+    | True =>None {Uint128}
+      
+    end
+
+
+let max=
+fun (a : Uint128)=> fun (b : Uint128)=>
+ let is_max=lt a b in
+ match is_max with
+  | False =>a
+  | True =>b
 end
+
+
+let min=
+fun (a : Uint128)=> fun (b : Uint128)=>
+ let is_max=lt a b in
+ match is_max with
+  | False =>b
+  | True =>a
+end
+
+
+
+let average=
+fun(a : Uint128)=> fun (b : Uint128)=>
+ let _two= Uint128 2 in
+ let c= builtin add a b in
+ let av=builtin div c _two in
+     match av with
+      | None => None {Uint128}
+      | Some m1 => m1
+end
+
