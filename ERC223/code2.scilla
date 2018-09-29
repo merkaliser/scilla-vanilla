@@ -1,0 +1,62 @@
+import BoolUtils
+
+library ERC223Token
+
+let one_msg =
+    fun(msg : Message) =>
+    let nil_msg=Nil {Message} in
+    Cons {Message} msg nil_msg
+
+let no_msg = Nil {Message}
+
+contract ERC223Token
+(name: String,
+symbol:String,
+totalSupply:Uint128,
+owner: ByStr20)
+
+
+field balances : Map ByStr20 Uint128 =
+  let m = Emp ByStr20 Uint128 in
+    builtin put m owner totalSupply
+
+field allowed : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)
+
+field _totalSupply :Uint128 = totalSupply
+
+transition name ()
+msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; tokenname:name};
+msgs=one_msg msg;
+send msgs
+end
+
+transition symbol ()
+msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; tokensymbol:symbol};
+msgs=one_msg msg;
+send msgs
+end
+
+transition totalSupply ()
+t<-_totalSupply;
+msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; tokentotalSupply : t};
+msgs=one_msg msg;
+send msgs
+end
+
+transition balanceOf(tokenOwner : ByStr20)
+  bl <- balances;
+  val = builtin get bl tokenOwner;
+  match val with
+  | Some v =>
+    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; bal : v};
+    msgs=one_msg msg;
+    send msgs  
+  | None =>
+    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; bal : Uint128 0};   
+    msgs=one_msg msg;
+    send msgs  
+  end
+end
+
+
+
