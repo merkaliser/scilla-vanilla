@@ -1,0 +1,22 @@
+[
+  {
+    "vname": "player_a_hash",
+    "type": "Option (ByStr32)",
+    "value": { "constructor": "None", "argtypes": ["ByStr32"], "arguments": [] }
+  },
+  {
+    "vname": "player_b_hash",
+    "type": "Option (ByStr32)",
+    "value": { "constructor": "None", "argtypes": ["ByStr32"], "arguments": [] }
+  },
+  {
+    "vname": "timer",
+    "type": "Option (BNum)",
+    "value": { "constructor": "None", "argtypes": ["BNum"], "arguments": [] }
+  },
+  {
+    "vname": "_balance",
+    "type": "Uint128",
+    "value": "500"
+  }
+]
