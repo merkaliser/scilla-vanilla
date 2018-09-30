@@ -1,1 +1,1 @@
-The repo for standard set of contracts for scilla .
+ERC223 Standard contract
