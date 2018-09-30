@@ -300,77 +300,43 @@ transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
   end
 end  
 
-transition burnFrom(from : ByStr20,value:Uint128)
+transition burnFrom(from : ByStr20,value :Uint128)
   bl<-balances;
-  bal=builtin get bl from;
   al<-allowed;
-  
+  bal=builtin get bl from;
   allowed_from=builtin get al from;
-  match bal with
-  | Some sb =>
-    can_do= less_equal value sb;
-    match can_do with
-    | True =>
-      match allowed_from with
-      | Some af =>
-        allowed_from_bal = builtin get af _sender;
-        can_do1= less_equal value allowed_from_bal;
-        match can_do1 with
-        | True=>
-          new_balance=builtin sub sb value;
-          balances1=builtin put bl from new_balance;
-          balances:=balances1;
-          
-          new_allowed_bal=builtin sub allowed_from_bal value;
-          allowed1=builtin put al from new_allowed_bal;
-          allowed:=allowed1;
-          msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; message : success };   
-          msgs=one_msg msg;
-          send msgs
-             
-        | False =>
-          msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; message : failure };   
-          msgs=one_msg msg;
-          send msgs    
-        end
-      | None =>
-        msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; message : failure };   
-        msgs=one_msg msg;
-        send msgs
+  match allowed_from with
+  | Some m=>
+    sender_allowed_from=builtin get m _sender;
+    all=Pair {(Option Uint128)(Option Uint128)} bal sender_allowed_from;
+    match all with
+    | Pair (Some a)(Some b) =>
+      t = min_int a b;
+      can_do=less_equal value t;
+      match can_do with
+      | True =>
+        new_from_bal = builtin sub a value;
+        balances1 = builtin put bl from new_from_bal;
+        balances:=balances1;
+        new_allowed=builtin sub b value;
+        new_m = builtin put m _sender new_allowed;
+        new_allowed_bala=builtin put al from new_m;
+        allowed:= new_allowed_bala
+      
+      | False =>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : failure };
+        msgs = one_msg msg;
+        send msgs    
+        
       end    
-    | False =>
-      msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; message : failure };   
-      msgs=one_msg msg;
-      send msgs
+    | _ =>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : failure };
+      msgs = one_msg msg;
+      send msgs    
     end
   | None =>
-    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; message : failure };   
-    msgs=one_msg msg;
-    send msgs  
-  end    
-end 
-
-
-
-  
-  
- 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-
-
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : failure };
+    msgs = one_msg msg;
+    send msgs
+  end
+end
