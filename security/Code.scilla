@@ -1,0 +1,561 @@
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+
+import BoolUtils
+
+library SecurityToken 
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let no_msg = Nil {Message}
+
+let min_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+  let alt = builtin lt a b in
+  match alt with
+  | True =>
+    a
+  | False =>
+    b
+  end
+
+let le_int =
+  fun (a : Uint128) => fun (b : Uin128) =>
+    let x = builtin lt a b in
+    match x with
+    | True => True
+    | False =>
+      let y = builtin eq a b in
+      match y with
+      | True => True
+      | False => False
+      end
+    end
+    
+
+
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract SecurityToken 
+(name:String ,
+ symbol: String,
+ totalSupply:Uint128,
+ owner : ByStr20)
+
+(* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
+
+field balances : Map ByStr20 Uint128 =
+  let m = Emp ByStr20 Uint128 in
+    builtin put m owner totalSupply
+field allowed : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)
+field _totalSupply: Uint128 = totalSupply
+  
+(* Mapping from investor to their tranches*)
+field tranches : Map ByStr20 Int32 = Emp ByStr20 Int32
+
+(* Mapping from (investor, tranche) to index of corresponding tranche in tranches*)
+field trancheToIndex : Map ByStr20 (Map Int32 Uint256) = Emp ByStr20 (Map Int32 Uint256)
+
+(* Mapping from (investor, tranche, operator) to approved status*)
+field trancheApprovals : Map ByStr20 (Map Int32 (Map ByStr20 Int32)) = Emp ByStr20 (Map Int32 (Map ByStr20 Int32))
+
+(* Mapping from (investor, operator) to approved status (can be used against any tranches)*)
+field approvals : Map ByStr20 (Map ByStr20 Int32) = Emp ByStr20 (Map ByStr20 Int32)
+
+ 
+ 
+transition name()
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; name : name};
+  msgs = one_msg msg;
+  send msgs
+end
+
+transition symbol()
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; symbol : symbol};
+  msgs = one_msg msg;
+  send msgs
+end
+
+
+transition totalSupply ()
+  t<-_totalSupply;
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; totalSupply : t};
+  msgs = one_msg msg;
+  send msgs
+ end
+
+
+transition balanceOf (_owner : ByStr20)
+  bl <- balances;
+  val = builtin get bl _owner;
+  match val with
+  | Some v =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : v };
+    msgs = one_msg msg;
+    send msgs
+  | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint128 0 };
+    msgs = one_msg msg;
+    send msgs
+  end
+end
+
+transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
+  bl <- balances;
+  val = builtin get bl _owner;
+  match val with
+  | Some v =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : v };
+    msgs = one_msg msg;
+    send msgs
+  | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint128 0 };
+    msgs = one_msg msg;
+    send msgs
+  end
+end
+
+
+transition sendTranche (_tranche : Uint32, _to : ByStr20, _amount:Uint256, _data:String )
+    al <- allowed;
+    
+    auth="authorized";
+    noauth="authorize failed";
+    
+    is_operator=builtin eq operator _sender;
+    match is_operator with
+    | True=>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized :noauth};
+  msgs = one_msg msg;
+  send msgs
+    | False=>
+        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m _sender totalSupply ;
+        allowed_new = builtin put al operator allowed_operators;
+        allowed := allowed_new;
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
+  msgs = one_msg msg;
+  send msgs
+
+    end
+end
+
+
+
+
+transition operatorSendTranche (_tranche : Uint32,_from : ByStr20, _to : ByStr20, _amount:Uint256, _data:String, _operatorData:String )
+    al <- allowed;
+    
+    auth="authorized";
+    noauth="authorize failed";
+    
+    is_operator=builtin eq operator _sender;
+    match is_operator with
+    | True=>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized :noauth};
+  msgs = one_msg msg;
+  send msgs
+    | False=>
+        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m _sender totalSupply ;
+        allowed_new = builtin put al operator allowed_operators;
+        allowed := allowed_new;
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
+  msgs = one_msg msg;
+  send msgs
+
+    end
+end
+
+
+
+transition trancheByIndex (_owner : ByStr20,_index:Uint256)
+    al <- allowed;
+    
+    auth="authorized";
+    noauth="authorize failed";
+    
+    is_operator=builtin eq operator _sender;
+    match is_operator with
+    | True=>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized :noauth};
+  msgs = one_msg msg;
+  send msgs
+    | False=>
+        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m _sender totalSupply ;
+        allowed_new = builtin put al operator allowed_operators;
+        allowed := allowed_new;
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
+  msgs = one_msg msg;
+  send msgs
+
+    end
+end
+
+
+
+transition tranchesOf (_owner : ByStr20)
+
+     auth="revoked";
+     noauth="revoke failed";
+  
+
+    al <- allowed;
+    is_operator=builtin eq operator _sender;
+    match is_operator with
+    | True=>
+     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : noauth};
+     msgs = one_msg msg;
+     send msgs
+     | False=>
+        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m operator totalSupply ;
+        allowed_new = builtin remove al operator ;
+        allowed := allowed_new;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
+        msgs = one_msg msg;
+        send msgs
+      end
+end
+
+
+(* returns (address[])*)
+
+transition defaultOperators ()
+
+     auth="revoked";
+     noauth="revoke failed";
+  
+
+    al <- allowed;
+    is_operator=builtin eq operator _sender;
+    match is_operator with
+    | True=>
+     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : noauth};
+     msgs = one_msg msg;
+     send msgs
+     | False=>
+        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m operator totalSupply ;
+        allowed_new = builtin remove al operator ;
+        allowed := allowed_new;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
+        msgs = one_msg msg;
+        send msgs
+      end
+end
+
+
+transition defaultOperatorsTranche (_tranche:String)
+
+     auth="revoked";
+     noauth="revoke failed";
+  
+
+    al <- allowed;
+    is_operator=builtin eq operator _sender;
+    match is_operator with
+    | True=>
+     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : noauth};
+     msgs = one_msg msg;
+     send msgs
+     | False=>
+        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m operator totalSupply ;
+        allowed_new = builtin remove al operator ;
+        allowed := allowed_new;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
+        msgs = one_msg msg;
+        send msgs
+      end
+end
+
+
+
+transition authorizeOperator ( operator : ByStr20)
+  al <- allowed;
+     is_op="Operator found";
+     is_no_op="Operator found failed";
+
+  has_operator = builtin get al operator;
+  match has_operator with
+  | Some m =>
+      is_operator= builtin contains m tokenHolder;
+      match is_operator with
+          | True =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_op };
+              msgs = one_msg msg;
+              send msgs
+          | False =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op};
+              msgs = one_msg msg;
+              send msgs
+              end
+       
+ | None=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op };
+        msgs = one_msg msg;
+        send msgs
+    end
+end
+
+
+transition authorizeOperatorTranche ( operator : ByStr20,_tranche:Int32 )
+  al <- allowed;
+     is_op="Operator found";
+     is_no_op="Operator found failed";
+
+  has_operator = builtin get al operator;
+  match has_operator with
+  | Some m =>
+      is_operator= builtin contains m tokenHolder;
+      match is_operator with
+          | True =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_op };
+              msgs = one_msg msg;
+              send msgs
+          | False =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op};
+              msgs = one_msg msg;
+              send msgs
+              end
+       
+ | None=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op };
+        msgs = one_msg msg;
+        send msgs
+    end
+end
+
+
+
+
+
+
+transition revokeOperator ( operator : ByStr20)
+  al <- allowed;
+     is_op="Operator found";
+     is_no_op="Operator found failed";
+
+  has_operator = builtin get al operator;
+  match has_operator with
+  | Some m =>
+      is_operator= builtin contains m tokenHolder;
+      match is_operator with
+          | True =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_op };
+              msgs = one_msg msg;
+              send msgs
+          | False =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op};
+              msgs = one_msg msg;
+              send msgs
+              end
+       
+ | None=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op };
+        msgs = one_msg msg;
+        send msgs
+    end
+end
+
+
+
+
+transition revokeOperatorTranche ( operator : ByStr20,_tranche:Int32 )
+  al <- allowed;
+     is_op="Operator found";
+     is_no_op="Operator found failed";
+
+  has_operator = builtin get al operator;
+  match has_operator with
+  | Some m =>
+      is_operator= builtin contains m tokenHolder;
+      match is_operator with
+          | True =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_op };
+              msgs = one_msg msg;
+              send msgs
+          | False =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op};
+              msgs = one_msg msg;
+              send msgs
+              end
+       
+ | None=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op };
+        msgs = one_msg msg;
+        send msgs
+    end
+end
+
+
+
+transition isOperatorFor ( operator : ByStr20, _owner : ByStr20)
+  al <- allowed;
+     is_op="Operator found";
+     is_no_op="Operator found failed";
+
+  has_operator = builtin get al operator;
+  match has_operator with
+  | Some m =>
+      is_operator= builtin contains m _owner;
+      match is_operator with
+          | True =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_op };
+              msgs = one_msg msg;
+              send msgs
+          | False =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op};
+              msgs = one_msg msg;
+              send msgs
+              end
+       
+ | None=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op };
+        msgs = one_msg msg;
+        send msgs
+    end
+end
+
+
+
+transition isOperatorForTranche ( operator : ByStr20, _owner : ByStr20,_tranche:Int32)
+  al <- allowed;
+     is_op="Operator found";
+     is_no_op="Operator found failed";
+
+  has_operator = builtin get al operator;
+  match has_operator with
+  | Some m =>
+      is_operator= builtin contains m _owner;
+      match is_operator with
+          | True =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_op };
+              msgs = one_msg msg;
+              send msgs
+          | False =>
+              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op};
+              msgs = one_msg msg;
+              send msgs
+              end
+       
+ | None=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op };
+        msgs = one_msg msg;
+        send msgs
+    end
+end
+
+
+
+
+
+transition burn (_tranche:Int32,_owner:ByStr20,_amount : Uint256 , _data : String)
+
+isMultiple1= builtin div amount  granularity;
+isMultiple2= builtin mul isMultiple1  granularity;
+notgranular="Not granular";
+insuffBal="Balance insuffuciient";
+noBal="No balance record";
+
+isMultiple=builtin eq isMultiple2 amount ;
+ match  isMultiple with
+  | True =>
+      
+      
+  bl <- balances;
+  bal = builtin get bl _sender;
+  match bal with
+  | Some b =>
+    can_do = le_int amount b;
+    match can_do with
+    | True =>
+      (* subtract amount from _sender and add it to to *)
+      new_sender_bal = builtin sub b amount;
+      new_balances = builtin put bl _sender new_sender_bal;
+      balances := new_balances;
+
+      t<-_totalSupply;
+      _newSupply=builtin sub t amount;
+      _totalSupply:=_newSupply;
+      
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : _amount; data :data};
+      msgs = one_msg msg;
+      send msgs
+    | False =>
+      (* balance not sufficient. *)
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; data :insuffBal };
+      msgs = one_msg msg;
+      send msgs
+    end
+  | None =>
+    (* no balance record, can't transfer *)
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; data :noBal};
+    msgs = one_msg msg;
+    send msgs
+  end
+
+| False =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; message :notgranular};
+msgs = one_msg msg;
+send msgs
+end
+end
+
+
+transition mint (_tranche:Int32,_owner:ByStr20,_amount : Uint256 , _data : String)
+
+isMultiple1= builtin div amount  granularity;
+isMultiple2= builtin mul isMultiple1  granularity;
+notgranular="Not granular";
+insuffBal="Balance insuffuciient";
+noBal="No balance record";
+
+isMultiple=builtin eq isMultiple2 amount ;
+ match  isMultiple with
+  | True =>
+      
+      
+  bl <- balances;
+  bal = builtin get bl _sender;
+  match bal with
+  | Some b =>
+    can_do = le_int amount b;
+    match can_do with
+    | True =>
+      (* subtract amount from _sender and add it to to *)
+      new_sender_bal = builtin sub b amount;
+      new_balances = builtin put bl _sender new_sender_bal;
+      balances := new_balances;
+
+      t<-_totalSupply;
+      _newSupply=builtin sub t amount;
+      _totalSupply:=_newSupply;
+      
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : _amount; data :data};
+      msgs = one_msg msg;
+      send msgs
+    | False =>
+      (* balance not sufficient. *)
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; data :insuffBal };
+      msgs = one_msg msg;
+      send msgs
+    end
+  | None =>
+    (* no balance record, can't transfer *)
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; data :noBal};
+    msgs = one_msg msg;
+    send msgs
+  end
+
+| False =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; message :notgranular};
+msgs = one_msg msg;
+send msgs
+end
+end
+
