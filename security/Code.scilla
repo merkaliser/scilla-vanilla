@@ -52,14 +52,14 @@ contract SecurityToken
 
 (* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
 
-field balances : Map ByStr20 Uint128 =
-  let m = Emp ByStr20 Uint128 in
+field balances : Map ByStr20 Uint256 =
+  let m = Emp ByStr20 Uint256 in
     builtin put m owner totalSupply
-field allowed : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)
+
 field _totalSupply: Uint128 = totalSupply
   
-(* Mapping from investor to their tranches*)
-field tranches : Map ByStr20 Int32 = Emp ByStr20 Int32
+(* Mapping from investor to their tranches (address -> amount tranche)*)
+field tranches : Map ByStr20 (Map Uint256 Int32) = Emp ByStr20 (Map Uint256 Int32)
 
 (* Mapping from (investor, tranche) to index of corresponding tranche in tranches*)
 field trancheToIndex : Map ByStr20 (Map Int32 Uint256) = Emp ByStr20 (Map Int32 Uint256)
@@ -108,22 +108,36 @@ transition balanceOf (_owner : ByStr20)
   end
 end
 
-transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
-  bl <- balances;
-  val = builtin get bl _owner;
+(*return tranches[_owner][trancheToIndex[_owner][_tranche]].amount;*)
+(*Returns restricted token balance*)
+
+transition balanceOfTranche ( _tranche: Int32  ,_owner : ByStr20)
+  tr <- trancheToIndex;
+  val = builtin get tr _owner;
   match val with
   | Some v =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : v };
+    bl = builtin get val _tranche;
+    match bl with
+    | Some v1 =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint256 0; bal : v1 };
     msgs = one_msg msg;
     send msgs
+    | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
+    msgs = one_msg msg;
+    send msgs
+    end
+
   | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint128 0 };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
     msgs = one_msg msg;
     send msgs
   end
 end
 
 
+(* Transfers tokens from the sender to the _to address, keeping the _tranche the same*)
+   
 transition sendTranche (_tranche : Uint32, _to : ByStr20, _amount:Uint256, _data:String )
     al <- allowed;
     
@@ -202,22 +216,15 @@ end
 
 transition tranchesOf (_owner : ByStr20)
 
-     auth="revoked";
-     noauth="revoke failed";
-  
-
-    al <- allowed;
-    is_operator=builtin eq operator _sender;
-    match is_operator with
-    | True=>
-     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : noauth};
+    tr <- tranches;
+    get_owner=builtin get tr tranch;
+    match get_owner with
+    | Some v=>
+     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; total : v};
      msgs = one_msg msg;
      send msgs
-     | False=>
-        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m operator totalSupply ;
-        allowed_new = builtin remove al operator ;
-        allowed := allowed_new;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
+     | None=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; total : Uint128 0};
         msgs = one_msg msg;
         send msgs
       end
