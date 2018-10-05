@@ -118,17 +118,18 @@ transition balanceOfTranche ( _tranche: Int32  ,_owner : ByStr20)
   | Some v =>
     bl = builtin get val _tranche;
     match bl with
-    | Some v1 =>
+    | Some v1 => v1
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint256 0; bal : v1 };
     msgs = one_msg msg;
     send msgs
-    | None =>
+    
+    | None =>Uint256 0
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
     msgs = one_msg msg;
     send msgs
     end
 
-  | None =>
+  | None =>Uint256 0
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
     msgs = one_msg msg;
     send msgs
@@ -136,9 +137,22 @@ transition balanceOfTranche ( _tranche: Int32  ,_owner : ByStr20)
 end
 
 
+
+
+
+(*Transfers the ownership of tokens from a specified tranche from one address to another address*)
+(*@param _tranche The tranche from which to transfer tokens*)
+(*@param _to The address to which to transfer tokens to*)
+(*@param amount The amount of tokens to transfer from `_tranche`*)
+(*@param _data Additional data attached to the transfer of tokens*)
+(*@return A reason code related to the success of the send operation*)
+(*@return The tranche to which the transferred tokens were allocated for the _to address*)
+   
 (* Transfers tokens from the sender to the _to address, keeping the _tranche the same*)
    
-transition sendTranche (_tranche : Uint32, _to : ByStr20, _amount:Uint256, _data:String )
+transition sendTranche (_tranche : Uint32, _to : ByStr20, amount:Uint256, _data:String )
+
+
     al <- allowed;
     
     is_operator=builtin eq operator _sender;
@@ -231,15 +245,15 @@ end
 (* returns (address[])*)
 
 transition defaultOperators ()
-
-     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : noauth};
+(* No default operators*)
+     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; default : owner};
      msgs = one_msg msg;
      send msgs
 end
 
 
 transition defaultOperatorsTranche (_tranche:String)
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; default : owner};
     msgs = one_msg msg;
     send msgs
 end
@@ -252,7 +266,7 @@ transition authorizeOperator ( operator : ByStr20)
   op = builtin get ap _sender;
   match op with
   | Some m =>
-        new_approvals = builtin put op operator true;
+        new_approvals = builtin put m operator true;
         approvals := new_approvals;
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : bool true  };
         msgs = one_msg msg;
@@ -307,7 +321,7 @@ transition revokeOperator ( operator : ByStr20)
   op = builtin get ap _sender;
   match op with
   | Some m =>
-        new_approvals = builtin put op operator false;
+        new_approvals = builtin put m operator false;
         approvals := new_approvals;
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : bool false  };
         msgs = one_msg msg;
