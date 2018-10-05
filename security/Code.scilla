@@ -68,7 +68,7 @@ field trancheToIndex : Map ByStr20 (Map Int32 Uint256) = Emp ByStr20 (Map Int32 
 field trancheApprovals : Map ByStr20 (Map Int32 (Map ByStr20 Int32)) = Emp ByStr20 (Map Int32 (Map ByStr20 Int32))
 
 (* Mapping from (investor, operator) to approved status (can be used against any tranches)*)
-field approvals : Map ByStr20 (Map ByStr20 Int32) = Emp ByStr20 (Map ByStr20 Int32)
+field approvals : Map ByStr20 (Map ByStr20 bool) = Emp ByStr20 (Map ByStr20 bool)
 
  
  
@@ -106,7 +106,7 @@ transition balanceOf (_owner : ByStr20)
     msgs = one_msg msg;
     send msgs
   end
-end
+end 
 
 (*return tranches[_owner][trancheToIndex[_owner][_tranche]].amount;*)
 (*Returns restricted token balance*)
@@ -140,9 +140,6 @@ end
    
 transition sendTranche (_tranche : Uint32, _to : ByStr20, _amount:Uint256, _data:String )
     al <- allowed;
-    
-    auth="authorized";
-    noauth="authorize failed";
     
     is_operator=builtin eq operator _sender;
     match is_operator with
@@ -235,75 +232,37 @@ end
 
 transition defaultOperators ()
 
-     auth="revoked";
-     noauth="revoke failed";
-  
-
-    al <- allowed;
-    is_operator=builtin eq operator _sender;
-    match is_operator with
-    | True=>
      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : noauth};
      msgs = one_msg msg;
      send msgs
-     | False=>
-        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m operator totalSupply ;
-        allowed_new = builtin remove al operator ;
-        allowed := allowed_new;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
-        msgs = one_msg msg;
-        send msgs
-      end
 end
 
 
 transition defaultOperatorsTranche (_tranche:String)
-
-     auth="revoked";
-     noauth="revoke failed";
-  
-
-    al <- allowed;
-    is_operator=builtin eq operator _sender;
-    match is_operator with
-    | True=>
-     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : noauth};
-     msgs = one_msg msg;
-     send msgs
-     | False=>
-        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m operator totalSupply ;
-        allowed_new = builtin remove al operator ;
-        allowed := allowed_new;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
-        msgs = one_msg msg;
-        send msgs
-      end
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
+    msgs = one_msg msg;
+    send msgs
 end
 
 
 
 transition authorizeOperator ( operator : ByStr20)
-  al <- allowed;
-     is_op="Operator found";
-     is_no_op="Operator found failed";
-
-  has_operator = builtin get al operator;
-  match has_operator with
+   
+  ap <- approvals;
+  op = builtin get ap _sender;
+  match op with
   | Some m =>
-      is_operator= builtin contains m tokenHolder;
-      match is_operator with
-          | True =>
-              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_op };
-              msgs = one_msg msg;
-              send msgs
-          | False =>
-              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op};
-              msgs = one_msg msg;
-              send msgs
-              end
+        new_approvals = builtin put op operator true;
+        approvals := new_approvals;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : bool true  };
+        msgs = one_msg msg;
+        send msgs
        
  | None=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op };
+        new_sender=builtin put ap _sender operator;
+        new_approvals = builtin put new_sender operator true;
+        approvals := new_approvals;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : bool true };
         msgs = one_msg msg;
         send msgs
     end
@@ -343,32 +302,26 @@ end
 
 
 transition revokeOperator ( operator : ByStr20)
-  al <- allowed;
-     is_op="Operator found";
-     is_no_op="Operator found failed";
-
-  has_operator = builtin get al operator;
-  match has_operator with
+  
+  ap <- approvals;
+  op = builtin get ap _sender;
+  match op with
   | Some m =>
-      is_operator= builtin contains m tokenHolder;
-      match is_operator with
-          | True =>
-              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_op };
-              msgs = one_msg msg;
-              send msgs
-          | False =>
-              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op};
-              msgs = one_msg msg;
-              send msgs
-              end
+        new_approvals = builtin put op operator false;
+        approvals := new_approvals;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : bool false  };
+        msgs = one_msg msg;
+        send msgs
        
  | None=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op };
+        new_sender=builtin put ap _sender operator;
+        new_approvals = builtin put new_sender operator false;
+        approvals := new_approvals;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : bool false };
         msgs = one_msg msg;
         send msgs
     end
 end
-
 
 
 
@@ -402,27 +355,24 @@ end
 
 
 transition isOperatorFor ( operator : ByStr20, _owner : ByStr20)
-  al <- allowed;
-     is_op="Operator found";
-     is_no_op="Operator found failed";
-
-  has_operator = builtin get al operator;
-  match has_operator with
+  ap <- approvals;
+  op = builtin get ap _sender;
+  match op with
   | Some m =>
-      is_operator= builtin contains m _owner;
-      match is_operator with
-          | True =>
-              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_op };
-              msgs = one_msg msg;
-              send msgs
-          | False =>
-              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op};
-              msgs = one_msg msg;
-              send msgs
-              end
+        op1 = builtin get m operator;
+          match op with
+          | Some m1 =>
+          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : m1  };
+          msgs = one_msg msg;
+          send msgs
+          | None=>
+          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : bool false };
+          msgs = one_msg msg;
+          send msgs
+      end
        
  | None=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; isOperator : is_no_op };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : bool false };
         msgs = one_msg msg;
         send msgs
     end
