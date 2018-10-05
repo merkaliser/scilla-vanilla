@@ -152,6 +152,46 @@ end
    
 transition sendTranche (_tranche : Uint32, _to : ByStr20, amount:Uint256, _data:String )
 
+r_code= le_int balanceOfTranche(msg.sender, _tranche)  _amount) 
+match r_code with  
+    | True=>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; reason_code :String "00"};
+  msgs = one_msg msg;
+  send msgs
+    | False=>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; reason_code :String "00"};
+  msgs = one_msg msg;
+  send msgs
+    end
+    
+
+r_code1= le_int tranches[_from][trancheToIndex[msg.sender][_tranche]].amount - _amount
+                                       tranches[_from][trancheToIndex[msg.sender][_tranche]].amount ) 
+match r_code1 with  
+    | True=>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; reason_code :String "10"};
+  msgs = one_msg msg;
+  send msgs
+    | False=>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; reason_code :String "00"};
+  msgs = one_msg msg;
+  send msgs
+    end
+    
+
+r_code2= le_int tranches[_from][trancheToIndex[msg.sender][_tranche]].amount - _amount 
+                                       tranches[_from][trancheToIndex[msg.sender][_tranche]].amount ) 
+match r_code1 with  
+    | True=>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; reason_code :String "10"};
+  msgs = one_msg msg;
+  send msgs
+    | False=>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; reason_code :String "00"};
+  msgs = one_msg msg;
+  send msgs
+    end
+
 
     al <- allowed;
     
@@ -200,27 +240,9 @@ end
 
 
 
+         (*return tranches[_owner][_index].tranche;*)
 transition trancheByIndex (_owner : ByStr20,_index:Uint256)
-    al <- allowed;
-    
-    auth="authorized";
-    noauth="authorize failed";
-    
-    is_operator=builtin eq operator _sender;
-    match is_operator with
-    | True=>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized :noauth};
-  msgs = one_msg msg;
-  send msgs
-    | False=>
-        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m _sender totalSupply ;
-        allowed_new = builtin put al operator allowed_operators;
-        allowed := allowed_new;
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
-  msgs = one_msg msg;
-  send msgs
-
-    end
+   
 end
 
 
