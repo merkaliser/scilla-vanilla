@@ -66,7 +66,7 @@ end
 
 
 
-transition buyTokens( beneficiary: ByStr20) {
+transition buyTokens( beneficiary: ByStr20) 
   s<-sale;
   r<-_rate;
   b<-balances;
@@ -74,10 +74,10 @@ transition buyTokens( beneficiary: ByStr20) {
   bal = builtin get b _sender;
   match bal with
   | Some m =>
-    new_bal = builtin sub m _amount
+    new_bal = builtin sub m _amount;
     new_balances = builtin put b _sender new_bal;
     balances := new_balances;
-    new_bal1 = builtin add m _amount
+    new_bal1 = builtin add m _amount;
     new_balances1 = builtin put b wlt new_bal1;
     balances := new_balances1;
   
@@ -90,7 +90,7 @@ transition buyTokens( beneficiary: ByStr20) {
       match val1 with
      | True =>
          new_sale = builtin put s beneficiary weiAmount;
-         _new_weiRaised = _new_weiRaised.add(weiAmount);
+         _new_weiRaised = builtin add_new_weiRaised weiAmount;
          _weiRaised:=_new_weiRaised;
          sale:=new_sale;
          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
