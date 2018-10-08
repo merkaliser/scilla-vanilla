@@ -22,7 +22,6 @@ contract Ownable
 
 field _owner : ByStr20 = owner
 
-
 (*owner address*)
 
 transition owner ()
@@ -73,6 +72,7 @@ match isowner with
 end
 end 
  
+ 
 (* Allows the current owner to relinquish control of the contract.*)
 (*Renouncing to ownership will leave the contract without an owner*)
 
@@ -82,10 +82,9 @@ isowner=builtin eq _sender owner1;
 msg1 = "Renounce Ownership successful";
 msg2 = "Not an owner";
 no_owner="no_owner";
-
 match isowner with
 |True=>
-    _owner:=no_owner;
+     _owner:=newOwner;
     msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg1};
     msgs = one_msg msg;
     send msgs
@@ -94,4 +93,5 @@ match isowner with
     msgs = one_msg msg;
     send msgs
 end
-end
+end 
+
