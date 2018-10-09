@@ -15,7 +15,7 @@ let one_msg =
 let success = Int32 1
 let failure = Int32 2
 let low_bal = Int32 3
-let _zero=Int32 0
+let _zero = Int32 0
 
 (***************************************************)
 (*             The contract definition             *)
@@ -23,15 +23,15 @@ let _zero=Int32 0
 
 contract CrowdSale
 (_wallet: ByStr20,
-_rate: Uint256 )
+_rate: Uint128 )
 
   (* How many token units a buyer gets per wei.*)
   (* The rate is the conversion between wei and the smallest and indivisible token unit.*)
   (* So, if you are using a rate of 1 with a ERC20Detailed token with 3 decimals called TOK*)
   (* 1 wei will give you 1 unit, or 0.001 TOK.*)
 
+field _weiRaised     : Uint128 = Uint128 0
 
-field _weiRaised: Uint256 = "0"
 
 (*shows which beneficiary has sent how many tokens*)
 field sale : Map ByStr20 Uint128 = Emp ByStr20 Uint128
@@ -57,31 +57,29 @@ end
 
 
   (*@return the amount of wei raised.*)
-transition weiRaised()
+transition weiraised ()
     w<-_weiRaised;
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; weiRaised : w};
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; wei : w};
     msgs = one_msg msg;
     send msgs
 end
 
 
 
-transition buyTokens( beneficiary: ByStr20) 
+transition buyTokens (beneficiary: ByStr20, _amount:Uint128) 
   s<-sale;
-  r<-_rate;
-  b<-balances;
-  wlt<-_wallet;
-  bal = builtin get b _sender;
+  bl<-balances;
+  bal = builtin get bl _sender;
   match bal with
   | Some m =>
     new_bal = builtin sub m _amount;
-    new_balances = builtin put b _sender new_bal;
+    new_balances = builtin put bl _sender new_bal;
     balances := new_balances;
     new_bal1 = builtin add m _amount;
-    new_balances1 = builtin put b wlt new_bal1;
+    new_balances1 = builtin put bl _wallet new_bal1;
     balances := new_balances1;
   
-   weiAmount = buitin mul _amount r ;
+   weiAmount = builtin mul _amount _rate ;
   _new_weiRaised<-_weiRaised;
   val = builtin eq beneficiary _wallet;
   match val with
@@ -90,7 +88,7 @@ transition buyTokens( beneficiary: ByStr20)
       match val1 with
      | True =>
          new_sale = builtin put s beneficiary weiAmount;
-         _new_weiRaised = builtin add_new_weiRaised weiAmount;
+         _new_weiRaised = builtin add _new_weiRaised weiAmount;
          _weiRaised:=_new_weiRaised;
          sale:=new_sale;
          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
