@@ -1,10 +1,3 @@
-(* CrowdSale contract *)
-
-import ListUtils
-
-(***************************************************)
-(*               Associated library                *)
-(***************************************************)
 library CrowdSale
 
 let one_msg = 
@@ -12,32 +5,92 @@ let one_msg =
   let nil_msg = Nil {Message} in
   Cons {Message} msg nil_msg
 
+
+(* Error codes *)
 let success = Int32 1
 let failure = Int32 2
 let low_bal = Int32 3
-let _zero = Int32 0
+
+(* Constants *)
+let _zero   = Uint128 0
 
 (***************************************************)
 (*             The contract definition             *)
 (***************************************************)
 
 contract CrowdSale
-(_wallet: ByStr20,
-_rate: Uint128 )
+(_wallet : ByStr20,
+_rate    : Uint128 )
 
   (* How many token units a buyer gets per wei.*)
   (* The rate is the conversion between wei and the smallest and indivisible token unit.*)
   (* So, if you are using a rate of 1 with a ERC20Detailed token with 3 decimals called TOK*)
   (* 1 wei will give you 1 unit, or 0.001 TOK.*)
 
-field _weiRaised     : Uint128 = Uint128 0
-
+field _weiRaised : Uint128 = Uint128 0
 
 (*shows which beneficiary has sent how many tokens*)
 field sale : Map ByStr20 Uint128 = Emp ByStr20 Uint128
 
 (*shows balance of each address*)
 field balances : Map ByStr20 Uint128 = Emp ByStr20 Uint128
+
+
+transition buyTokens (beneficiary: ByStr20, _amount:Uint128) 
+  s <- sale;
+  bl <- balances;
+  bal = builtin get bl _sender;
+  match bal with
+  | Some m =>
+    new_bal = builtin sub m _amount;
+    new_balances = builtin put bl _sender new_bal;
+    balances := new_balances;
+    new_bal1 = builtin add m _amount;
+    new_balances1 = builtin put bl _wallet new_bal1;
+    balances := new_balances1;
+    weiAmount = builtin mul _amount _rate ;
+    _new_weiRaised<-_weiRaised;
+    val = builtin eq beneficiary _wallet;
+  match val with
+  | True =>
+      val1 = builtin eq weiAmount _zero;
+      match val1 with
+     | True =>
+         new_sale = builtin put s beneficiary weiAmount;
+         _new_weiRaised = builtin add _new_weiRaised weiAmount;
+         _weiRaised:=_new_weiRaised;
+         sale:=new_sale;
+         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
+         msgs = one_msg msg;
+         send msgs
+     | False =>
+         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
+         msgs = one_msg msg;
+         send msgs
+         end
+  | False =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
+    msgs = one_msg msg;
+    send msgs
+  end
+  | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code: low_bal };
+    msgs = one_msg msg;
+    send msgs
+end
+end
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 transition wallet()
@@ -65,59 +118,3 @@ transition weiraised ()
 end
 
 
-
-transition buyTokens (beneficiary: ByStr20, _amount:Uint128) 
-  s<-sale;
-  bl<-balances;
-  bal = builtin get bl _sender;
-  match bal with
-  | Some m =>
-    new_bal = builtin sub m _amount;
-    new_balances = builtin put bl _sender new_bal;
-    balances := new_balances;
-    new_bal1 = builtin add m _amount;
-    new_balances1 = builtin put bl _wallet new_bal1;
-    balances := new_balances1;
-  
-   weiAmount = builtin mul _amount _rate ;
-  _new_weiRaised<-_weiRaised;
-  val = builtin eq beneficiary _wallet;
-  match val with
-  | True =>
-      val1 = builtin eq weiAmount _zero;
-      match val1 with
-     | True =>
-         new_sale = builtin put s beneficiary weiAmount;
-         _new_weiRaised = builtin add _new_weiRaised weiAmount;
-         _weiRaised:=_new_weiRaised;
-         sale:=new_sale;
-         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
-         msgs = one_msg msg;
-         send msgs
-     | False =>
-         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failed };
-         msgs = one_msg msg;
-         send msgs
-         end
-     
-  | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failed };
-    msgs = one_msg msg;
-    send msgs
-  end
-  
-  
-  | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code: low_bal };
-    msgs = one_msg msg;
-    send msgs
-  
-  
-end
-end
-
-    
-    
-  
-
- 
