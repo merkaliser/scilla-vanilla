@@ -9,7 +9,8 @@ let one_msg =
 (* Error codes *)
 let success = Int32 1
 let failure = Int32 2
-let low_bal = Int32 3
+let failure1 = Int32 3
+let low_bal = Int32 4
 
 (* Constants *)
 let _zero   = Uint128 0
@@ -20,7 +21,7 @@ let _zero   = Uint128 0
 
 contract CrowdSale
 (_wallet : ByStr20,
-_rate    : Uint128 )
+_rate    : Uint128)
 
   (* How many token units a buyer gets per wei.*)
   (* The rate is the conversion between wei and the smallest and indivisible token unit.*)
@@ -29,36 +30,34 @@ _rate    : Uint128 )
 
 field _weiRaised : Uint128 = Uint128 0
 
-(*shows which beneficiary has sent how many tokens*)
+(*shows which beneficiary has how many tokens*)
 field sale : Map ByStr20 Uint128 = Emp ByStr20 Uint128
 
-(*shows balance of each address*)
-field balances : Map ByStr20 Uint128 = Emp ByStr20 Uint128
+(*balance of owner in ethers*)
+field owner_balance : Map ByStr20 Uint128 =
+  let m = Emp ByStr20 Uint128 in
+    builtin put m _wallet _zero
 
 
-transition buyTokens (beneficiary: ByStr20, _amount:Uint128) 
+
+transition buyTokens (beneficiary: ByStr20) 
   s <- sale;
-  bl <- balances;
-  bal = builtin get bl _sender;
-  match bal with
-  | Some m =>
-    new_bal = builtin sub m _amount;
-    new_balances = builtin put bl _sender new_bal;
-    balances := new_balances;
-    new_bal1 = builtin add m _amount;
-    new_balances1 = builtin put bl _wallet new_bal1;
-    balances := new_balances1;
-    weiAmount = builtin mul _amount _rate ;
-    _new_weiRaised<-_weiRaised;
-    val = builtin eq beneficiary _wallet;
+  ob <- owner_balance;
+  weiAmount = builtin div _amount _rate ;
+  _new_weiRaised <-_weiRaised;
+  new_owner_bal = builtin put ob _wallet _amount ;
+  owner_balance:=new_owner_bal;
+
+  val = builtin eq beneficiary _wallet;
+  
   match val with
-  | True =>
+  | False =>
       val1 = builtin eq weiAmount _zero;
       match val1 with
-     | True =>
+     | False =>
          new_sale = builtin put s beneficiary weiAmount;
-         _new_weiRaised = builtin add _new_weiRaised weiAmount;
-         _weiRaised:=_new_weiRaised;
+         new_weiRaised1 = builtin add _new_weiRaised weiAmount;
+         _weiRaised:=new_weiRaised1;
          sale:=new_sale;
          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
          msgs = one_msg msg;
@@ -68,29 +67,12 @@ transition buyTokens (beneficiary: ByStr20, _amount:Uint128)
          msgs = one_msg msg;
          send msgs
          end
-  | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
+  | True =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure1 };
     msgs = one_msg msg;
     send msgs
   end
-  | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code: low_bal };
-    msgs = one_msg msg;
-    send msgs
-end
-end
-
-
-
-
-
-
-
-
-
-
-
-
+  end
 
 
 transition wallet()
