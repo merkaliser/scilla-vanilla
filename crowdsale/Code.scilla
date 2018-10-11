@@ -33,7 +33,7 @@ field _weiRaised : Uint128 = Uint128 0
 (*shows which beneficiary has how many tokens*)
 field sale : Map ByStr20 Uint128 = Emp ByStr20 Uint128
 
-(*balance of owner in ethers*)
+(*balance of owner in wei*)
 field owner_balance : Map ByStr20 Uint128 =
   let m = Emp ByStr20 Uint128 in
     builtin put m _wallet _zero
