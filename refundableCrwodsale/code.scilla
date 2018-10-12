@@ -1,0 +1,131 @@
+library RefundableCrowdsale
+
+let min_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+  let alt = builtin lt a b in
+  match alt with
+  | True =>
+    a
+  | False =>
+    b
+  end
+let one_msg =
+    fun(msg : Message) =>
+    let nil_msg=Nil {Message} in
+    Cons {Message} msg nil_msg
+
+let no_msg = Nil {Message}
+
+let active =  Int32 1
+let closed =  Int32 0
+let refunding =  Int32 2
+let zero =  Int32 0
+let less_equal=
+  fun (a:Uint128) => fun (b:Uint128)=>
+  let less = builtin lt a b in
+  match less with 
+  | True =>True
+  | False =>
+    let equal=builtin eq a b in
+    match equal with
+    | True =>True
+    | False =>False
+    end
+  end
+let equal_int=
+  fun(a : Uint128) => fun(b:Uint128) =>
+  let equal= builtin eq a b in
+  match equal with
+  | True =>True
+  | False =>False
+  end
+  
+contract RefundableCrowdsale
+(goal : Uint128,
+_state : Int32,
+tokenSupply : Uint128)
+
+
+field tokenleft : Uint128 = tokenSupply
+field state : Int32 = _state
+field investment : Map ByStr20 Uint128 = Emp ByStr20 Uint128
+field token : Map ByStr20 Uint128 = Emp ByStr20 Uint128
+
+field owner_balance : Map ByStr20 Uint128 =
+  let m = Emp ByStr20 Uint128 in
+    builtin put m _wallet _zero
+field _zilRaised : Uint128 = Uint128 0    
+    
+transition buyTokens (beneficiary: ByStr20) 
+  s <- token;
+  ob <- owner_balance;
+  mes1="zil sent is more than balance";
+  mes2="no balance found for given address";
+  mes3="zero zil sent";
+  zil_sent = builtin mul _amount active ;
+  can_do=equal_int zil_sent closed;
+  match can_do with
+  | False =>
+    number_of_token= builtin mul _amount _rate ;
+    b=builtin get ob _sender;
+    match b with 
+    | Some am =>
+      status=less_equal _amount am;
+      match status with 
+      | True =>
+        (*balance of sender decreased by _amount*)
+        number_of_token= builtin mul _amount _rate ;  
+        bal=builtin sub b _amount;
+        new_bal= builtin put ob _sender bal;
+        owner_balance := new_bal;
+        to_bal=builtin get new_bal _wallet;
+        
+        (*balance of tokenowner increased by _amount*)
+        match to_bal with
+        | Some x =>
+          new_to_bal=builtin add x _amount;
+          new_bal2=builtin put new_bal _wallet new_to_bal;
+          owner_balance :=new_bal2
+        | None =>
+          new_bal3 = builtin put new_bal2 _wallet _amount;
+          owner_balance := new_bal3
+        end;
+        tk = builtin get s _sender;
+        (*number of token increased in beneficiary account in exchange of _amount zil*)
+        match tk with 
+        | Some y =>
+          tki=builtin add number_of_token y;
+          new_tok_bal=builtin put s _sender tki;
+          tokenrem=builtin sub tokenleft number_of_token;
+          tokenleft := tokenrem;
+          token := new_tok_bal
+        | None =>
+          new_tok_bal1=builtin put s _sender number_of_token;
+          tokenrem=builtin sub tokenleft number_of_token;
+          tokenleft := tokenrem;
+          token := new_tok_bal1
+        end;
+      | False =>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : mes1 };
+        msgs = one_msg msg;
+        send msgs  
+      end
+    | None=>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : mes2 };
+      msgs = one_msg msg;
+      send msgs    
+    end  
+  | True =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : mes3 };
+    msgs = one_msg msg;
+    send msgs  
+  end
+end  
+    
+  
+  
+
+
+
+
+
