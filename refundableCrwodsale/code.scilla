@@ -71,21 +71,12 @@ transition deposit ()
   val = builtin eq _sender payee;
   match val with
   | False =>
-    val1=le_int _amount zero;
+    val1=equal_int _amount zero;
     match val1 with 
     | False =>
       number_of_token = builtin mul _rate _amount; 
       
-      tk=builtin get s _sender;
-      match tk with 
-      | Some x =>
-        new_to_tk_bal=builtin add x number_of_token;
-        new_tk_bal=builtin put s _sender new_to_tk_bal;
-        token := new_tk_bal
-      | None =>
-        new_tk_bal1=builtin put s _sender number_of_token;
-        token := new_tk_bal1
-      end;    
+          
       
       match bal with
       | Some b =>
@@ -93,6 +84,16 @@ transition deposit ()
         match can_do with
         | True =>
           (* subtract deposit from _sender and add it to payee *)
+          tk=builtin get s _sender;
+          match tk with 
+          | Some x =>
+            new_to_tk_bal=builtin add x number_of_token;
+            new_tk_bal=builtin put s _sender new_to_tk_bal;
+            token := new_tk_bal
+          | None =>
+            new_tk_bal1=builtin put s _sender number_of_token;
+            token := new_tk_bal1
+          end;  
           new_sender_bal = builtin sub b _amount;
           new_balances = builtin put bl _sender new_sender_bal;
           to_bal = builtin get new_balances payee;
@@ -132,11 +133,3 @@ transition deposit ()
   end        
  
 end
-
-  
-  
-
-
-
-
-
