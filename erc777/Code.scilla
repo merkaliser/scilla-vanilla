@@ -108,10 +108,8 @@ end
 
 transition authorizeOperator (operator : ByStr20)
     al <- allowed;
-    
     auth="authorized";
     noauth="authorize failed";
-    
     is_operator=builtin eq operator _sender;
     match is_operator with
     | True=>
@@ -125,18 +123,14 @@ transition authorizeOperator (operator : ByStr20)
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
   msgs = one_msg msg;
   send msgs
-
-    end
+end
 end
 
 
 
 transition revokeOperator (operator : ByStr20)
-
-     auth="revoked";
-     noauth="revoke failed";
-  
-
+    auth="revoked";
+    noauth="revoke failed";
     al <- allowed;
     is_operator=builtin eq operator _sender;
     match is_operator with
@@ -161,8 +155,8 @@ end
 
 transition isOperatorFor ( operator : ByStr20, tokenHolder : ByStr20)
   al <- allowed;
-     is_op="Operator found";
-     is_no_op="Operator found failed";
+  is_op="Operator found";
+  is_no_op="Operator found failed";
 
   has_operator = builtin get al operator;
   match has_operator with
@@ -185,9 +179,6 @@ transition isOperatorFor ( operator : ByStr20, tokenHolder : ByStr20)
         send msgs
     end
 end
-
-
-
 
 
 
@@ -275,9 +266,7 @@ isMultiple=builtin eq isMultiple2 amount ;
           match isSender1 with
       | True=>
           send no_msg
- 
  | False=>  
-      
   (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
   allowed_from = builtin get al _sender;
   match allowed_from with
@@ -352,8 +341,6 @@ noBal="No balance record";
 isMultiple=builtin eq isMultiple2 amount ;
  match  isMultiple with
   | True =>
-      
-      
   bl <- balances;
   bal = builtin get bl _sender;
   match bal with
@@ -404,8 +391,6 @@ notgranular="Not granular";
 isMultiple=builtin eq isMultiple2 amount ;
  match  isMultiple with
   | True =>
-      
-
   bl <- balances;
   al <- allowed;
   m_disallowed = "Transfer not allowed";

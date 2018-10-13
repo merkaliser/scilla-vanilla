@@ -37,6 +37,7 @@ let le_int =
       end
     end
     
+(*constants*)
 let _one=Int32 1
 let _zero=Int32 0
 (***************************************************)
@@ -54,9 +55,6 @@ contract Pausable
 field bearer : Map String (Map ByStr20 Int32) = Emp String (Map ByStr20 Int32) 
   
 
-  
-  
-  
 (*add the account from role and make account as true(0)*)
 
 transition add (role : String, account :ByStr20)
@@ -147,8 +145,6 @@ end
 
 
 
-
-
 (*checks the account for role*)
 
 transition has (role : String, account :ByStr20)
@@ -184,15 +180,4 @@ transition has (role : String, account :ByStr20)
     send msgs
   end
 end
-
-
-
-
-
-
-
-
-
-
-
 

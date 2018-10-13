@@ -48,7 +48,6 @@ contract Escrow
  deposits : Uint128)
 
 (* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
-
 field all_deposits : Map ByStr20 Uint128 =
   let m = Emp ByStr20 Uint128 in
     builtin put m payee deposits
@@ -56,10 +55,6 @@ field all_deposits : Map ByStr20 Uint128 =
 field _primary: ByStr20=primary
 
 
-
-
-
-  
 transition primary()
    p <- _primary;
    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; primary : p };
@@ -67,8 +62,6 @@ transition primary()
    send msgs
 end
 
-
-  
   
 transition transferPrimary(recipient : ByStr20)
    p <- _primary;
@@ -88,9 +81,6 @@ transition transferPrimary(recipient : ByStr20)
   end
 end
   
-
-
-
 
 transition depositsOf (payee : ByStr20)
  dep <- all_deposits;
@@ -146,12 +136,6 @@ transition deposit (payee : ByStr20, deposits : Uint128)
     send msgs
   end
 end
-
-
-
-
-
-
 
 
 
