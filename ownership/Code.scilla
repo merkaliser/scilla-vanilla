@@ -82,8 +82,7 @@ transition renounceOwnership ()
 owner1<-_owner;
 no<-noOwner;
 isowner=builtin eq _sender owner1;
-msg1 = "Renounce Ownership successful";
-msg2 = "Not an owner";
+
 match isowner with
 |True=>
     _owner:= no;
