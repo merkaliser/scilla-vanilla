@@ -1,4 +1,4 @@
-# Vanilla [![Awesome]
+# Vanilla  [![Awesome]
 
 > Simple Standard Reusable Vanilla Contracts for scilla
 
