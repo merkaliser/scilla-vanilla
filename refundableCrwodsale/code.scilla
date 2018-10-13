@@ -1,0 +1,337 @@
+(* This contract implements a Escrow contract*)
+(* This contract does not fire events *)
+
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+library RefundableCrowdsale
+let equal_int=
+  fun(a : Uint128) => fun(b:Uint128) =>
+  let equal= builtin eq a b in
+  match equal with
+  | True =>True
+  | False =>False
+  end
+let zero = Uint128 0
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let no_msg = Nil {Message}
+let active = Uint128 1
+let closed = Uint128 0
+let refunding = Uint128 2
+let min_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+  let alt = builtin lt a b in
+  match alt with
+  | True =>
+    a
+  | False =>
+    b
+  end
+
+     
+  
+
+let le_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+    let x = builtin lt a b in
+    match x with
+    | True => True
+    | False =>
+      let y = builtin eq a b in
+      match y with
+      | True => True
+      | False => False
+      end
+    end
+    
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract RefundableCrowdsale
+(payee : ByStr20,
+ deposits : Uint128,
+ _rate:Uint128,
+ state : Uint128,
+ goal : Uint128)
+
+(* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
+
+field all_deposits : Map ByStr20 Uint128 =
+  let m = Emp ByStr20 Uint128 in
+    builtin put m payee zero
+field token : Map ByStr20 Uint128 = 
+  let n = Emp ByStr20 Uint128 in 
+    builtin put n payee deposits
+field _state : Uint128 = state
+field bene_zil_bal : Uint128 = zero
+field bene_tok_bal : Uint128 = zero
+
+
+      
+
+      
+transition closed()
+  isPrimary=builtin eq _sender payee;
+  bl<-all_deposits;
+  zilraised=builtin get bl _sender;
+  match isPrimary with 
+  | True =>
+    match zilraised with
+    | Some x =>
+      israised=le_int goal x;
+      match israised with
+      | True =>
+        st <- _state;
+        cl=builtin sub st active;  
+        _state := cl  
+      | False=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msgs = one_msg msg;
+        send msgs    
+      end
+    | None =>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+      msgs = one_msg msg;
+      send msgs  
+    end  
+  | False =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+    msgs = one_msg msg;
+    send msgs  
+  end
+end  
+
+transition refunding()
+
+  isPrimary=builtin eq _sender payee;
+  bl<-all_deposits;
+  zilraised=builtin get bl _sender;
+  match isPrimary with 
+  | True =>
+    match zilraised with
+    | Some x =>
+      israised=builtin lt x goal;
+      match israised with
+      | True =>
+        st <- _state;
+        cl=builtin add st active;  
+        _state := cl  
+      | False=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msgs = one_msg msg;
+        send msgs    
+      end
+    | None =>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+      msgs = one_msg msg;
+      send msgs  
+    end  
+  | False =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+    msgs = one_msg msg;
+    send msgs  
+  end
+end
+  
+
+
+transition deposit ()
+st <- _state;
+isState=builtin eq st active;
+match isState with
+| True =>
+  bl <- all_deposits;
+  s <- token;
+  bal = builtin get bl _sender;
+  val = builtin eq _sender payee;
+  match val with
+  | False =>
+    val1=equal_int _amount zero;
+    match val1 with 
+    | False =>
+      number_of_token = builtin mul _rate _amount; 
+      
+          
+      
+      match bal with
+      | Some b =>
+        can_do = le_int _amount b;
+        match can_do with
+        | True =>
+          (* subtract deposit from _sender and add it to payee *)
+          tk=builtin get s _sender;
+          match tk with 
+          | Some x =>
+            new_to_tk_bal=builtin add x number_of_token;
+            new_tk_bal=builtin put s _sender new_to_tk_bal;
+            
+            token := new_tk_bal
+          | None =>
+            new_tk_bal1=builtin put s _sender number_of_token;
+            token := new_tk_bal1
+          end;  
+          new_sender_bal = builtin sub b _amount;
+          new_balances = builtin put bl _sender new_sender_bal;
+          to_bal = builtin get new_balances payee;
+          match to_bal with
+          | Some x =>
+            new_to_bal = builtin add x _amount;
+            new_balances2 = builtin put new_balances payee new_to_bal;
+            all_deposits := new_balances2
+            
+          | None =>
+            new_balances3 = builtin put new_balances payee _amount;
+            all_deposits := new_balances3
+          end;
+    
+          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : _amount };        msgs = one_msg msg;
+          send msgs
+        | False =>
+          (* balance not sufficient. *)
+          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+          msgs = one_msg msg;
+          send msgs
+        end
+      | None =>
+        (* no balance record, can't transfer *)
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msgs = one_msg msg;
+        send msgs
+      end
+    | True =>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+      msgs = one_msg msg;
+      send msgs 
+    end  
+  | True =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+    msgs = one_msg msg;
+    send msgs  
+  end        
+ 
+  
+| False =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+  msgs = one_msg msg;
+  send msgs    
+end
+end
+
+
+transition beneficiarywithdraw()
+  st <- _state;
+  s <- token;
+  bl <- all_deposits;
+  isState=builtin eq st refunding;
+  match isState with
+  | True =>
+    can_do=builtin eq payee _sender;
+    match can_do with
+    | False=>
+      beneficiary_tok_bal=builtin get s _sender;
+      
+      match beneficiary_tok_bal with
+      | Some x=>
+        beneficiary_zil_bal=builtin div x _rate;
+        bene_zil_bal := beneficiary_zil_bal;
+        beneficiary_tok_bal_new=builtin mul zero x;
+        tok_new_bal=builtin put s _sender beneficiary_tok_bal_new;
+        token := tok_new_bal;
+        payee_tok_bal = builtin get s payee;
+        match payee_tok_bal with
+        | Some p =>
+          payee_tok_bal1=builtin add p x;
+          payee_tok_bal_new=builtin put s payee payee_tok_bal1;
+          token := payee_tok_bal_new;
+          bene_zil_bal1= builtin get bl _sender;
+          match bene_zil_bal1 with
+          | Some q =>
+            bene_zil_bal2=builtin add q beneficiary_zil_bal;
+            bene_zil_bal_new=builtin put bl _sender bene_zil_bal2;
+            all_deposits := bene_zil_bal_new  
+          | None =>     
+            bene_zil_bal_new=builtin put bl _sender beneficiary_zil_bal;
+            all_deposits := bene_zil_bal_new
+          end    
+        | None =>  
+          payee_tok_bal_new=builtin put s payee x;
+          token := payee_tok_bal_new
+          
+        end  
+      | None =>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msgs = one_msg msg;
+        send msgs
+      end 
+        
+    | True =>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+      msgs = one_msg msg;
+      send msgs
+    end    
+  | False =>      
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+    msgs = one_msg msg;
+    send msgs
+  end
+end  
+  
+  
+  
+  
+
+transition withdrawprimary (withdrawalamount : Uint128)
+  
+  msg2="not primary";
+  isPrimary=builtin eq _sender payee;
+  match isPrimary with
+  | True =>
+    bl <- all_deposits;
+    bal = builtin get bl _sender;
+    match bal with
+    | Some b =>
+      can_do = le_int withdrawalamount b;
+      match can_do with
+      | True =>
+        (* subtract withdrawalamount from pprimary  and add it to  _sender*)
+        new_sender_bal = builtin sub b withdrawalamount;
+        new_balances = builtin put bl _sender new_sender_bal;
+        to_bal = builtin get new_balances _sender;
+        match to_bal with
+        | Some x =>
+          new_to_bal = builtin add x withdrawalamount;
+          new_balances2 = builtin put new_balances _sender new_to_bal;
+          all_deposits := new_balances2
+        | None =>
+          new_balances3 = builtin put new_balances _sender withdrawalamount;
+          all_deposits := new_balances3
+        end;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : withdrawalamount };
+        msgs = one_msg msg;
+        send msgs
+      | False =>
+        (* balance not sufficient. *)
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msgs = one_msg msg;
+        send msgs
+      end
+    | None =>
+      (* no balance record, can't transfer *)
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+      msgs = one_msg msg;
+      send msgs
+    end
+  | False =>
+     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; _transfer : msg2 };
+     msgs = one_msg msg;
+     send msgs
+  end
+  
+end
