@@ -13,4 +13,9 @@ Vanilla exists thanks to its contributors. There are many ways you can participa
 
 Note: Vanilla is under heavy development and countinuous audits and is not production ready yet.
 
+
+## License 
+MIT 
+
+
 Made with :heart: by Merkalise for :octocat:
