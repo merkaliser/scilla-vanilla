@@ -1,8 +1,21 @@
+# Vanilla  :ice_cream:
+> Simple Standard Reusable Vanilla Contracts for scilla
 
-Repo containing set of smart contracts audited heavily !
+ <br>
 
-List of Smart Contracts to be added
+Vanilla is a library for secure smart contract development in scilla . It provides implementations of various contracts which you can deploy as-is or extend to suit your needs, as well as Scilla components to build custom contracts and more complex decentralized secure systems. We try to make sure that the common contracts used generally like fungible token , crowdsale (with various variations) , Wallets etc are openly available to devs and can be used in production code as is , however we take no responsibility for your implementation decisions and any security problems you might experience.
 
-- Safe Math (https://github.com/OpenZeppelin/openzeppelin-solidity/tree/master/contracts/math)
-- Ownership (https://github.com/OpenZeppelin/openzeppelin-solidity/tree/master/contracts/ownership)
-- ERC223 (https://github.com/ethereum/EIPs/issues/223)
+Feel free to create requests for smart contracts you would like to see developed by merkalise by opening an issue .
+
+## Contributions
+
+Vanilla exists thanks to its contributors. There are many ways you can participate and help build high quality software. Join our [slack](https://merkalise.slack.com/messages) to say hi!
+
+**Note: Vanilla is under heavy development and countinuous audits and is not production ready yet.**
+
+
+## License 
+MIT 
+
+
+Made with :heart: by Merkalise for :octocat:

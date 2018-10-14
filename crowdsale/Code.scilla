@@ -1,0 +1,102 @@
+library CrowdSale
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+
+(* Error codes *)
+let success = Int32 1
+let failure = Int32 2
+let failure1 = Int32 3
+let low_bal = Int32 4
+
+(* Constants *)
+let _zero   = Uint128 0
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract CrowdSale
+(_wallet : ByStr20,
+_rate    : Uint128)
+
+  (* How many token units a buyer gets per wei.*)
+  (* The rate is the conversion between wei and the smallest and indivisible token unit.*)
+  (* So, if you are using a rate of 1 with a ERC20Detailed token with 3 decimals called TOK*)
+  (* 1 wei will give you 1 unit, or 0.001 TOK.*)
+
+field _weiRaised : Uint128 = Uint128 0
+
+(*shows which beneficiary has how many tokens*)
+field sale : Map ByStr20 Uint128 = Emp ByStr20 Uint128
+
+(*balance of owner in wei*)
+field owner_balance : Map ByStr20 Uint128 =
+  let m = Emp ByStr20 Uint128 in
+    builtin put m _wallet _zero
+
+
+
+transition buyTokens (beneficiary: ByStr20) 
+  s <- sale;
+  ob <- owner_balance;
+  weiAmount = builtin div _amount _rate ;
+  _new_weiRaised <-_weiRaised;
+  new_owner_bal = builtin put ob _wallet _amount ;
+  owner_balance:=new_owner_bal;
+
+  val = builtin eq beneficiary _wallet;
+  
+  match val with
+  | False =>
+      val1 = builtin eq weiAmount _zero;
+      match val1 with
+     | False =>
+         new_sale = builtin put s beneficiary weiAmount;
+         new_weiRaised1 = builtin add _new_weiRaised weiAmount;
+         _weiRaised:=new_weiRaised1;
+         sale:=new_sale;
+         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
+         msgs = one_msg msg;
+         send msgs
+     | False =>
+         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
+         msgs = one_msg msg;
+         send msgs
+         end
+  | True =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure1 };
+    msgs = one_msg msg;
+    send msgs
+  end
+  end
+
+
+transition wallet()
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; wallet : _wallet};
+    msgs = one_msg msg;
+    send msgs
+end
+
+
+(* @return the number of token units a buyer gets per wei.*)
+transition rate()
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; rate : _rate};
+    msgs = one_msg msg;
+    send msgs
+end
+
+
+
+  (*@return the amount of wei raised.*)
+transition weiraised ()
+    w<-_weiRaised;
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; wei : w};
+    msgs = one_msg msg;
+    send msgs
+end
+
+

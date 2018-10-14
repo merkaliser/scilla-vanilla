@@ -7,6 +7,7 @@ import ListUtils
 (***************************************************)
 library Ownable 
 
+
 let one_msg = 
   fun (msg : Message) => 
   let nil_msg = Nil {Message} in
@@ -21,7 +22,7 @@ contract Ownable
 (owner : ByStr20)
 
 field _owner : ByStr20 = owner
-
+field noOwner : ByStr20 = owner
 
 (*owner address*)
 
@@ -73,19 +74,18 @@ match isowner with
 end
 end 
  
+ 
 (* Allows the current owner to relinquish control of the contract.*)
 (*Renouncing to ownership will leave the contract without an owner*)
 
 transition renounceOwnership ()
 owner1<-_owner;
+no<-noOwner;
 isowner=builtin eq _sender owner1;
-msg1 = "Renounce Ownership successful";
-msg2 = "Not an owner";
-no_owner="no_owner";
 
 match isowner with
 |True=>
-    _owner:=no_owner;
+    _owner:= no;
     msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg1};
     msgs = one_msg msg;
     send msgs
@@ -94,4 +94,5 @@ match isowner with
     msgs = one_msg msg;
     send msgs
 end
-end
+end 
+
