@@ -129,7 +129,11 @@ transition safeApprove(spender : ByStr20 , currentValue : Uint128 , value : Uint
       can_do = equal_int val currentValue;      
       match can_do with
       | True =>
-        
+        allowed_new=builtin put m spender value;
+
+        allowed_new_update=builtin put al _sender allowed_new;
+
+        allowed := allowed_new_update;
         msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; code : success};   
         msgs=one_msg msg;
         send msgs
@@ -226,7 +230,11 @@ transition burn(value : Uint128)
       new_balance=builtin sub b value;
       balances1=builtin put bl _sender new_balance;
       balances:=balances1;
-      
+      ts <- _totalSupply;
+
+      ts=builtin sub ts value;
+
+      _totalSupply := ts;
       msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; message : mes};   
       msgs=one_msg msg;
       send msgs
@@ -245,6 +253,7 @@ end
 transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
   bl <- balances;
   al <- allowed;
+  transfer_status="transferred";
   m_disallowed = "Transfer not allowed";
   bal = builtin get bl from;
   (* Check if _sender has been authorized by "from" *)
@@ -282,7 +291,12 @@ transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
         new_allowed = builtin sub b tokens;
         new_m = builtin put m _sender new_allowed;
         new_allowed = builtin put al from new_m;
-        allowed := new_allowed
+        allowed := new_allowed;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : transfer_status };
+
+        msgs = one_msg msg;
+
+        send msgs
       | False =>
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
         msgs = one_msg msg;
@@ -322,7 +336,16 @@ transition burnFrom(from : ByStr20,value :Uint128)
         new_m = builtin put m _sender new_allowed;
         new_allowed_bala=builtin put al from new_m;
         allowed:= new_allowed_bala
-      
+        ts <- _totalSupply;
+
+        ts=builtin sub ts value;
+
+        _totalSupply := ts;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : mes };
+
+        msgs = one_msg msg;
+
+        send msgs
       | False =>
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : failure };
         msgs = one_msg msg;
