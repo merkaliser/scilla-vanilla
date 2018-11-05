@@ -1,0 +1,12 @@
+{
+    "_tag" : "transferOwnership",
+    "_amount" : "0",
+    "_sender" : "0x31B0921AC3E8BC6815DF52ECC7F7BC61A2B65DE2",
+    "params" : [
+        {
+            "vname": "newOwner",
+            "type": "ByStr20",
+            "value": "0x31B0921AC3E8BC6815DF52ECC7F7BC61A2B65DE2"
+        }
+    ]
+}
