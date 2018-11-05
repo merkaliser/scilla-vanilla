@@ -8,13 +8,14 @@
           "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
           "val": [
             {
-              "key": "0xf83c97044c0b5c8dc38cf5a57c23e03c396aeeff",
-              "val": "180"
+                "key": "0xf83c97044c0b5c8dc38cf5a57c23e03c396aeeff",
+                "val": "100"
             },
             {
               "key": "0xfc951123d89d0148e8f65c5842afe081dc1646d1",
-              "val": "500"
+              "val": "1000"
             }
+            
           ]
         }
       ]
@@ -23,17 +24,18 @@
       "vname": "balances",
       "type": "Map (ByStr20) (Uint128)",
       "value": [
-        { "key": "0x44345678901234567890123456789012345678cd",
-          "val": "2440" },
+        { "key": "0x23271327E72F96AAB882F614B467EBB5ED3003D9", 
+          "val": "900" 
+        },
         {
-          "key": "0x1234567890123456789012345678901234567890",
-          "val": "7560"
+          "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
+          "val": "9100"
         }
       ]
     },
     {
-      "vname": "_totalSupply",
-      "type": "Uint128",
-      "value": "10000"
-  }
-  ]
+        "vname": "_totalSupply",
+        "type": "Uint128",
+        "value": "10000"
+    }
+]

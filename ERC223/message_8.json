@@ -1,12 +1,17 @@
 {
-    "_tag" : "burn",
+    "_tag" : "allowance",
     "_amount" : "0",
-    "_sender" : "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
+    "_sender" : "0xfc951123d89d0148e8f65c5842afe081dc1646d1",
     "params" : [
         {
-            "vname": "value",
-            "type": "Uint128",
-            "value": "250"
+            "vname": "owner",
+            "type": "ByStr20",
+            "value": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef"
+        },
+        {
+            "vname": "spender",
+            "type": "ByStr20",
+            "value": "0xf83c97044c0b5c8dc38cf5a57c23e03c396aeeff"
         }
     ]
-}
+}gas-294

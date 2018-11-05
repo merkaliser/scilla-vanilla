@@ -6,7 +6,7 @@
         {
             "vname": "spender",
             "type": "ByStr20",
-            "value": "0xfc951123d89d0148e8f65c5842afe081dc1646d1"
+            "value": "0xf83c97044c0b5c8dc38cf5a57c23e03c396aeeff"
         },
         {
             "vname": "tokens",
@@ -14,4 +14,4 @@
             "value": "500"
         }
     ]
-}
+}gas-462

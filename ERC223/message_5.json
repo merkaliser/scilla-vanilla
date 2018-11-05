@@ -6,12 +6,12 @@
         {
             "vname": "spender",
             "type": "ByStr20",
-            "value": "0xf83c97044c0b5c8dc38cf5a57c23e03c396aeeff"
+            "value": "0xFC951123D89D0148E8F65C5842AFE081DC1646D1"
         },
         {
             "vname": "tokens",
             "type": "Uint128",
-            "value": "600"
+            "value": "1000"
         }
     ]
-}
+}462

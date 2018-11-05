@@ -11,12 +11,12 @@
         {
             "vname": "to",
             "type": "ByStr20",
-            "value": "0x44345678901234567890123456789012345678cd"
+            "value": "0x23271327e72f96aab882f614b467ebb5ed3003d9"
         },
         {
             "vname": "tokens",
             "type": "Uint128",
-            "value": "420"
+            "value": "400"
         }
     ]
-}
+}gas-670
