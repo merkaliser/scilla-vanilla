@@ -94,7 +94,7 @@ transition balanceOf(tokenOwner : ByStr20)
     send msgs  
   end
 end
-
+(*spender:address which owner wants to give access to transfer tokens*)
 transition Approve (spender : ByStr20, value : Uint128)
   al <- allowed;
   sender_map = builtin get al _sender;
@@ -151,7 +151,7 @@ transition safeApprove(spender : ByStr20 , currentValue : Uint128 , value : Uint
     send msgs
   end
 end  
-
+(*returns the number of tokens allowed by owner to spender*)
 transition allowance(owner : ByStr20, spender : ByStr20)
   al<-allowed;
   allowed_by_owner = builtin get al owner;
@@ -215,9 +215,9 @@ transition transfer (to: ByStr20 , value:Uint128)
 end  
 
 transition burn(value : Uint128)
-  mes="burned";
-  n_mes="not burned";
-  insuff_bal="Insuffecient balance cannot burn";
+  burned="burned";
+  notburned="not burned";
+  insufficient_balance="Insuffecient balance cannot burn";
   bl<-balances;
   bal=builtin get bl _sender;
   match bal with
@@ -232,16 +232,16 @@ transition burn(value : Uint128)
       ts=builtin sub ts value;
       _totalSupply := ts;
         
-      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : mes};   
+      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : burned};   
       msgs=one_msg msg;
       send msgs
     | False =>
-      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : n_mes };   
+      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : notburned };   
       msgs=one_msg msg;
       send msgs
     end
   | None=>
-    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : insuff_bal };   
+    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : insufficient_balance };   
     msgs=one_msg msg;
     send msgs  
   end
@@ -251,7 +251,7 @@ transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
   bl <- balances;
   al <- allowed;
   transfer_status="transferred";
-  m_disallowed = "Transfer not allowed";
+  transfer_failed = "Transfer not allowed";
   bal = builtin get bl from;
   (* Check if _sender has been authorized by "from" *)
   allowed_from = builtin get al from;
@@ -293,17 +293,17 @@ transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
         msgs = one_msg msg;
         send msgs
       | False =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : transfer_failed };
         msgs = one_msg msg;
         send msgs
       end
     | _ =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : transfer_failed };
       msgs = one_msg msg;
       send msgs
     end
   | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : transfer_failed };
     msgs = one_msg msg;
     send msgs
   end
@@ -311,8 +311,8 @@ end
 
 transition burnFrom(from : ByStr20,value :Uint128)
   bl<-balances;
-  mes="burned";
-  n_mes="not burned";
+  burned="burned";
+  notburned="not burned";
   insuff_bal="Insuffecient balance cannot burn";
   al<-allowed;
   bal=builtin get bl from;
@@ -337,11 +337,11 @@ transition burnFrom(from : ByStr20,value :Uint128)
         ts <- _totalSupply;
         ts=builtin sub ts value;
         _totalSupply := ts;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : mes };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : burned };
         msgs = one_msg msg;
         send msgs
       | False =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : n_mes };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : notburned };
         msgs = one_msg msg;
         send msgs    
         
@@ -357,18 +357,4 @@ transition burnFrom(from : ByStr20,value :Uint128)
     send msgs
   end
 end
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
