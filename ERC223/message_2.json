@@ -9,7 +9,7 @@
             "value": "0x23271327E72F96AAB882F614B467EBB5ED3003D9"
         },
         {
-            "vname": "tokens",
+            "vname": "value",
             "type": "Uint128",
             "value": "500"
         }

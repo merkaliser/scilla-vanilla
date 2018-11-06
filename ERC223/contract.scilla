@@ -92,7 +92,7 @@ transition balanceOf(tokenOwner : ByStr20)
   end
 end
 (*spender:address which owner wants to give access to transfer tokens*)
-transition Approve (spender : ByStr20, value : Uint128)
+transition approve (spender : ByStr20, value : Uint128)
   approved="spender approved";
   notapproved="spender not approved";
   al <- allowed;
@@ -255,7 +255,7 @@ transition burn(value : Uint128)
   end
 end 
 
-transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
+transition transferFrom (from : ByStr20, to : ByStr20, value : Uint128)
   bl <- balances;
   al <- allowed;
   transfer_status="transferred";

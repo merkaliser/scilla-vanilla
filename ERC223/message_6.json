@@ -1,5 +1,5 @@
 {
-    "_tag" : "TransferFrom",
+    "_tag" : "transferFrom",
     "_amount" : "0",
     "_sender" : "0xf83c97044c0b5c8dc38cf5a57c23e03c396aeeff",
     "params" : [
@@ -14,7 +14,7 @@
             "value": "0x23271327e72f96aab882f614b467ebb5ed3003d9"
         },
         {
-            "vname": "tokens",
+            "vname": "value",
             "type": "Uint128",
             "value": "400"
         }

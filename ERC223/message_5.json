@@ -1,5 +1,5 @@
 {
-    "_tag" : "Approve",
+    "_tag" : "approve",
     "_amount" : "0",
     "_sender" : "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
     "params" : [
@@ -9,7 +9,7 @@
             "value": "0xFC951123D89D0148E8F65C5842AFE081DC1646D1"
         },
         {
-            "vname": "tokens",
+            "vname": "value",
             "type": "Uint128",
             "value": "1000"
         }
