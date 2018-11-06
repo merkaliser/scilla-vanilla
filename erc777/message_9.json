@@ -1,0 +1,13 @@
+{
+  "_tag": "Burn",
+    "_amount": "0",
+    "_sender": "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617",
+    "params": [
+    { "vname": "amount", "type": "Uint128",
+	 "value": "20" },
+    { "vname": "data", "type": "String", 
+	"value": "20 tokens burning by owner" }
+
+  ]
+
+}
