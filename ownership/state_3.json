@@ -1,0 +1,8 @@
+[
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "_owner", "type": "ByStr20",
+	"value": "0x31B0921AC3E8BC6815DF52ECC7F7BC61A2B65DE2" },
+    { "vname": "noOwner", "type": "ByStr20", 
+	"value":"0x263c4ca003235af83c4f4bc065d00d4a67ffb617" }
+
+]
