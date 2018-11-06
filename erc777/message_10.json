@@ -1,0 +1,17 @@
+{
+  "_tag": "operatorBurn",
+    "_amount": "0",
+    "_sender": "0x31B0921AC3E8BC6815DF52ECC7F7BC61A2B65DE2",
+    "params": [
+    { "vname": "from", "type": "ByStr20",
+	 "value": "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617" },
+    { "vname": "amount", "type": "Uint128", 
+	"value": "4" },
+    { "vname": "userData", "type": "String", 
+	"value": "burning 4 tokens of th account" },
+    { "vname": "operatorData", "type": "String", 
+	"value": "1st account is operated by 2nd" }
+
+  ]
+
+}

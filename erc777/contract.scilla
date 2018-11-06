@@ -28,7 +28,7 @@ let min_int =
   end
 
 let le_int =
-  fun (a : Uint128) => fun (b : Uin128) =>
+  fun (a : Uint128) => fun (b : Uint128) =>
     let x = builtin lt a b in
     match x with
     | True => True
@@ -63,26 +63,26 @@ field allowed : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uin
 field _totalSupply: Uint128 = totalSupply
  
 transition name()
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; name : name};
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tokenName : name};
   msgs = one_msg msg;
   send msgs
 end
 
 transition symbol()
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; symbol : symbol};
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tokenSymbol : symbol};
   msgs = one_msg msg;
   send msgs
 end
 
 transition granularity()
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; granularity : granularity};
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tokenGranularity : granularity};
   msgs = one_msg msg;
   send msgs
 end
 
 transition totalSupply ()
   t<-_totalSupply;
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; totalSupply : t};
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tokenTotalSupply : t};
   msgs = one_msg msg;
   send msgs
  end
@@ -113,9 +113,9 @@ transition authorizeOperator (operator : ByStr20)
     is_operator=builtin eq operator _sender;
     match is_operator with
     | True=>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized :noauth};
-  msgs = one_msg msg;
-  send msgs
+       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized :noauth};
+       msgs = one_msg msg;
+       send msgs
     | False=>
         allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m _sender totalSupply ;
         allowed_new = builtin put al operator allowed_operators;
@@ -211,12 +211,8 @@ isMultiple=builtin eq isMultiple2 amount ;
           | None =>
            new_balances3 = builtin put new_balances to amount;
            balances := new_balances3
-           end;
+           end
      
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : _amount; userdata :_userData};
-      msgs = one_msg msg;
-      send msgs
-    
     | False =>
       (* balance not sufficient. *)
       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; userdata :_userData };
@@ -239,30 +235,32 @@ end
 
 
 
-
-
-
 transition operatorSend (from : ByStr20, to : ByStr20, amount : Uint128 , userData : String , operatorData : String)
+     
+bl <- balances;
+al <- allowed;
   
+
 isMultiple1= builtin div amount  granularity;
 isMultiple2= builtin mul isMultiple1  granularity;
 notgranular="Not granular";
 
 isMultiple=builtin eq isMultiple2 amount ;
- match  isMultiple with
+
+match isMultiple with
   | True =>
-     
-  bl <- balances;
-  al <- allowed;
+
   m_disallowed = "Transfer not allowed";
   bal = builtin get bl from;
+  
   isSender=builtin eq from _sender ;
   match isSender with
       | True=>
-      send no_msg
+        send no_msg
  
       | False=>  
           isSender1=builtin eq to _sender ;
+          
           match isSender1 with
       | True=>
           send no_msg
@@ -273,16 +271,18 @@ isMultiple=builtin eq isMultiple2 amount ;
   | Some m =>
     (* How many tokens has _sender been authorized to transfer, by "from" *)
     sender_allowed_from = builtin get m from;
-    all = Pair {Option(Uint128) Option(Uint128)} bal sender_allowed_from;
-    match all with
-    | Pair (Some a) (Some b) =>
+    match sender_allowed_from with
+    |Some m2=>
+        match bal with
+      | Some m3 =>
       (* We can only transfer the minimum of available or authorized tokens *)
-      t = min_int a b;
+      t = min_int m2 m3;
+      (* We can only transfer the minimum of available or authorized tokens *)
       can_do = le_int amount t;
       match can_do with
       | True =>
         (* tokens is what we should subtract from "from" and add to "to" *)
-        new_from_bal = builtin sub a amount;
+        new_from_bal = builtin sub m3 amount;
         balances_1 = builtin put bl from new_from_bal;
         balances := balances_1;
         to_bal = builtin get balances_1 to;
@@ -291,28 +291,37 @@ isMultiple=builtin eq isMultiple2 amount ;
           to_bal_new = builtin add tb amount;
           balances_2 = builtin put balances_1 to to_bal_new;
           balances := balances_2;
+           new_allowed = builtin sub m2 amount;
+        new_m = builtin put m from new_allowed;
+        new_allowed = builtin put al _sender new_m;
+        allowed := new_allowed;
           send no_msg
         | None =>
           (* "to" has no balance. So just set it to amount *)
           balances_3 = builtin put balances_1 to amount;
           balances := balances_3;
-          send no_msg
-        end;
-        (* reduce "allowed" by "amount" *)
-        new_allowed = builtin sub b amount;
+        new_allowed = builtin sub m2 amount;
         new_m = builtin put m from new_allowed;
         new_allowed = builtin put al _sender new_m;
-        allowed := new_allowed
+        allowed := new_allowed;
+          send no_msg
+        end
+        (* reduce "allowed" by "amount" *)
       | False =>
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
         msgs = one_msg msg;
         send msgs
       end
-    | _ =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
-      msgs = one_msg msg;
-      send msgs
-    end
+  | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+    msgs = one_msg msg;
+    send msgs
+  end
+  | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+    msgs = one_msg msg;
+    send msgs
+  end
   | None =>
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
     msgs = one_msg msg;
@@ -320,6 +329,7 @@ isMultiple=builtin eq isMultiple2 amount ;
   end
 end
 end
+
 | False =>
 msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; message :notgranular};
 msgs = one_msg msg;
@@ -328,11 +338,9 @@ end
 end
 
 
+transition Burn (amount : Uint128 , data : String)
 
-
-transition burn (amount : Uint256 , data : String)
-
-isMultiple1= builtin div amount  granularity;
+isMultiple1= builtin div amount granularity;
 isMultiple2= builtin mul isMultiple1  granularity;
 notgranular="Not granular";
 insuffBal="Balance insuffuciient";
@@ -383,7 +391,10 @@ end
 
 
 transition operatorBurn (from : ByStr20, amount : Uint128 , userData : String , operatorData : String)
-  
+
+al <- allowed;
+bl <- balances;
+allowed_from = builtin get al _sender;
 isMultiple1= builtin div amount  granularity;
 isMultiple2= builtin mul isMultiple1  granularity;
 notgranular="Not granular";
@@ -391,32 +402,31 @@ notgranular="Not granular";
 isMultiple=builtin eq isMultiple2 amount ;
  match  isMultiple with
   | True =>
-  bl <- balances;
-  al <- allowed;
   m_disallowed = "Transfer not allowed";
   bal = builtin get bl from;
   isSender=builtin eq from _sender ;
   match isSender with
-  | True=>
-    send no_msg
- 
-  | False=>  
+  | True =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+    msgs = one_msg msg;
+    send msgs 
+  | False =>  
   (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
-  allowed_from = builtin get al _sender;
   match allowed_from with
   | Some m =>
     (* How many tokens has _sender been authorized to transfer, by "from" *)
     sender_allowed_from = builtin get m from;
-    all = Pair {Option(Uint128) Option(Uint128)} bal sender_allowed_from;
-    match all with
-    | Pair (Some a) (Some b) =>
+    match sender_allowed_from with
+    |Some m2=>
+        match bal with
+      | Some m3 =>
       (* We can only transfer the minimum of available or authorized tokens *)
-      t = min_int a b;
+      t = min_int m2 m3;
       can_do = le_int amount t;
       match can_do with
       | True =>
         (* tokens is what we should subtract from "from"  *)
-        new_from_bal = builtin sub a amount;
+        new_from_bal = builtin sub m3 amount;
         balances_1 = builtin put bl from new_from_bal;
         balances := balances_1;
 
@@ -425,7 +435,7 @@ isMultiple=builtin eq isMultiple2 amount ;
       _newSupply=builtin sub ts amount;
       _totalSupply:=_newSupply;
     
-        new_allowed = builtin sub b amount;
+        new_allowed = builtin sub m3 amount;
         new_m = builtin put m from new_allowed;
         new_allowed = builtin put al _sender new_m;
         allowed := new_allowed
@@ -434,24 +444,32 @@ isMultiple=builtin eq isMultiple2 amount ;
         msgs = one_msg msg;
         send msgs
       end
-    | _ =>
+    | None =>
       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
       msgs = one_msg msg;
       send msgs
     end
-  | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
-    msgs = one_msg msg;
-    send msgs
+     | None =>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+      msgs = one_msg msg;
+      send msgs
+    end
+    | None =>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+      msgs = one_msg msg;
+      send msgs
+    end
   end
 
-end
+
 | False =>
 msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 ; message :notgranular};
 msgs = one_msg msg;
 send msgs
 end
 end
+
+
 
 
 

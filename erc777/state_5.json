@@ -1,0 +1,24 @@
+[
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    {
+        "vname": "allowed",
+        "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
+        "value": []
+    },
+    {
+        "vname": "balances",
+        "type": "Map (ByStr20) (Uint128)",
+        "value": [
+            {
+                "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+                "val": "1000"
+            }
+        ]
+    },
+    {
+        "vname": "_totalSupply",
+        "type": "Uint128",
+        "value": "1000"
+    }
+]
+
