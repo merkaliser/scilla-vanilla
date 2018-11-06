@@ -6,12 +6,12 @@
         {
             "vname": "to",
             "type": "ByStr20",
-            "value": "0x44345678901234567890123456789012345678cd"
+            "value": "0x23271327E72F96AAB882F614B467EBB5ED3003D9"
         },
         {
-            "vname": "tokens",
+            "vname": "value",
             "type": "Uint128",
-            "value": "2000"
+            "value": "9600"
         }
 
     ]

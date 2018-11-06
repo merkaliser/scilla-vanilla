@@ -13,7 +13,7 @@
             },
             {
               "key": "0xfc951123d89d0148e8f65c5842afe081dc1646d1",
-              "val": "1000"
+              "val": "500"
             }
             
           ]
@@ -29,13 +29,13 @@
         },
         {
           "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
-          "val": "9100"
+          "val": "8600"
         }
       ]
     },
     {
         "vname": "_totalSupply",
         "type": "Uint128",
-        "value": "9700"
+        "value": "9200"
     }
 ]

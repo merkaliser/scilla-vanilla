@@ -9,23 +9,26 @@
             {
                 "vname":"transferred",
                 "type":"Uint128",
-                "value":"20",
+                "value":"500",
             }
         ]
     }
 
     ],
     "states": [
-      { "vname": "_balance", "type": "Uint128", "value": "500" },
+      { "vname": "_balance", "type": "Uint128", "value": "0" },
       {
         "vname": "balances",
         "type": "Map (ByStr20) (Uint128)",
         "value": [
-          {
-            "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
-            "val": "9980"
-          },
-          { "key": "0x44345678901234567890123456789012345678cd", "val": "20" }
+            {
+                "key": "0x23271327E72F96AAB882F614B467EBB5ED3003D9",
+                "val": "500"
+            },
+            {
+                "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
+                "val": "9500"
+            }
         ]
       },
       {

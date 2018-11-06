@@ -9,9 +9,6 @@ let one_msg =
 
 let no_msg = Nil {Message}
 
-let success = Int32 1
-let failure = Int32 0
-
 let min_int =
   fun (a: Uint128) => fun(b: Uint128) =>
   let res =builtin lt a b in
@@ -62,20 +59,20 @@ field _totalSupply :Uint128 = totalSupply
 
 
 transition name ()
-msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; tokenname:name};
+msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; tokenname:name};
 msgs=one_msg msg;
 send msgs
 end
 
 transition symbol ()
-msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; tokensymbol:symbol};
+msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; tokensymbol:symbol};
 msgs=one_msg msg;
 send msgs
 end
 
 transition totalSupply ()
 t<-_totalSupply;
-msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; tokentotalSupply : t};
+msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; tokentotalSupply : t};
 msgs=one_msg msg;
 send msgs
 end
@@ -85,17 +82,19 @@ transition balanceOf(tokenOwner : ByStr20)
   val = builtin get bl tokenOwner;
   match val with
   | Some v =>
-    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; bal : v};
+    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; bal : v};
     msgs=one_msg msg;
     send msgs  
   | None =>
-    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; bal : Uint128 0};   
+    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; bal : Uint128 0};   
     msgs=one_msg msg;
     send msgs  
   end
 end
-
-transition Approve (spender : ByStr20, value : Uint128)
+(*spender:address which owner wants to give access to transfer tokens*)
+transition approve (spender : ByStr20, value : Uint128)
+  approved="spender approved";
+  notapproved="spender not approved";
   al <- allowed;
   sender_map = builtin get al _sender;
   match sender_map with
@@ -103,7 +102,7 @@ transition Approve (spender : ByStr20, value : Uint128)
     allowed_to_spender = builtin put m spender value;
     allowed_new = builtin put al _sender allowed_to_spender;
     allowed := allowed_new;
-    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; code : success};   
+    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : approved};   
     msgs=one_msg msg;
     send msgs 
     
@@ -111,7 +110,7 @@ transition Approve (spender : ByStr20, value : Uint128)
     allowed_to_spender = let m = Emp ByStr20 Uint128 in builtin put m spender value;
     allowed_new = builtin put al _sender allowed_to_spender;
     allowed := allowed_new;
-    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; code : failure};   
+    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : approved};   
     msgs=one_msg msg;
     send msgs 
     
@@ -119,6 +118,11 @@ transition Approve (spender : ByStr20, value : Uint128)
 end
 
 transition safeApprove(spender : ByStr20 , currentValue : Uint128 , value : Uint128 )
+  approved="Spender approved";
+  notapproved="Spender not approved";
+  currentValue_not_equal="CurrentValue given is not equal to the tokens allowed to spender";
+  no_tokens_allowed="No tokens allowed to provided spender";
+  spender_doesnot_exist="No spender exist";
   al<-allowed;
   sender_map=builtin get al _sender;
   match sender_map with
@@ -130,31 +134,31 @@ transition safeApprove(spender : ByStr20 , currentValue : Uint128 , value : Uint
       match can_do with
       | True =>
         allowed_new=builtin put m spender value;
-
         allowed_new_update=builtin put al _sender allowed_new;
-
         allowed := allowed_new_update;
-        msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; code : success};   
+        msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : approved};   
         msgs=one_msg msg;
         send msgs
       | False =>
-        msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; code : failure};   
+        msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : currentValue_not_equal};   
         msgs=one_msg msg;
         send msgs 
       end
     | None =>
-      msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; code : failure};   
+      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : no_tokens_allowed };   
       msgs=one_msg msg;
       send msgs      
     end    
   | None =>
-    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; code : failure};   
+    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : spender_doesnot_exist };   
     msgs=one_msg msg;
     send msgs
   end
 end  
-
+(*returns the number of tokens allowed by owner to spender*)
 transition allowance(owner : ByStr20, spender : ByStr20)
+  spender_doesnot_exist="No spender exist";
+  no_tokens_allowed="No tokens allowed to provided spender";
   al<-allowed;
   allowed_by_owner = builtin get al owner;
   match allowed_by_owner with
@@ -162,16 +166,16 @@ transition allowance(owner : ByStr20, spender : ByStr20)
     allowed_to_spender = builtin get m spender;
     match allowed_to_spender with
     | Some m=>
-      msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; allowed_by_owner : m};   
+      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; allowed_by_owner : m};   
       msgs=one_msg msg;
       send msgs    
     | None =>
-      msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; code : failure};   
+      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : no_tokens_allowed};   
       msgs=one_msg msg;
       send msgs    
     end
   | None =>
-    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; code : failure};   
+    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : spender_doesnot_exist};   
     msgs=one_msg msg;
     send msgs  
   end
@@ -180,6 +184,8 @@ end
 
 transition transfer (to: ByStr20 , value:Uint128)
   bl<-balances;
+  transfer_disallowed="Insufficient balance";
+  tokens_not_found="No balance found for given spender";
   bal=builtin get bl _sender;
   match bal with 
   | Some b =>
@@ -194,32 +200,32 @@ transition transfer (to: ByStr20 , value:Uint128)
         new_to_bal = builtin add x value;
         new_balances2 = builtin put new_balances to new_to_bal;
         balances := new_balances2;
-        msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; transferred : value};   
+        msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; transferred : value};   
         msgs=one_msg msg;
         send msgs
       | None =>
         new_balances3 = builtin put new_balances to value;
         balances := new_balances3;
-        msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; transferred : value };   
+        msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; transferred : value };   
         msgs=one_msg msg;
         send msgs
       end
     | False=>
-      msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; transferred : Uint128 0};   
+      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : transfer_disallowed};   
       msgs=one_msg msg;
       send msgs
     end  
   | None =>
-    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; transferred : Uint128 0};   
+    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : tokens_not_found};   
     msgs=one_msg msg;
     send msgs  
   end
 end  
 
 transition burn(value : Uint128)
-  mes="burned";
-  n_mes="not burned";
-  insuff_bal="Insuffecient balance cannot burn";
+  burned="burned";
+  error="error";
+  insufficient_balance="Insufficient balance cannot burn";
   bl<-balances;
   bal=builtin get bl _sender;
   match bal with
@@ -231,30 +237,32 @@ transition burn(value : Uint128)
       balances1=builtin put bl _sender new_balance;
       balances:=balances1;
       ts <- _totalSupply;
-
       ts=builtin sub ts value;
-
       _totalSupply := ts;
-      msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; message : mes};   
+        
+      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : burned};   
       msgs=one_msg msg;
       send msgs
     | False =>
-      msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; message : n_mes };   
+      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : insufficient_balance };   
       msgs=one_msg msg;
       send msgs
     end
   | None=>
-    msg = {_tag : "Main";_recipent : _sender ; _amount:Uint128 0 ; message : insuff_bal };   
+    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : error };   
     msgs=one_msg msg;
     send msgs  
   end
 end 
 
-transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
+transition transferFrom (from : ByStr20, to : ByStr20, value : Uint128)
   bl <- balances;
   al <- allowed;
   transfer_status="transferred";
-  m_disallowed = "Transfer not allowed";
+  
+  error="Error";
+  incorrect_transfer_value="Tokens to transfer cannot be greater than available or authorized value";
+  tokens_not_allowed="Tokens not allowed by owner for given spender";
   bal = builtin get bl from;
   (* Check if _sender has been authorized by "from" *)
   allowed_from = builtin get al from;
@@ -267,48 +275,46 @@ transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
     | Pair (Some a) (Some b) =>
       (* We can only transfer the minimum of available or authorized tokens *)
       t = min_int a b;
-      can_do = less_equal tokens t;
+      can_do = less_equal value t;
       match can_do with
       | True =>
         (* tokens is what we should subtract from "from" and add to "to" *)
-        new_from_bal = builtin sub a tokens;
+        new_from_bal = builtin sub a value;
         balances_1 = builtin put bl from new_from_bal;
         balances := balances_1;
         to_bal = builtin get balances_1 to;
         match to_bal with
         | Some tb =>
-          to_bal_new = builtin add tb tokens;
+          to_bal_new = builtin add tb value;
           balances_2 = builtin put balances_1 to to_bal_new;
           balances := balances_2;
           send no_msg
         | None =>
           (* "to" has no balance. So just set it to tokens *)
-          balances_3 = builtin put balances_1 to tokens;
+          balances_3 = builtin put balances_1 to value;
           balances := balances_3;
           send no_msg
         end;
         (* reduce "allowed" by "tokens" *)
-        new_allowed = builtin sub b tokens;
+        new_allowed = builtin sub b value;
         new_m = builtin put m _sender new_allowed;
         new_allowed = builtin put al from new_m;
         allowed := new_allowed;
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : transfer_status };
-
         msgs = one_msg msg;
-
         send msgs
       | False =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : incorrect_transfer_value };
         msgs = one_msg msg;
         send msgs
       end
     | _ =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : error };
       msgs = one_msg msg;
       send msgs
     end
   | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : m_disallowed };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : tokens_not_allowed };
     msgs = one_msg msg;
     send msgs
   end
@@ -316,6 +322,11 @@ end
 
 transition burnFrom(from : ByStr20,value :Uint128)
   bl<-balances;
+  burned="burned";
+  notburned="not burned";
+  tokens_not_allowed="Tokens not allowed by owner for given spender";
+  error="Error";
+  insufficient_balance="Insufficient balance cannot burn";
   al<-allowed;
   bal=builtin get bl from;
   allowed_from=builtin get al from;
@@ -335,30 +346,26 @@ transition burnFrom(from : ByStr20,value :Uint128)
         new_allowed=builtin sub b value;
         new_m = builtin put m _sender new_allowed;
         new_allowed_bala=builtin put al from new_m;
-        allowed:= new_allowed_bala
+        allowed:= new_allowed_bala;
         ts <- _totalSupply;
-
         ts=builtin sub ts value;
-
         _totalSupply := ts;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : mes };
-
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : burned };
         msgs = one_msg msg;
-
         send msgs
       | False =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : failure };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : insufficient_balance };
         msgs = one_msg msg;
         send msgs    
         
       end    
     | _ =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : failure };
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : error };
       msgs = one_msg msg;
       send msgs    
     end
   | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : failure };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : tokens_not_allowed };
     msgs = one_msg msg;
     send msgs
   end
