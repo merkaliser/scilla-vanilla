@@ -275,28 +275,28 @@ transition transferFrom (from : ByStr20, to : ByStr20, value : Uint128)
     | Pair (Some a) (Some b) =>
       (* We can only transfer the minimum of available or authorized tokens *)
       t = min_int a b;
-      can_do = less_equal tokens t;
+      can_do = less_equal value t;
       match can_do with
       | True =>
         (* tokens is what we should subtract from "from" and add to "to" *)
-        new_from_bal = builtin sub a tokens;
+        new_from_bal = builtin sub a value;
         balances_1 = builtin put bl from new_from_bal;
         balances := balances_1;
         to_bal = builtin get balances_1 to;
         match to_bal with
         | Some tb =>
-          to_bal_new = builtin add tb tokens;
+          to_bal_new = builtin add tb value;
           balances_2 = builtin put balances_1 to to_bal_new;
           balances := balances_2;
           send no_msg
         | None =>
           (* "to" has no balance. So just set it to tokens *)
-          balances_3 = builtin put balances_1 to tokens;
+          balances_3 = builtin put balances_1 to value;
           balances := balances_3;
           send no_msg
         end;
         (* reduce "allowed" by "tokens" *)
-        new_allowed = builtin sub b tokens;
+        new_allowed = builtin sub b value;
         new_m = builtin put m _sender new_allowed;
         new_allowed = builtin put al from new_m;
         allowed := new_allowed;
@@ -370,4 +370,3 @@ transition burnFrom(from : ByStr20,value :Uint128)
     send msgs
   end
 end
-  
