@@ -6,17 +6,6 @@ let one_msg =
   Cons {Message} msg nil_msg
 
 
-(* Error codes *)
-let success = Int32 1
-let failure = Int32 2
-
-(*wallet cant be beneficiary*)
-let failure1 = Int32 3
-let low_bal = Int32 4
-
-(*Not a multiple of rate*)
-let notMultiple=Int32 5
-
 
 (* Constants *)
 let _zero   = Uint128 0
@@ -49,6 +38,11 @@ field owner_balance : Map ByStr20 Uint128 =
 transition buyTokens (beneficiary: ByStr20) 
 s <- sale;
 ob <- owner_balance;
+success="success";
+failure="failure";
+notMultiple="Not a multiple of rate";
+failure1 = "wallet cant be beneficiary";
+
 zilAmount = builtin div _amount _rate ;
 _new_tokensRaised <-tokensRaised;
  
@@ -89,7 +83,7 @@ val = builtin eq beneficiary _wallet;
              send msgs
              end
          | False =>
-         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : notMultiple };
+         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : notMultiple };
          msgs = one_msg msg;
          send msgs
          end
@@ -100,7 +94,7 @@ val = builtin eq beneficiary _wallet;
          send msgs
          end
   | True =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure1 };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failure1 };
     msgs = one_msg msg;
     send msgs
   end

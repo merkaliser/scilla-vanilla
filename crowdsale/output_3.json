@@ -1,11 +1,11 @@
 {
-  "gas_remaining": "7506",
+  "gas_remaining": "7516",
   "message": {
     "_tag": "Main",
     "_amount": "0",
     "_accepted": "false",
     "_recipient": "0x12345678901234567890123456789012345678ab",
-    "params": [ { "vname": "wei", "type": "Uint128", "value": "0" } ]
+    "params": [ { "vname": "tokens", "type": "Uint128", "value": "0" } ]
   },
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
