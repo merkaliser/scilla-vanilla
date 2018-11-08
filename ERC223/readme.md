@@ -1,4 +1,4 @@
-# Test Case
+## Test Cases
 1.balanceOf : balanceof the token owner .Expected `[SUCCESS]` <br/>
 2.totalSupply : total supply of tokens at present. Expected: [Success] `10000` <br/>
 3.transfer : transfer tokens from `_sender` to `to` .Expected `[SUCCESS]` `value:500`. <br/>
