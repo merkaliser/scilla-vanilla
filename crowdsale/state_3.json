@@ -1,0 +1,12 @@
+[
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "tokensRaised", "type": "Uint128", "value": "0" },
+    { "vname": "sale", "type": "Map (ByStr20) (Uint128)", "value": [] },
+    {
+      "vname": "owner_balance",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4", "val": "0" }
+      ]
+    }
+  ]

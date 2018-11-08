@@ -1,0 +1,20 @@
+[
+    {
+        "vname" : "_creation_block",
+        "type" : "BNum",
+        "value" : "1"
+    },
+    {
+        "vname" : "_wallet",
+        "type" : "ByStr20",
+        "value" : "0x6D8794A2B6B98EABC1F466D0C5A4C1EE9E0F77F4"
+    },
+    {
+        "vname" : "_rate",
+        "type" : "Uint128",
+        "value" : "5"
+    }
+
+
+
+]
