@@ -29,17 +29,17 @@ contract CrowdSale
 (_wallet : ByStr20,
 _rate    : Uint128)
 
-  (* How many token units a buyer gets per wei.*)
-  (* The rate is the conversion between wei and the smallest and indivisible token unit.*)
+  (* How many token units a buyer gets per zil.*)
+  (* The rate is the conversion between zil and the smallest and indivisible token unit.*)
   (* So, if you are using a rate of 1 with a ERC20Detailed token with 3 decimals called TOK*)
-  (* 1 wei will give you 1 unit, or 0.001 TOK.*)
+  (* 1 zil will give you 1 unit*)
 
 field tokensRaised : Uint128 = Uint128 0
 
 (*shows which beneficiary has how many tokens*)
 field sale : Map ByStr20 Uint128 = Emp ByStr20 Uint128
 
-(*balance of owner in wei*)
+(*balance of owner in zil*)
 field owner_balance : Map ByStr20 Uint128 =
   let m = Emp ByStr20 Uint128 in
     builtin put m _wallet _zero
@@ -49,7 +49,7 @@ field owner_balance : Map ByStr20 Uint128 =
 transition buyTokens (beneficiary: ByStr20) 
   s <- sale;
   ob <- owner_balance;
-  weiAmount = builtin div _amount _rate ;
+  zilAmount = builtin div _amount _rate ;
   _new_tokensRaised <-tokensRaised;
  
 isMultiple1= builtin div _amount  _rate;
@@ -60,13 +60,13 @@ val = builtin eq beneficiary _wallet;
   
   match val with
   | False =>
-      val1 = builtin eq weiAmount _zero;
+      val1 = builtin eq zilAmount _zero;
       match val1 with
      | False =>
           match isMultiple with
         | True =>
-        new_sale = builtin put s beneficiary weiAmount;
-        new_tokensRaised1 = builtin add _new_tokensRaised weiAmount;
+        new_sale = builtin put s beneficiary zilAmount;
+        new_tokensRaised1 = builtin add _new_tokensRaised zilAmount;
         tokensRaised:=new_tokensRaised1;
         sale:=new_sale;
         
@@ -115,7 +115,7 @@ transition wallet()
 end
 
 
-(* @return the number of token units a buyer gets per wei.*)
+(* @return the number of token units a buyer gets per zil.*)
 transition rate()
     msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; rate : _rate};
     msgs = one_msg msg;
@@ -124,11 +124,11 @@ end
 
 
 
-  (*@return the amount of wei raised.*)
+  (*@return the amount of tokens raised.*)
 transition tokensRaised ()
-    w<-tokensRaised;
+    t<-tokensRaised;
     
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; wei : w};
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; tokens : t};
     msgs = one_msg msg;
     send msgs
 end
