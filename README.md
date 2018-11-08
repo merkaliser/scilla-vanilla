@@ -1,4 +1,5 @@
-# Vanilla  :ice_cream:
+# Vanilla :ice_cream:
+
 > Simple Standard Reusable Vanilla Contracts for scilla
 
  <br>
@@ -9,13 +10,12 @@ Feel free to create requests for smart contracts you would like to see developed
 
 ## Contributions
 
-Vanilla exists thanks to its contributors. There are many ways you can participate and help build high quality software. Join our [slack](https://merkalise.slack.com/messages) to say hi!
+Vanilla exists thanks to its contributors. There are many ways you can participate and help build high quality software. Join our [slack](https://publicslack.com/slacks/merkalise) to say hi!
 
 **Note: Vanilla is under heavy development and countinuous audits and is not production ready yet.**
 
+## License
 
-## License 
-MIT 
-
+MIT
 
 Made with :heart: by Merkalise for :octocat:
