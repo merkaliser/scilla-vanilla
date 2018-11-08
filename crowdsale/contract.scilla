@@ -1,0 +1,127 @@
+library CrowdSale
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+
+
+(* Constants *)
+let _zero   = Uint128 0
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract CrowdSale
+(_wallet : ByStr20,
+_rate    : Uint128)
+
+  (* How many token units a buyer gets per zil.*)
+  (* The rate is the conversion between zil and the smallest and indivisible token unit.*)
+  (* So, if you are using a rate of 1 with a ERC20Detailed token with 3 decimals called TOK*)
+  (* 1 zil will give you 1 unit*)
+
+field tokensRaised : Uint128 = Uint128 0
+
+(*shows which beneficiary has how many tokens*)
+field sale : Map ByStr20 Uint128 = Emp ByStr20 Uint128
+
+(*balance of owner in zil*)
+field owner_balance : Map ByStr20 Uint128 =
+  let m = Emp ByStr20 Uint128 in
+    builtin put m _wallet _zero
+
+
+
+transition buyTokens (beneficiary: ByStr20) 
+s <- sale;
+ob <- owner_balance;
+success="success";
+failure="failure";
+notMultiple="Not a multiple of rate";
+failure1 = "wallet cant be beneficiary";
+
+zilAmount = builtin div _amount _rate ;
+_new_tokensRaised <-tokensRaised;
+ 
+isMultiple1= builtin div _amount  _rate;
+isMultiple2= builtin mul isMultiple1  _rate;
+isMultiple=builtin eq isMultiple2 _amount ;
+val = builtin eq beneficiary _wallet;
+  
+  match val with
+  | False =>
+      val1 = builtin eq zilAmount _zero;
+      match val1 with
+     | False =>
+          match isMultiple with
+        | True =>
+        new_sale = builtin put s beneficiary zilAmount;
+        new_tokensRaised1 = builtin add _new_tokensRaised zilAmount;
+        tokensRaised:=new_tokensRaised1;
+        sale:=new_sale;
+        
+        (*wallet balance*)
+        old_owner_bal = builtin get ob _wallet;
+          match old_owner_bal with
+            | Some v =>
+            newBal=builtin add v _amount;
+            (*wallet balance updated*)
+            new_owner_bal = builtin put ob _wallet newBal ;
+            owner_balance:=new_owner_bal;
+            msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
+            msgs = one_msg msg;
+            send msgs
+            |None =>
+            (*wallet balance updated*)
+             new_owner_bal = builtin put ob _wallet _amount ;
+             owner_balance:=new_owner_bal;
+             msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
+             msgs = one_msg msg;
+             send msgs
+             end
+         | False =>
+         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : notMultiple };
+         msgs = one_msg msg;
+         send msgs
+         end
+       
+     | False =>
+         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
+         msgs = one_msg msg;
+         send msgs
+         end
+  | True =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failure1 };
+    msgs = one_msg msg;
+    send msgs
+  end
+  end
+
+
+transition wallet()
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; wallet : _wallet};
+    msgs = one_msg msg;
+    send msgs
+end
+
+
+(* @return the number of token units a buyer gets per zil.*)
+transition rate()
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; rate : _rate};
+    msgs = one_msg msg;
+    send msgs
+end
+
+
+  (*@return the amount of tokens raised.*)
+transition tokensRaised ()
+    t<-tokensRaised;
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; tokens : t};
+    msgs = one_msg msg;
+    send msgs
+end
+
+
