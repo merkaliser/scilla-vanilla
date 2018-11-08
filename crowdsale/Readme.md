@@ -12,6 +12,6 @@ https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crow
 2. rate: rate of the token. Expected: [Success] `5`.
 3. tokensRaised: number of tokens raised till now. Expected: [Success] `0` 
 4. buyTokens: `_sender` buys from `10` zils for `beneficiary`. Expected: [Success]
-5. buyTokens: `_sender` tries to buy from `9` zils for `beneficiary` that is not a rate `5` multiple. Expected: Code - `5` . 
+5. buyTokens: `_sender` tries to buy from `9` zils for `beneficiary` that is not a rate `5` multiple. Expected: `Code - 5` . 
 6. buyTokens: `_sender` is `beneficiary` and adds `20` zils. Expected: [Success].
 

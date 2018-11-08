@@ -47,15 +47,14 @@ field owner_balance : Map ByStr20 Uint128 =
 
 
 transition buyTokens (beneficiary: ByStr20) 
-  s <- sale;
-  ob <- owner_balance;
-  zilAmount = builtin div _amount _rate ;
-  _new_tokensRaised <-tokensRaised;
+s <- sale;
+ob <- owner_balance;
+zilAmount = builtin div _amount _rate ;
+_new_tokensRaised <-tokensRaised;
  
 isMultiple1= builtin div _amount  _rate;
 isMultiple2= builtin mul isMultiple1  _rate;
 isMultiple=builtin eq isMultiple2 _amount ;
-
 val = builtin eq beneficiary _wallet;
   
   match val with
@@ -123,11 +122,9 @@ transition rate()
 end
 
 
-
   (*@return the amount of tokens raised.*)
 transition tokensRaised ()
     t<-tokensRaised;
-    
     msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; tokens : t};
     msgs = one_msg msg;
     send msgs
