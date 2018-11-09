@@ -6,4 +6,4 @@ References taken:<br>
 https://github.com/ethereum/EIPs/issues/1400 <br>
 https://github.com/ethereum/EIPs/issues/1411<br>
 
-Few transitions are left incomplete, that shall be completed using Structures in Scilla.
+

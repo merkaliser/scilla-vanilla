@@ -14,6 +14,7 @@ let one_msg =
 
 let no_msg = Nil {Message}
 
+
 let min_int =
   fun (a : Uint128) => fun (b : Uint128) =>
   let alt = builtin lt a b in
@@ -25,7 +26,7 @@ let min_int =
   end
 
 let le_int =
-  fun (a : Uint128) => fun (b : Uin128) =>
+  fun (a : Uint128) => fun (b : Uint128) =>
     let x = builtin lt a b in
     match x with
     | True => True
@@ -37,8 +38,8 @@ let le_int =
       end
     end
     
-
-
+let true   = Uint32 1
+let false   = Uint32 0
 
 (***************************************************)
 (*             The contract definition             *)
@@ -51,24 +52,25 @@ contract SecurityToken
  owner : ByStr20)
 
 (* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
-
-field balances : Map ByStr20 Uint256 =
-  let m = Emp ByStr20 Uint256 in
+field balances : Map ByStr20 Uint128 =
+  let m = Emp ByStr20 Uint128 in
     builtin put m owner totalSupply
 
 field _totalSupply: Uint128 = totalSupply
-  
-(* Mapping from investor to their tranches (address -> amount tranche)*)
-field tranches : Map ByStr20 (Map Uint256 Int32) = Emp ByStr20 (Map Uint256 Int32)
 
-(* Mapping from (investor, tranche) to index of corresponding tranche in tranches*)
-field trancheToIndex : Map ByStr20 (Map Int32 Uint256) = Emp ByStr20 (Map Int32 Uint256)
+  
+(* Mapping from investor to their tranches (Address ->  tranche amount)*)
+field tranches : Map ByStr20 (Map Uint32 Uint128) = Emp ByStr20 (Map Uint32 Uint128)
+(*field tranchesLastID=Uint32 0*)
+(* new ids would be tranchesLastID plus one*)
+
+
 
 (* Mapping from (investor, tranche, operator) to approved status*)
-field trancheApprovals : Map ByStr20 (Map Int32 (Map ByStr20 Int32)) = Emp ByStr20 (Map Int32 (Map ByStr20 Int32))
+field trancheApprovals : Map ByStr20 (Map Uint32 (Map ByStr20 Uint32)) = Emp ByStr20 (Map Uint32 (Map ByStr20 Uint32))
 
 (* Mapping from (investor, operator) to approved status (can be used against any tranches)*)
-field approvals : Map ByStr20 (Map ByStr20 Int32) = Emp ByStr20 (Map ByStr20 Int32)
+field approvals : Map ByStr20 (Map ByStr20 Uint32) = Emp ByStr20 (Map ByStr20 Uint32)
 
  
  
@@ -87,10 +89,11 @@ end
 
 transition totalSupply ()
   t<-_totalSupply;
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; totalSupply : t};
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : t};
   msgs = one_msg msg;
   send msgs
  end
+
 
 
 transition balanceOf (_owner : ByStr20)
@@ -108,15 +111,17 @@ transition balanceOf (_owner : ByStr20)
   end
 end 
 
-(*return tranches[_owner][trancheToIndex[_owner][_tranche]].amount;*)
+
+
+
 (*Returns restricted token balance*)
 
-transition balanceOfTranche ( _tranche: Int32  ,_owner : ByStr20)
-  tr <- trancheToIndex;
+transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
+  tr <- tranches;
   val = builtin get tr _owner;
   match val with
   | Some v =>
-    bl = builtin get val _tranche;
+    bl = builtin get v _tranche;
     match bl with
     | Some v1 => 
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint256 0; bal : v1 };
@@ -138,6 +143,17 @@ end
 
 
 
+(* @notice Enables caller to determine the count of tranches owned by an address*)
+(* @param _owner An address over which to enumerate tranches*)
+(* @return The number of tranches owned by an `_owner`*)
+(*transition tranchesOf(ByStr20 _owner) *)
+(*s<-tranches[_owner].length;*)
+(*msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tranches : s};*)
+(*msgs = one_msg msg;*)
+(*send msgs*)
+(*end*)
+
+
 
 
 (*Transfers the ownership of tokens from a specified tranche from one address to another address*)
@@ -150,65 +166,55 @@ end
    
 (* Transfers tokens from the sender to the _to address, keeping the _tranche the same*)
    
-transition sendTranche (_tranche : Uint32, _to : ByStr20, amount:Uint256, _data:String )
+transition sendTranche (_tranche : Uint32, _to : ByStr20, amount:Uint128, _data:String )
 
-(*r_code= le_int balanceOfTranche(msg.sender, _tranche)  _amount) *)
-(*r_code1= le_int tranches[_from][trancheToIndex[msg.sender][_tranche]].amount - _amount tranches[_from][trancheToIndex[msg.sender][_tranche]].amount ) *)
-  
+v <- tranches[_sender][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin sub vx amount;
+ v1<-balances[_sender];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin sub v1x amount;
+   v2<-tranches[_to][_tranche];
+   match v2 with
+     | Some v2x =>
+     toBalTranche=builtin add v2x amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x amount;
+ 	balances[_to] := toBal;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+	msgs = one_msg msg;
+	send msgs
+	| None =>
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+	msgs = one_msg msg;
+	send msgs
+	end
 
-(*r_code2= le_int tranches[_from][trancheToIndex[msg.sender][_tranche]].amount - _amount  tranches[_from][trancheToIndex[msg.sender][_tranche]].amount ) *)
-
-end
-
-
-
-
-transition operatorSendTranche (_tranche : Uint32,_from : ByStr20, _to : ByStr20, _amount:Uint256, _data:String, _operatorData:String )
-    al <- allowed;
-    
-    auth="authorized";
-    noauth="authorize failed";
-    
-    is_operator=builtin eq operator _sender;
-    match is_operator with
-    | True=>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized :noauth};
-  msgs = one_msg msg;
-  send msgs
-    | False=>
-        allowed_operators = let m = Emp ByStr20 Uint128 in builtin put m _sender totalSupply ;
-        allowed_new = builtin put al operator allowed_operators;
-        allowed := allowed_new;
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : auth};
-  msgs = one_msg msg;
-  send msgs
-
+    | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+    msgs = one_msg msg;
+    send msgs
     end
+
+  | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+  msgs = one_msg msg;
+  send msgs
+  end
+
+| None =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+msgs = one_msg msg;
+send msgs
 end
 
-
-
-(*return tranches[_owner][_index].tranche;*)
-transition trancheByIndex (_owner : ByStr20,_index:Uint256)
-   
-end
-
-
-
-transition tranchesOf (_owner : ByStr20)
-
-    tr <- tranches;
-    get_owner=builtin get tr tranch;
-    match get_owner with
-    | Some v=>
-     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; total : v};
-     msgs = one_msg msg;
-     send msgs
-     | None=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; total : Uint128 0};
-        msgs = one_msg msg;
-        send msgs
-      end
 end
 
 
@@ -228,109 +234,196 @@ transition defaultOperatorsTranche (_tranche:String)
     send msgs
 end
 
-
-
 transition authorizeOperator ( operator : ByStr20)
-   
-  ap <- approvals;
-  op = builtin get ap _sender;
-  match op with
-  | Some m =>
-        new_approvals = builtin put m operator true;
-        approvals := new_approvals;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : Uint128 1   };
-        msgs = one_msg msg;
-        send msgs
-       
- | None=>
-        new_sender=builtin put ap _sender operator;
-        new_approvals = builtin put new_sender operator true;
-        approvals := new_approvals;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : Uint128 1  };
-        msgs = one_msg msg;
-        send msgs
-    end
+  approvals[_sender][operator] := true;
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : Uint128 1  };
+  msgs = one_msg msg;
+  send msgs
 end
-
-
-transition authorizeOperatorTranche ( operator : ByStr20,_tranche:Int32 )
- 
-end
-
-
-
 
 
 
 transition revokeOperator ( operator : ByStr20)
-  
-  ap <- approvals;
-  op = builtin get ap _sender;
-  match op with
-  | Some m =>
-        new_approvals = builtin put m operator false;
-        approvals := new_approvals;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : Uint128 0  };
-        msgs = one_msg msg;
-        send msgs
-       
- | None=>
-        new_sender=builtin put ap _sender operator;
-        new_approvals = builtin put new_sender operator false;
-        approvals := new_approvals;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : Uint128 0 };
-        msgs = one_msg msg;
-        send msgs
+  approvals[_sender][operator] := false;
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; unauthorized : Uint128 1  };
+  msgs = one_msg msg;
+  send msgs
+end
+
+
+transition operatorSendTranche (_tranche : Uint32,_from : ByStr20, _to : ByStr20, amount:Uint128, _data:String, _operatorData:String )
+    
+   
+v <- tranches[_from][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin sub vx amount;
+ v1<-balances[_from];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin sub v1x amount;
+   v2<-tranches[_to][_tranche];
+   match v2 with
+     | Some v2x =>
+     toBalTranche=builtin add v2x amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_from][_tranche] := fromBalTranche;
+        balances[_from] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x amount;
+ 	balances[_to] := toBal;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+	msgs = one_msg msg;
+	send msgs
+	| None =>
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+	msgs = one_msg msg;
+	send msgs
+	end
+
+    | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+    msgs = one_msg msg;
+    send msgs
     end
+
+  | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+  msgs = one_msg msg;
+  send msgs
+  end
+
+| None =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+msgs = one_msg msg;
+send msgs
 end
 
-
-
-transition revokeOperatorTranche ( operator : ByStr20,_tranche:Int32 )
-  
-end
-
-
-
-transition isOperatorFor ( operator : ByStr20, _owner : ByStr20)
-  ap <- approvals;
-  op = builtin get ap _sender;
-  match op with
-  | Some m =>
-        op1 = builtin get m operator;
-          match op with
-          | Some m1 =>
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : m1  };
-          msgs = one_msg msg;
-          send msgs
-          | None=>
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized :Uint128 0 };
-          msgs = one_msg msg;
-          send msgs
-      end
-       
- | None=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : Uint128 0  };
-        msgs = one_msg msg;
-        send msgs
-    end
-end
-
-
-
-transition isOperatorForTranche ( operator : ByStr20, _owner : ByStr20,_tranche:Int32)
- 
 end
 
 
 
 
+transition authorizeOperatorTranche ( _operator : ByStr20,_tranche:Uint32 )
+trancheApprovals[_sender][_tranche][_operator] := true;
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; unauthorized : Uint128 1  };
+msgs = one_msg msg;
+send msgs
+end
 
-transition burn (_tranche:Int32,_owner:ByStr20,_amount : Uint256 , _data : String)
+
+
+transition revokeOperatorTranche ( _operator : ByStr20,_tranche:Uint32 )
+trancheApprovals[_sender][_tranche][_operator] := false;
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; unauthorized : Uint128 1  };
+msgs = one_msg msg;
+send msgs
+end
+
+
+
+transition isOperatorFor ( _operator : ByStr20, _owner : ByStr20 )
+tr<-approvals[_owner][_operator];
+match tr with
+ | Some v =>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tranche : true };
+ msgs = one_msg msg;
+ send msgs
+ | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tranche : false };
+  msgs = one_msg msg;
+  send msgs
+  end
+end
+
+
+
+transition isOperatorForTranche ( _tranch : Uint32, _operator : ByStr20, _owner : ByStr20 )
+tr<-trancheApprovals[_owner][_tranch][_operator];
+match tr with
+ | Some v =>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tranche : true };
+ msgs = one_msg msg;
+ send msgs
+ | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tranche : false };
+  msgs = one_msg msg;
+  send msgs
+  end
+end
+
+
+transition burn (_tranche:Uint32,_owner:ByStr20,amount : Uint128 , _data : String)
+v <- tranches[_sender][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin sub vx amount;
+ v1<-balances[_sender];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin sub v1x amount;
+   tranches[_sender][_tranche] := fromBalTranche;
+   balances[_sender] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin sub t amount;
+   _totalSupply:= newSupply;
+
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+   msgs = one_msg msg;
+   send msgs
+	
+
+  | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+  msgs = one_msg msg;
+  send msgs
+  end
+
+| None =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+msgs = one_msg msg;
+send msgs
+end
 
 end
 
 
-transition mint (_tranche:Int32,_owner:ByStr20,_amount : Uint256 , _data : String)
+
+transition mint (_tranche:Uint32,_owner:ByStr20,amount : Uint128 , _data : String)
+v <- tranches[_sender][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin add vx amount;
+ v1<-balances[_sender];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin add v1x amount;
+   tranches[_sender][_tranche] := fromBalTranche;
+   balances[_sender] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin add t amount;
+   _totalSupply:= newSupply;
+
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+   msgs = one_msg msg;
+   send msgs
+	
+
+  | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+  msgs = one_msg msg;
+  send msgs
+  end
+
+| None =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint256 0 };
+msgs = one_msg msg;
+send msgs
+end
 
 end
+
+
+
