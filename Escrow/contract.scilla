@@ -99,7 +99,8 @@ end
 
 
 
-transition deposit (payee : ByStr20, deposits : Uint128)
+transition deposit (payee : ByStr20)
+  deposits=_amount;
   bl <- all_deposits;
   bal = builtin get bl _sender;
   match bal with
@@ -139,7 +140,8 @@ end
 
 
 
-transition withdraw (payee : ByStr20, deposits : Uint128)
+transition withdraw (payee : ByStr20)
+  deposits=_amount;
   p <- _primary;
      msg2="not primary";
     isPrimary=builtin eq _sender p;
