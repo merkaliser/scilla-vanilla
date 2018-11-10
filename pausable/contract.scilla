@@ -66,7 +66,7 @@ transition add (role : String, account :ByStr20)
     new_bearer_role = builtin put b role new_bearer;
     bearer:=new_bearer_role;
     
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : _one };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _one };
     msgs = one_msg msg;
     send msgs
     
@@ -75,7 +75,7 @@ transition add (role : String, account :ByStr20)
     new_bearer_role = builtin put b role new_bearer;
     bearer:=new_bearer_role;
     
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : _one };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _one };
     msgs = one_msg msg;
     send msgs
   end
@@ -96,7 +96,7 @@ transition renounce (role : String, account :ByStr20)
     new_bearer_role = builtin put b role new_bearer;
     bearer:=new_bearer_role;
     
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : _zero };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _zero };
     msgs = one_msg msg;
     send msgs
     
@@ -105,7 +105,7 @@ transition renounce (role : String, account :ByStr20)
     new_bearer_role = builtin put b role new_bearer;
     bearer:=new_bearer_role;
     
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : _zero };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _zero };
     msgs = one_msg msg;
     send msgs
   end
@@ -124,7 +124,7 @@ transition remove (role : String, account :ByStr20)
     new_bearer_role = builtin put b role new_bearer;
     bearer:=new_bearer_role;
     
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : _zero };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _zero };
     msgs = one_msg msg;
     send msgs
     
@@ -133,7 +133,7 @@ transition remove (role : String, account :ByStr20)
     new_bearer_role = builtin put b role new_bearer;
     bearer:=new_bearer_role;
     
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : _zero };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _zero };
     msgs = one_msg msg;
     send msgs
   end
