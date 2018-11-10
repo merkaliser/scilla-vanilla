@@ -1,0 +1,42 @@
+{
+  "gas_remaining": "7141",
+  "message": {
+    "_tag": "Main",
+    "_amount": "0",
+    "_accepted": "false",
+    "_recipient": "0xabcdeabcde123456789012345678901234567890",
+    "params": [
+      { "vname": "isOperator", "type": "String", "value": "Operator found" }
+    ]
+  },
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    {
+      "vname": "allowed",
+      "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
+      "value": [
+        {
+          "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+          "val": [
+            {
+              "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+              "val": "1000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vname": "balances",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        {
+          "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+          "val": "1000"
+        }
+      ]
+    },
+    { "vname": "_totalSupply", "type": "Uint128", "value": "1000" }
+  ],
+  "events": []
+}

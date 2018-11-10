@@ -1,0 +1,19 @@
+{
+  "_tag": "operatorSend",
+  "_amount": "0",
+    "_sender": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+ "params": [
+    { "vname": "from", "type": "ByStr20",
+	 "value": "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617" },
+    { "vname": "to", "type": "ByStr20",
+	 "value": "0x5C1F82F393C23A0301AA756E864D41671F5352E5" },
+    { "vname": "amount", "type": "Uint128", 
+	"value": "8" },
+    { "vname": "userData", "type": "String", 
+	"value": "sending 8 tokens to 4th account" },
+    { "vname": "operatorData", "type": "String", 
+	"value": "1st account is operated by 2nd" }
+
+  ]
+
+}
