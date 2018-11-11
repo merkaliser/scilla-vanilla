@@ -1,17 +1,20 @@
 [
     {
+        "vname" : "_creation_block",
+        "type" : "BNum",
+        "value" : "1"
+    },
+    {
         "vname" : "owner",
         "type" : "ByStr20",
-        "value" : "0x1234567890123456789012345678901234567890"
+        "value" : "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617"
     },
     {
         "vname" : "total_tokens",
         "type" : "Uint128",
-        "value" : "10000"
-    },
-    {
-        "vname" : "_creation_block",
-        "type" : "BNum",
         "value" : "1"
     }
 ]
+
+
+

@@ -1,0 +1,8 @@
+[
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    {
+      "vname": "bearer",
+      "type": "Map (String) (Map (ByStr20) (Int32))",
+      "value": [ { "key": "myrole", "val": [] } ]
+    }
+  ]

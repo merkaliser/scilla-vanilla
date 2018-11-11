@@ -1,0 +1,29 @@
+{
+  "gas_remaining": "7268",
+  "message": {
+    "_tag": "Main",
+    "_amount": "0",
+    "_accepted": "false",
+    "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+    "params": [
+      { "vname": "_transfer", "type": "String", "value": "not primary" }
+    ]
+  },
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    {
+      "vname": "all_deposits",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "985" },
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "15" }
+      ]
+    },
+    {
+      "vname": "_primary",
+      "type": "ByStr20",
+      "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+    }
+  ],
+  "events": []
+}
