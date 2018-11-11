@@ -1,0 +1,12 @@
+{
+    "_tag": "transferPrimary",
+    "_amount": "0",
+    "_sender": "0x1992d4dfafd282e8a8b3c776eb9fc907d321e21a",
+    "params": [ 
+{
+            "vname" : "recipient",
+            "type" : "ByStr20",
+            "value" : "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617"
+        }
+]
+}

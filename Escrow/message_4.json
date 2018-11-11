@@ -1,0 +1,12 @@
+{
+    "_tag": "withdraw",
+    "_amount": "5",
+    "_sender" : "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+    "params": [
+        {
+            "vname" : "payee",
+            "type" : "ByStr20",
+            "value" : "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
+        }
+    ]
+} 
