@@ -1,14 +1,9 @@
 
 {
-    "_tag": "operatorSendTranche",
-    "_amount": "20",
-    "_sender" : "0x74d045132c83f0c6478930569eccc963c89e2467",
+    "_tag": "operatorSend",
+    "_amount": "10",
+    "_sender" : "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
     "params": [
-	{
-            "vname": "_tranche",
-            "type": "Uint32",
-            "value": "1"
-        },
 	{
             "vname": "_from",
             "type": "ByStr20",
@@ -17,7 +12,7 @@
 	{
             "vname": "_to",
             "type": "ByStr20",
-            "value": "0x6D8794A2B6B98EABC1F466D0C5A4C1EE9E0F77F4"
+            "value": "0x8D8A16E43272E09CAE1CB5878A15E6443952A9FF"
         },
 	{
             "vname": "_data",
