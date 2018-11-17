@@ -3,7 +3,7 @@
 (*               Associated library                *)
 (***************************************************)
 
-import BoolUtils
+import BoolUtils ListUtils PairUtils
 
 library Randao 
 
@@ -65,8 +65,8 @@ contract Randao
 field balances : Map ByStr20 Uint128 = Emp ByStr20 Uint128 
 
 (*address secret, commitment, revealed, rewarded*)
-field participant :Map ByStr20 ( Map Uint128 (Map Uint32 ( Map Bool Bool))) =
-				Emp ByStr20 ( Map Uint128 (Map Uint32  ( Map Bool Bool)))
+field participant :Map ByStr20 ( Map ByStr32 (Map Uint128 ( Map Bool Bool))) =
+				Emp ByStr20 ( Map ByStr32 (Map Uint128  ( Map Bool Bool)))
 
 (*caddr , bountypot*)
 (*balance of Consumer in zil*)
@@ -85,7 +85,12 @@ field revealsNum : Uint32 = _zero1
  
 field random: Uint32 = _zero1
 
-transition commit (_hs : Uint32 )
+
+
+
+
+
+transition commit (_hs : ByStr32 )
 success="successful";
 fail1="deposit amount of zil is not equal to deposit required";
 failEarly="Failed, early to commit";
@@ -95,8 +100,8 @@ isEqualDeposit= builtin eq _amount _deposit;
 blk <- & BLOCKNUMBER;
 (*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
 
-in_time=blk_leq commitBalkline blk;
-in_time1 = blk_leq blk commitDeadline;
+in_time=builtin blt commitBalkline blk;
+in_time1 = builtin blt blk commitDeadline;
 
 
 match isEqualDeposit with
@@ -106,22 +111,14 @@ match isEqualDeposit with
 	match in_time1 with
 	  | True =>
 	   ff = False;
- 	   participant[_sender][_zero][_hs][ff] := ff;
+ 	   participant[_sender][_hs][_zero][ff] := ff;
 	   cn<-	commitNum;
-	    match cn with
-	   | Some v =>
 	    newCommitNum=builtin add cn _one1;
             commitNum:=newCommitNum;
 	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
 	    msgs = one_msg msg;
 	    send msgs
-	   | None =>
-	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
-	    msgs = one_msg msg;
-	    send msgs
-	    end
-
-          | False => 
+	  | False => 
 	   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
 	   msgs = one_msg msg;
 	   send msgs
@@ -142,46 +139,16 @@ end
 
 
 
-transition getCommitment ()
-  failure="commitment not found for _sender";
-  val <- participant [_sender];
-  match val with
-  | Some v =>
-   val1<- participant [_sender][v];
-	match val1 with
-	  | Some v1 =>
-	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : v1 };
-	    msgs = one_msg msg;
-	    send msgs
-	  | None =>
-	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error2 : failure };
-	    msgs = one_msg msg;
-	    send msgs
-	  end
-
-    | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failure };
-    msgs = one_msg msg;
-    send msgs
-  end
-end 
 
 
 
 transition shaCommit(_s : Uint128)
 failure="hashing failed";
 commit= builtin sha256hash _s;
-match val with
-  | Some v =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : v };
-    msgs = one_msg msg;
-    send msgs
-  | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failure };
-    msgs = one_msg msg;
-    send msgs
-    end
-end
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : commit };
+ msgs = one_msg msg;
+ send msgs
+ end
 
 
 
@@ -194,7 +161,7 @@ failDeadline="Failed, deadline finished to reveal";
 blk <- & BLOCKNUMBER;
 (*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
 
-in_time=blk_leq _commitDeadline blk;
+in_time=blk_leq commitDeadline blk;
 in_time1 = blk_leq blk bnum ;
 failure= "Failure";
 
@@ -203,7 +170,7 @@ match in_time with
   match in_time1 with
   | True =>
   commit= builtin sha256hash _s;
-  match val with
+  match commit with
     | Some h =>
       val5 <- participant [_sender];
       match val5 with
@@ -271,6 +238,7 @@ end
 
 
 transition getRandom ()
+fail="failure";
 blk <- & BLOCKNUMBER;
 isEnd=blk_leq bnum blk;
 r<-revealsNum;
@@ -278,41 +246,20 @@ c<-commitNum;
 rn<-random;
 match isEnd with
 | True =>
-
-match r with
-| Some r1 =>
-match c with
- | Some c1 =>
- isSettled=builtin eq r1 c1;
+ isSettled=builtin eq r c;
  match isSettled with
  | True =>
-  match rn with
-   | Some v =>
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  number : v  };
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  number : rn  };
    msgs = one_msg msg;
    send msgs
-   | None =>
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
-   msgs = one_msg msg;
-   send msgs
-  end 
+
  | False =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail  };
   msgs = one_msg msg;
   send msgs
  end
- | None =>
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
-   msgs = one_msg msg;
-   send msgs
-  end 
-| None =>
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
-msgs = one_msg msg;
-send msgs
-end 
 | False =>
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail  };
 msgs = one_msg msg;
 send msgs
 end 
@@ -331,4 +278,31 @@ msgs = one_msg msg;
 send msgs
 end 
 end
+
+
+
+transition getCommitment ()
+  failure="commitment not found for _sender";
+  p<-participant;
+  valMap = builtin get p _sender;
+  match valMap with
+  | Some v =>
+    val=builtin to_list v;
+
+    pair=list_unzip val;
+    firstElementList=builtin fst pair;
+    listfirst=builtin list_head firstElementList;
+
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : failure };
+    msgs = one_msg msg;
+    send msgs
+    
+
+ | None=>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : failure };
+    msgs = one_msg msg;
+    send msgs
+end
+
+end 
 
