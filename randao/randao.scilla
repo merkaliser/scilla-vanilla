@@ -1,0 +1,334 @@
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+
+import BoolUtils
+
+library Randao 
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let no_msg = Nil {Message}
+
+
+let blk_leq =
+  fun (blk1 : BNum) =>
+  fun (blk2 : BNum) =>
+    let bc1 = builtin blt blk1 blk2 in 
+    let bc2 = builtin eq blk1 blk2 in 
+    orb bc1 bc2
+
+
+let min_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+  let alt = builtin lt a b in
+  match alt with
+  | True =>
+    a
+  | False =>
+    b
+  end
+
+let le_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+    let x = builtin lt a b in
+    match x with
+    | True => True
+    | False =>
+      let y = builtin eq a b in
+      match y with
+      | True => True
+      | False => False
+      end
+    end
+    
+let true   = Uint32 1
+let false   = Uint32 0
+let _zero   = Uint128 0
+let _zero1   = Uint32 0
+let _one1   = Uint32 1
+
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract Randao 
+( founder : ByStr20, _deposit: Uint128, commitBalkline: BNum, commitDeadline: BNum, bnum: BNum, _bounty: Uint128 )
+
+
+(* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
+field balances : Map ByStr20 Uint128 = Emp ByStr20 Uint128 
+
+(*address secret, commitment, revealed, rewarded*)
+field participant :Map ByStr20 ( Map Uint128 (Map Uint32 ( Map Bool Bool))) =
+				Emp ByStr20 ( Map Uint128 (Map Uint32  ( Map Bool Bool)))
+
+(*caddr , bountypot*)
+(*balance of Consumer in zil*)
+field consumer : Map ByStr20 Uint128 =
+  let m = Emp ByStr20 Uint128 in
+    builtin put m founder _bounty
+
+
+
+field commitNum : Uint32 = _zero1
+(*equal to zero at initialisation*)
+
+field revealsNum : Uint32 = _zero1
+(*equal to zero at initialisation*)
+(*commitNum should be equal to revealsNum to get random number*)
+ 
+field random: Uint32 = _zero1
+
+transition commit (_hs : Uint32 )
+success="successful";
+fail1="deposit amount of zil is not equal to deposit required";
+failEarly="Failed, early to commit";
+failDeadline="Failed, deadline finished to commit";
+
+isEqualDeposit= builtin eq _amount _deposit;
+blk <- & BLOCKNUMBER;
+(*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
+
+in_time=blk_leq commitBalkline blk;
+in_time1 = blk_leq blk commitDeadline;
+
+
+match isEqualDeposit with
+  | True =>
+   match in_time with
+    | True =>
+	match in_time1 with
+	  | True =>
+	   ff = False;
+ 	   participant[_sender][_zero][_hs][ff] := ff;
+	   cn<-	commitNum;
+	    match cn with
+	   | Some v =>
+	    newCommitNum=builtin add cn _one1;
+            commitNum:=newCommitNum;
+	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+	    msgs = one_msg msg;
+	    send msgs
+	   | None =>
+	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
+	    msgs = one_msg msg;
+	    send msgs
+	    end
+
+          | False => 
+	   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
+	   msgs = one_msg msg;
+	   send msgs
+	   end
+    | False => 
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
+	msgs = one_msg msg;
+	send msgs
+   end
+
+
+     | False =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : fail1 };
+    msgs = one_msg msg;
+    send msgs
+  end
+end
+
+
+
+transition getCommitment ()
+  failure="commitment not found for _sender";
+  val <- participant [_sender];
+  match val with
+  | Some v =>
+   val1<- participant [_sender][v];
+	match val1 with
+	  | Some v1 =>
+	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : v1 };
+	    msgs = one_msg msg;
+	    send msgs
+	  | None =>
+	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error2 : failure };
+	    msgs = one_msg msg;
+	    send msgs
+	  end
+
+    | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failure };
+    msgs = one_msg msg;
+    send msgs
+  end
+end 
+
+
+
+transition shaCommit(_s : Uint128)
+failure="hashing failed";
+commit= builtin sha256hash _s;
+match val with
+  | Some v =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : v };
+    msgs = one_msg msg;
+    send msgs
+  | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failure };
+    msgs = one_msg msg;
+    send msgs
+    end
+end
+
+
+
+
+transition reveal(_s : Uint128)
+success="successful";
+failEarly="Failed, early to reveal";
+failDeadline="Failed, deadline finished to reveal";
+
+blk <- & BLOCKNUMBER;
+(*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
+
+in_time=blk_leq _commitDeadline blk;
+in_time1 = blk_leq blk bnum ;
+failure= "Failure";
+
+match in_time with
+| True =>
+  match in_time1 with
+  | True =>
+  commit= builtin sha256hash _s;
+  match val with
+    | Some h =>
+      val5 <- participant [_sender];
+      match val5 with
+      | Some v5 =>
+      val1<- participant [_sender][v5];
+      match val6 with
+	 | Some v6 =>
+	   isSecret=builtin eq h v6;
+	   match isSecret with
+             | True =>  
+	       rn<-	revealsNum;
+	       match rn with
+	       | Some v =>
+	          newRevealNum=builtin add v _one1;
+                  revealsNum:=newRevealNum;
+		 (*generate random no.*)
+                 random:=v;	
+		 participant[_sender] := _s;
+	         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+	         msgs = one_msg msg;
+	         send msgs
+	      | None =>
+	        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
+	        msgs = one_msg msg;
+	        send msgs
+	        end
+
+           | False =>  
+           msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error1 : failure };
+           msgs = one_msg msg;
+           send msgs
+           end
+
+       | None =>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failure };
+        msgs = one_msg msg;
+        send msgs
+        end
+
+     | None =>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error2 : failure };
+      msgs = one_msg msg;
+      send msgs
+      end
+
+   | None =>
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failure };
+   msgs = one_msg msg;
+   send msgs
+   end
+
+ | False => 
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
+  msgs = one_msg msg;
+  send msgs
+  end
+
+| False => 
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
+msgs = one_msg msg;
+send msgs
+end
+
+end
+
+
+transition getRandom ()
+blk <- & BLOCKNUMBER;
+isEnd=blk_leq bnum blk;
+r<-revealsNum;
+c<-commitNum;
+rn<-random;
+match isEnd with
+| True =>
+
+match r with
+| Some r1 =>
+match c with
+ | Some c1 =>
+ isSettled=builtin eq r1 c1;
+ match isSettled with
+ | True =>
+  match rn with
+   | Some v =>
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  number : v  };
+   msgs = one_msg msg;
+   send msgs
+   | None =>
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+   msgs = one_msg msg;
+   send msgs
+  end 
+ | False =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+  msgs = one_msg msg;
+  send msgs
+ end
+ | None =>
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+   msgs = one_msg msg;
+   send msgs
+  end 
+| None =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+msgs = one_msg msg;
+send msgs
+end 
+| False =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+msgs = one_msg msg;
+send msgs
+end 
+
+end
+
+
+transition getMyBounty()
+blk <- & BLOCKNUMBER;
+isEnd=blk_leq bnum blk;
+match isEnd with
+| True =>
+| False =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+msgs = one_msg msg;
+send msgs
+end 
+end
+
