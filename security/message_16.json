@@ -1,0 +1,32 @@
+
+{
+    "_tag": "isOperatorForTranche",
+    "_amount": "6",
+    "_sender" : "0x1234567890123456789012345678906784567891",
+    "params": [
+        {
+            "vname": "_operator",
+            "type": "ByStr20",
+            "value": "0x41c8f599bee23658734ca47b4dd7b10f71445b62"
+        },
+        {
+            "vname": "_tranche",
+            "type": "Uint32",
+            "value": "1"
+        },
+        {
+            "vname": "_owner",
+            "type": "ByStr20",
+            "value": "0x1234567890123456789012345678906784567891"
+        }
+
+    ]
+}
+
+
+
+
+
+
+
+

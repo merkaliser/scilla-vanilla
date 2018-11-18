@@ -1,0 +1,30 @@
+
+{
+    "_tag": "operatorSend",
+    "_amount": "10",
+    "_sender" : "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+    "params": [
+	{
+            "vname": "_from",
+            "type": "ByStr20",
+            "value": "0x1234567890123456789012345678906784567891"
+        },
+	{
+            "vname": "_to",
+            "type": "ByStr20",
+            "value": "0x8D8A16E43272E09CAE1CB5878A15E6443952A9FF"
+        },
+	{
+            "vname": "_data",
+            "type": "String",
+            "value": "data1"
+        },
+	{
+            "vname": "_operatorData",
+            "type": "String",
+            "value": "operatordata1"
+        }
+
+]
+}
+
