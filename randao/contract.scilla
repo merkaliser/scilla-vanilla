@@ -14,14 +14,12 @@ let one_msg =
 
 let no_msg = Nil {Message}
 
-
 let blk_leq =
   fun (blk1 : BNum) =>
   fun (blk2 : BNum) =>
     let bc1 = builtin blt blk1 blk2 in 
     let bc2 = builtin eq blk1 blk2 in 
     orb bc1 bc2
-
 
 let min_int =
   fun (a : Uint128) => fun (b : Uint128) =>
@@ -46,8 +44,7 @@ let le_int =
       end
     end
     
-let true   = Uint32 1
-let false   = Uint32 0
+(*Constants*)
 let _zero   = Uint128 0
 let _one   = Uint128 1
 let _zero1   = Uint32 0
@@ -60,40 +57,43 @@ let _one1   = Uint32 1
 
 contract Randao 
 ( founder : ByStr20, _deposit: Uint128, commitBalkline: BNum, commitDeadline: BNum, bnum: BNum, _bounty: Uint128 )
+(*founder is the account that has all _bounty at initialisation*)
+(*_deposit is _amount of zil required to send to take part in commit phase*)
+(*commitBalkline is the Bnum when the commit phase starts*)
+(*commitDeadline is the Bnum when the commit phase ends*)
+(*bnum is the Bnum when the reveal phase ends*)
+(*between commitDeadline and bnum is the reveal phase*)
+(*so commitBalkline < commitDeadline < bnum*)
 
+(*address, commitment (i.e. sha256 hash of secret), secret *)
+field participant :Map ByStr20 ( Map ByStr32 Uint128 ) = Emp ByStr20 ( Map ByStr32  Uint128 )
+(*secret is initialized to zero in mapping*)
 
-(* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
-field balances : Map ByStr20 Uint128 = Emp ByStr20 Uint128 
-
-(*address , commitment,secret, revealed, rewarded*)
-field participant :Map ByStr20 ( Map ByStr32 Uint128 ) =
-				Emp ByStr20 ( Map ByStr32  Uint128 )
-
+(*mapping for if address has revealed secret in reveal phase and is eligible for bounty*)
 field revealed : Map ByStr20 Uint32 = Emp ByStr20 Uint32 
 
+(*mapping for if address has been rewarded*)
 field rewarded: Map ByStr20 Uint32 = Emp ByStr20 Uint32 
 
-
-(*caddr , bountypot*)
 (*balance of Consumer in zil*)
+(*founder is the account that has all _bounty at initialisation*)
 field consumer : Map ByStr20 Uint128 =
   let m = Emp ByStr20 Uint128 in
     builtin put m founder _bounty
-
-
 
 field commitNum : Uint128 = _zero
 (*equal to zero at initialisation*)
 
 field revealsNum : Uint128 = _zero
 (*equal to zero at initialisation*)
-(*commitNum should be equal to revealsNum to get random number*)
- 
+
+(*random number is generated after reveal phase is over*) 
 field random: Uint128 = _zero
 
 
-
+(*commit sha256 hash (of secret) in commit phase*)
 transition commit (_hs : ByStr32 )
+
 success="successful";
 fail1="deposit amount of zil is not equal to deposit required";
 failEarly="Failed, early to commit";
@@ -102,11 +102,8 @@ failDeadline="Failed, deadline finished to commit";
 isEqualDeposit= builtin eq _amount _deposit;
 blk <- & BLOCKNUMBER;
 (*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
-
 in_time=builtin blt commitBalkline blk;
 in_time1 = builtin blt blk commitDeadline;
-
-
 match isEqualDeposit with
   | True =>
    match in_time with
@@ -131,10 +128,9 @@ match isEqualDeposit with
 	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
 	msgs = one_msg msg;
 	send msgs
-   end
+     end
 
-
-     | False =>
+  | False =>
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : fail1 };
     msgs = one_msg msg;
     send msgs
@@ -142,20 +138,17 @@ match isEqualDeposit with
 end
 
 
-
-
-
-
+(*sha256 hash of any secret*)
 transition shaCommit(_s : Uint128)
-failure="hashing failed";
-commit= builtin sha256hash _s;
+ failure="hashing failed";
+ commit= builtin sha256hash _s;
  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : commit };
  msgs = one_msg msg;
  send msgs
  end
 
 
-
+(*returns commitment, sha256 hash of _sender*)
 transition getCommitment ()
   failure="commitment not found for _sender";
   valMap <- participant [_sender];
@@ -183,7 +176,7 @@ transition getCommitment ()
 end
 
 
-
+(*reveal secret in reveal phase of commitment*)
 transition reveal(_s : Uint128)
 success="successful";
 failWrong="Failed, wrong secret revealed";
@@ -193,11 +186,8 @@ failDeadline="Failed, deadline finished to reveal";
 
 blk <- & BLOCKNUMBER;
 (*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
-
 in_time=blk_leq commitDeadline blk;
 in_time1 = blk_leq blk bnum ;
-
-
 match in_time with
 | True =>
   match in_time1 with
@@ -209,52 +199,44 @@ match in_time with
       val1=builtin get v5 commit ;
       match val1 with
 	 | Some v6 =>
-	       rn<-	revealsNum;
-
-	          newRevealNum=builtin add rn _one;
-                  revealsNum:=newRevealNum;
-		 (*generate random no.*)
-		 prRandom<-random;
-		 newRandom=builtin add prRandom _s;
-                 random:=newRandom;	
-		 participant[_sender][commit] := _s;
-	         revealed[_sender]:=_one1;
-	         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	         msgs = one_msg msg;
-	         send msgs
-	     
-         
-       | None =>
+	       rn<-revealsNum;
+	       newRevealNum=builtin add rn _one;
+               revealsNum:=newRevealNum;
+	       (*generate random no.*)
+	       prRandom<-random;
+	       newRandom=builtin add prRandom _s;
+               random:=newRandom;	
+	       participant[_sender][commit] := _s;
+	       revealed[_sender]:=_one1;
+	       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+	       msgs = one_msg msg;
+	       send msgs
+        | None =>
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failWrong };
         msgs = one_msg msg;
         send msgs
         end
-
      | None =>
       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error2 : failure };
       msgs = one_msg msg;
       send msgs
       end
-
- 
- | False => 
+  | False => 
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
   msgs = one_msg msg;
   send msgs
   end
-
 | False => 
 msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
 msgs = one_msg msg;
 send msgs
 end
-
 end
 
 
 
 
-
+(*to get the reward after reveal phase is over*)
 transition getMyBounty()
 failure="Failure";
 failureReveal="Failure, didnot reveal in deadline";
@@ -266,118 +248,107 @@ isEnd=blk_leq bnum blk;
 revealno<-revealsNum;
 commitno<-commitNum;
 match isEnd with
-| True =>
-isRevealed<-revealed[_sender];
-match isRevealed with
-|Some rv =>
-hasRevealed=builtin eq rv _one1;
-match hasRevealed with
-|True =>
-isRewarded<-rewarded[_sender];
-match isRewarded with
-|Some rv1 =>
-hasRewarded=builtin eq rv1 _one1;
-match hasRewarded with
-|False =>
-diffRevealed=builtin sub commitno revealno;
-isEqualRevealed=builtin eq diffRevealed _zero;
-
-match isEqualRevealed with
-|True =>
- distributionAmount=builtin div _bounty revealno;
- am<-consumer[founder];
-match am with
-|Some cAmt =>
- founderAmt=builtin sub cAmt distributionAmount;
- consumer[founder]:=founderAmt;
- am1<-consumer[_sender];
-match am1 with
-|Some cAmt1 =>
- senderReward=builtin add cAmt1 distributionAmount;
- senderAmt=builtin add senderReward _deposit;
- consumer[_sender]:=senderAmt;
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
-    msgs = one_msg msg;
-    send msgs
+  | True =>
+  isRevealed<-revealed[_sender];
+  match isRevealed with
+    |Some rv =>
+    hasRevealed=builtin eq rv _one1;
+    match hasRevealed with
+      |True =>
+      isRewarded<-rewarded[_sender];
+      match isRewarded with
+        |Some rv1 =>
+        hasRewarded=builtin eq rv1 _one1;
+        match hasRewarded with
+          |False =>
+	  diffRevealed=builtin sub commitno revealno;
+	  isEqualRevealed=builtin eq diffRevealed _zero;
+	  match isEqualRevealed with
+	    |True =>
+ 	    distributionAmount=builtin div _bounty revealno;
+ 	    am<-consumer[founder];
+            match am with
+              |Some cAmt =>
+ 	      founderAmt=builtin sub cAmt distributionAmount;
+ 	      consumer[founder]:=founderAmt;
+              am1<-consumer[_sender];
+	      match am1 with
+	        |Some cAmt1 =>
+ 		senderReward=builtin add cAmt1 distributionAmount;
+ 		senderAmt=builtin add senderReward _deposit;
+ 		consumer[_sender]:=senderAmt;
+ 		msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+    	        msgs = one_msg msg;
+   	        send msgs
  
-|None=>
- senderReward= distributionAmount;
- senderAmt=builtin add senderReward _deposit;
- consumer[_sender]:=senderAmt;
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
-    msgs = one_msg msg;
-    send msgs
- end 
-|None=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status2 : failure  };
- msgs = one_msg msg;
- send msgs
- end 
+		|None=>
+ 		senderReward= distributionAmount;
+ 		senderAmt=builtin add senderReward _deposit;
+		consumer[_sender]:=senderAmt;
+ 		msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+		msgs = one_msg msg;
+    		send msgs
+ 		end 
+	     |None=>
+	     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status2 : failure  };
+             msgs = one_msg msg;
+             send msgs
+             end 
 
+		|False =>
+		fine=builtin mul diffRevealed _deposit;
+		distributionShare=builtin div _bounty revealno;
+		distributionAmount=builtin add fine distributionShare;
+	 	am<-consumer[founder];
+		match am with
+		  |Some cAmt =>
+	 	  founderAmt=builtin sub cAmt distributionShare;
+	 	  consumer[founder]:=founderAmt;
+	 	  am1<-consumer[_sender];
+		  match am1 with
+		    |Some cAmt1 =>
+	 	     senderReward=builtin add cAmt1 distributionAmount;
+		     senderAmt=builtin add senderReward _deposit;
+		     consumer[_sender]:=senderAmt;
+	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+	  	     msgs = one_msg msg;
+	  	     send msgs
+		   |None=>
+		     senderReward= distributionAmount;
+	 	     senderAmt=builtin add senderReward _deposit;
+		     consumer[_sender]:=senderAmt;
+	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+	   	     msgs = one_msg msg;
+	    	     send msgs
+	  	     end 
+		|None=>
+	 	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status4 : failure  };
+	 	msgs = one_msg msg;
+	 	send msgs
+	 	end 
+	      end
 
-
-
+  	   |True =>
+  	   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status5 : failure  };
+  	   msgs = one_msg msg;
+  	   send msgs
+  	   end 
+        |None=>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status6 : failure  };
+        msgs = one_msg msg;
+        send msgs
+        end 
+     |False=>
+     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status: failureReveal  };
+     msgs = one_msg msg;
+     send msgs
+     end 
+  |None=>
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failureCommit  };
+   msgs = one_msg msg;
+   send msgs
+   end 
 |False =>
-
-fine=builtin mul diffRevealed _deposit;
- distributionShare=builtin div _bounty revealno;
-distributionAmount=builtin add fine distributionShare;
- am<-consumer[founder];
-match am with
-|Some cAmt =>
- founderAmt=builtin sub cAmt distributionShare;
- consumer[founder]:=founderAmt;
- am1<-consumer[_sender];
-match am1 with
-|Some cAmt1 =>
- senderReward=builtin add cAmt1 distributionAmount;
- senderAmt=builtin add senderReward _deposit;
- consumer[_sender]:=senderAmt;
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
-    msgs = one_msg msg;
-    send msgs
- 
-|None=>
-senderReward= distributionAmount;
- senderAmt=builtin add senderReward _deposit;
- consumer[_sender]:=senderAmt;
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
-    msgs = one_msg msg;
-    send msgs
-  end 
-|None=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status4 : failure  };
- msgs = one_msg msg;
- send msgs
- end 
-
-
-end
-
-   
-|True =>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status5 : failure  };
- msgs = one_msg msg;
- send msgs
- end 
-|None=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status6 : failure  };
- msgs = one_msg msg;
- send msgs
- end 
-
-|False=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status: failureReveal  };
- msgs = one_msg msg;
- send msgs
- end 
-|None=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failureCommit  };
- msgs = one_msg msg;
- send msgs
- end 
-
-| False =>
  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failureDeadline  };
  msgs = one_msg msg;
  send msgs
@@ -385,9 +356,9 @@ end
 end
 
 
-
+(*random no. generated by contract*)
 transition getRandom ()
-fail="failure";
+fail="Failure";
 blk <- & BLOCKNUMBER;
 isEnd=blk_leq bnum blk;
 r<-revealsNum;
@@ -400,7 +371,6 @@ match isEnd with
    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  number : rn  };
    msgs = one_msg msg;
    send msgs
-
  | False =>
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status1 : fail  };
   msgs = one_msg msg;
