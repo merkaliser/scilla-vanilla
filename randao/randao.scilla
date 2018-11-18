@@ -3,7 +3,7 @@
 (*               Associated library                *)
 (***************************************************)
 
-import BoolUtils ListUtils PairUtils
+import BoolUtils ListUtils 
 
 library Randao 
 
@@ -155,36 +155,6 @@ commit= builtin sha256hash _s;
  end
 
 
-transition getRandom ()
-fail="failure";
-blk <- & BLOCKNUMBER;
-isEnd=blk_leq bnum blk;
-r<-revealsNum;
-c<-commitNum;
-rn<-random;
-match isEnd with
-| True =>
- isSettled=builtin eq r c;
- match isSettled with
- | True =>
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  number : rn  };
-   msgs = one_msg msg;
-   send msgs
-
- | False =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail  };
-  msgs = one_msg msg;
-  send msgs
- end
-| False =>
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail  };
-msgs = one_msg msg;
-send msgs
-end 
-
-end
-
-
 
 transition getCommitment ()
   failure="commitment not found for _sender";
@@ -210,89 +180,6 @@ transition getCommitment ()
     msgs = one_msg msg;
     send msgs
   end
-end
-
-
-
-
-
-
-
-transition getMyBounty()
-failure="failure";
-blk <- & BLOCKNUMBER;
-isEnd=blk_leq bnum blk;
-revealno<-revealsNum;
-match isEnd with
-| True =>
-isRevealed<-revealed[_sender];
-match isRevealed with
-|Some rv =>
-hasRevealed=builtin eq rv _one1;
-match hasRevealed with
-|True =>
-isRewarded<-rewarded[_sender];
-match isRewarded with
-|Some rv1 =>
-hasRewarded=builtin eq rv1 _one1;
-match hasRewarded with
-|False =>
- distributionAmount=builtin div _bounty revealno;
- am<-consumer[founder];
-match am with
-|Some cAmt =>
- founderAmt=builtin sub cAmt distributionAmount;
- consumer[founder]:=founderAmt;
- am1<-consumer[_sender];
-match am1 with
-|Some cAmt1 =>
- senderReward=builtin add cAmt1 distributionAmount;
- senderAmt=builtin add senderReward _deposit;
- consumer[_sender]:=senderAmt;
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : failure };
-    msgs = one_msg msg;
-    send msgs
- 
-|None=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
- msgs = one_msg msg;
- send msgs
- end 
-|None=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
- msgs = one_msg msg;
- send msgs
- end 
-
-
-   
-|True =>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
- msgs = one_msg msg;
- send msgs
- end 
-|None=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
- msgs = one_msg msg;
- send msgs
- end 
-
-|False=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
- msgs = one_msg msg;
- send msgs
- end 
-|None=>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
- msgs = one_msg msg;
- send msgs
- end 
-
-| False =>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
- msgs = one_msg msg;
- send msgs
- end 
 end
 
 
@@ -371,6 +258,156 @@ end
 
 
 
+transition getMyBounty()
+failure="failure";
+success="success";
+blk <- & BLOCKNUMBER;
+isEnd=blk_leq bnum blk;
+revealno<-revealsNum;
+commitno<-commitNum;
+match isEnd with
+| True =>
+isRevealed<-revealed[_sender];
+match isRevealed with
+|Some rv =>
+hasRevealed=builtin eq rv _one1;
+match hasRevealed with
+|True =>
+isRewarded<-rewarded[_sender];
+match isRewarded with
+|Some rv1 =>
+hasRewarded=builtin eq rv1 _one1;
+match hasRewarded with
+|False =>
+diffRevealed=builtin sub commitno revealno;
+isEqualRevealed=builtin eq diffRevealed _zero;
+
+match isEqualRevealed with
+|True =>
+ distributionAmount=builtin div _bounty revealno;
+ am<-consumer[founder];
+match am with
+|Some cAmt =>
+ founderAmt=builtin sub cAmt distributionAmount;
+ consumer[founder]:=founderAmt;
+ am1<-consumer[_sender];
+match am1 with
+|Some cAmt1 =>
+ senderReward=builtin add cAmt1 distributionAmount;
+ senderAmt=builtin add senderReward _deposit;
+ consumer[_sender]:=senderAmt;
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+    msgs = one_msg msg;
+    send msgs
+ 
+|None=>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+ msgs = one_msg msg;
+ send msgs
+ end 
+|None=>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+ msgs = one_msg msg;
+ send msgs
+ end 
+
+
+
+
+|False =>
+
+fine=builtin mul diffRevealed _deposit;
+ distributionShare=builtin div _bounty revealno;
+distributionAmount=builtin add fine distributionShare;
+ am<-consumer[founder];
+match am with
+|Some cAmt =>
+ founderAmt=builtin sub cAmt distributionAmount;
+ consumer[founder]:=founderAmt;
+ am1<-consumer[_sender];
+match am1 with
+|Some cAmt1 =>
+ senderReward=builtin add cAmt1 distributionAmount;
+ senderAmt=builtin add senderReward _deposit;
+ consumer[_sender]:=senderAmt;
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+    msgs = one_msg msg;
+    send msgs
+ 
+|None=>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+ msgs = one_msg msg;
+ send msgs
+ end 
+|None=>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+ msgs = one_msg msg;
+ send msgs
+ end 
+
+
+end
+
+   
+|True =>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+ msgs = one_msg msg;
+ send msgs
+ end 
+|None=>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+ msgs = one_msg msg;
+ send msgs
+ end 
+
+|False=>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+ msgs = one_msg msg;
+ send msgs
+ end 
+|None=>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+ msgs = one_msg msg;
+ send msgs
+ end 
+
+| False =>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failure  };
+ msgs = one_msg msg;
+ send msgs
+ end 
+end
+
+
+
+transition getRandom ()
+fail="failure";
+blk <- & BLOCKNUMBER;
+isEnd=blk_leq bnum blk;
+r<-revealsNum;
+c<-commitNum;
+rn<-random;
+match isEnd with
+| True =>
+ isSettled=builtin eq r c;
+ match isSettled with
+ | True =>
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  number : rn  };
+   msgs = one_msg msg;
+   send msgs
+
+ | False =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail  };
+  msgs = one_msg msg;
+  send msgs
+ end
+| False =>
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail  };
+msgs = one_msg msg;
+send msgs
+end 
+
+end
 
 
 
