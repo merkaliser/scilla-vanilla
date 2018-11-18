@@ -1,0 +1,39 @@
+{
+  "gas_remaining": "7096",
+  "message": {
+    "_tag": "Main",
+    "_amount": "0",
+    "_accepted": "false",
+    "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+    "params": [
+      {
+        "vname": "commitment",
+        "type": "ByStr32",
+        "value":
+          "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88"
+      }
+    ]
+  },
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "balances", "type": "Map (ByStr20) (Uint128)", "value": [] },
+    {
+      "vname": "participant",
+      "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
+      "value": []
+    },
+    { "vname": "revealed", "type": "Map (ByStr20) (Uint32)", "value": [] },
+    { "vname": "rewarded", "type": "Map (ByStr20) (Uint32)", "value": [] },
+    {
+      "vname": "consumer",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
+      ]
+    },
+    { "vname": "commitNum", "type": "Uint128", "value": "0" },
+    { "vname": "revealsNum", "type": "Uint128", "value": "0" },
+    { "vname": "random", "type": "Uint128", "value": "0" }
+  ],
+  "events": []
+}
