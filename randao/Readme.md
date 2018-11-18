@@ -1,35 +1,28 @@
-# Security Token Contract
-It contains Security Token Contract (ERC 1400) implementation in Scilla.
-It contains the functions required for Security token implementation.
+# RANDAO Contract
+It contains RANDAO Contract implementation in Scilla.
 
 References taken:<br>
-https://github.com/ethereum/EIPs/issues/1400 <br>
-https://github.com/ethereum/EIPs/issues/1411<br>
-
+https://github.com/randao/randao/blob/master/contracts/Randao.sol
 
 ## Test cases
 
-1. shaCommit: name of the token. Expected: [Success] `Security Token`.
-2. commit: symbol of the token. Expected: [Success] `ST`.
-3. commit: wrong deposit mints `_amount` of tokens of `tranche` specified. Expected: [Success] `deposit amount of zil is not equal to deposit required`.
-4. getCommitment: total supply of tokens at present. Expected: [Success] `0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88`.
-5. getCommitment: no sender of particular `tranche`. Expected: [Success] `commitment not found for _sender`. 
-2 more successful commits done in phase1
-6. commit: dead of the any `owner` . Expected: [Success] `Failed, deadline finished to commit` 
-7. reveal: sends tokens by `tranche`. Expected: [Success] `successful`.
-
-8. reveal:  Expected: [Success] `Failed, wrong secret revealed`.
-at 19
-
-9. reveal at 20
-
-10. reveal: Expected: [Success] `Failed, deadline finished to reveal`.
-so 2/3 revealed...
-11. getRandom: revokes the given `operator` by `_sender`. Expected: [Success]`606`.
-12. getMyBounty:60 => 50(bounty divide share)+5(deposit)+5(fine as 1 didnot successfully reveal) authorizes the given `operator` by `_sender` tranche. Expected: [Success] `authorized the operator for tranche`.
-13. getMyBounty: sending the `tranche` balance by `operator`. Expected: [Success] `Failure, didnot reveal in deadline`.
-14. getMyBounty: revokes the given `operator` by `_sender` tranche. Expected: [Success]`Failure, didnot commit`. 
-15. getMyBounty: at 10 bnum if `operator` is present for `owner`. Expected: [Success] `Failure, reveal phase has not ended yet`.
-16. commit: if `operator` is present for `owner` tranche. Expected: [Success] `Failed, early to commit`.
-17. reveal: burns `amount` of tokens of `tranche`. Expected: [Success] `Failed, early to reveal`.
+1. shaCommit: get the sha256 hash of `commitment`. Expected: [Success] `0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88`.
+2. commit: `commitment` (i.e. the sha256 hash of any number) is provided in between the commit phase (`5` to `15`) with correct `_deposit` (`_amount`). Expected: [Success] `successful`.
+3. commit: wrong `_amount` of zils i.e. required `deposit` is not sent. Expected: [Failure] `deposit amount of zil is not equal to deposit required`.
+4. getCommitment: `_sender` can see the `commitment` he has made. Expected: [Success] `0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88`.
+5. getCommitment: for no `commitment` by `sender`. Expected: [Failure] `commitment not found for _sender`. 
+(2 more successful commits are done in the commit phase by 2 more accounts so that now we have 3 accounts participating in contract.)
+6. commit: trying to commit after the `commit` phase ends (after `15`). Expected: [Failure] `Failed, deadline finished to commit` 
+7. reveal: In the reveal phase (`16` to `20`), one has to reveal the secret (number) whose `commitment` was submitted in commit phase(`5` to `15`) . Expected: [Success] `successful`.
+8. reveal: if the secret submitted doesnot match with the sha256 `commitment`. Expected: [Failure] `Failed, wrong secret revealed`.
+9. reveal: Reveal the secret (number) at `20` whose `commitment` was submitted in commit phase. Expected: [Success] `successful`.
+10. reveal: try to reveal the secret after the reveal phase is over. Expected: [Failure] `Failed, deadline finished to reveal`.
+Hence, 2 out of 3 `commitments` have revealed secret in reveal phase.
+11. getRandom: After the reveal phase is over (after `20`), one can get the random number generated. Expected: [Success]`606`.
+12. getMyBounty: After the reveal phase is over (after `20`), one can get his share of bounty. Expected: [Success] `successful`.`60` => `50` (bounty divide share) + `5` (deposit) + `5` (fine as 1 commit didnot successfully reveal).
+13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `Failure, didnot reveal in deadline`.
+14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure]`Failure, didnot commit`. 
+15. getMyBounty: try to get bounty before the reveal phase is over. Expected: [Failure] `Failure, reveal phase has not ended yet`.
+16. commit: try to `commit` before commit phase (`5` to `15`)has started. Expected: [Failure] `Failed, early to commit`.
+17. reveal: try to `reveal` before reveal phase (`15`) has started. Expected: [Failure] `Failed, early to reveal`.
 
