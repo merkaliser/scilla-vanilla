@@ -1,0 +1,61 @@
+{
+  "gas_remaining": "6827",
+  "message": {
+    "_tag": "Main",
+    "_amount": "0",
+    "_accepted": "false",
+    "_recipient": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4",
+    "params": [
+      {
+        "vname": "status",
+        "type": "String",
+        "value": "deposit amount of zil is not equal to deposit required"
+      }
+    ]
+  },
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "commitNum", "type": "Uint128", "value": "1" },
+    { "vname": "balances", "type": "Map (ByStr20) (Uint128)", "value": [] },
+    {
+      "vname": "participant",
+      "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
+      "value": [
+        {
+          "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+          "val": [
+            {
+              "key":
+                "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88",
+              "val": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vname": "revealed",
+      "type": "Map (ByStr20) (Uint32)",
+      "value": [
+        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" }
+      ]
+    },
+    {
+      "vname": "rewarded",
+      "type": "Map (ByStr20) (Uint32)",
+      "value": [
+        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" }
+      ]
+    },
+    {
+      "vname": "consumer",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
+      ]
+    },
+    { "vname": "revealsNum", "type": "Uint128", "value": "0" },
+    { "vname": "random", "type": "Uint128", "value": "0" }
+  ],
+  "events": []
+}
