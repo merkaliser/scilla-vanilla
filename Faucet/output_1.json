@@ -1,0 +1,44 @@
+{
+  "gas_remaining": "7339",
+  "message": {
+    "_tag": "Main",
+    "_amount": "0",
+    "_accepted": "false",
+    "_recipient": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+    "params": [ { "vname": "code", "type": "Int32", "value": "1" } ]
+  },
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "maxAllowanceInclusive", "type": "Uint128", "value": "500" },
+    {
+      "vname": "claimedTokens",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "0" }
+      ]
+    },
+    {
+      "vname": "isPaused",
+      "type": "Bool",
+      "value": { "constructor": "False", "argtypes": [], "arguments": [] }
+    },
+    {
+      "vname": "mReentrancyLock",
+      "type": "Bool",
+      "value": { "constructor": "False", "argtypes": [], "arguments": [] }
+    },
+    {
+      "vname": "balances",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "1" }
+      ]
+    },
+    {
+      "vname": "allowed",
+      "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
+      "value": []
+    }
+  ],
+  "events": []
+}

@@ -75,7 +75,7 @@ field allowed : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uin
 
 
 
-transition getTokens(amount:Uint128 )
+transition getTokens()
 c <- claimedTokens;
 m <- maxAllowanceInclusive;
 bl <- balances;
@@ -84,7 +84,7 @@ val = builtin get c _sender;
 
 match val with
 | Some v =>
-    new_amount= builtin add v amount;
+    new_amount= builtin add v _amount;
 
     is_allowed=le_int new_amount m;
     match is_allowed with
@@ -92,7 +92,7 @@ match val with
         val = builtin get bl _sender;
            match val with
         | Some v1 =>
-            isSuffBal= le_int amount v1;
+            isSuffBal= le_int _amount v1;
             match isSuffBal with
             |True =>
             new_claims = builtin put c _sender new_amount;
@@ -122,7 +122,7 @@ match val with
         
      
 | None =>
-     new_amount=  amount;
+     new_amount=  _amount;
      (*had to duplicate the above same code due to above line*)
      is_allowed=le_int new_amount m;
      match is_allowed with
@@ -130,7 +130,7 @@ match val with
         val = builtin get bl _sender;
            match val with
         | Some v1 =>
-            isSuffBal= le_int amount v1;
+            isSuffBal= le_int _amount v1;
             match isSuffBal with
             |True =>
             new_claims = builtin put c _sender new_amount;
