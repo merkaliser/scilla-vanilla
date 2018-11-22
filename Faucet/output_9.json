@@ -1,19 +1,35 @@
 {
-  "gas_remaining": "7324",
+  "gas_remaining": "7077",
   "message": {
     "_tag": "Main",
     "_amount": "0",
     "_accepted": "false",
     "_recipient": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a",
-    "params": [ { "vname": "bal", "type": "Uint128", "value": "0" } ]
+    "params": [ { "vname": "allowed", "type": "Uint128", "value": "0" } ]
   },
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
+      "vname": "allowed",
+      "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
+      "value": [
+        {
+          "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+          "val": [
+            {
+              "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a",
+              "val": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "vname": "balances",
       "type": "Map (ByStr20) (Uint128)",
       "value": [
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "10" }
+        { "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a", "val": "2" },
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "8" }
       ]
     },
     { "vname": "maxAllowanceInclusive", "type": "Uint128", "value": "500" },
@@ -33,11 +49,6 @@
       "vname": "mReentrancyLock",
       "type": "Bool",
       "value": { "constructor": "False", "argtypes": [], "arguments": [] }
-    },
-    {
-      "vname": "allowed",
-      "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
-      "value": []
     }
   ],
   "events": []

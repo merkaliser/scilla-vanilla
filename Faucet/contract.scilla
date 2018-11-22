@@ -53,7 +53,7 @@ let notallowed=Int32 6
 
 contract ERC20Faucet
 (owner : ByStr20,
- total_tokens : Uint128)
+total_tokens:Uint128)
 
 (* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
 
@@ -260,8 +260,9 @@ transition BalanceOf (tokenOwner : ByStr20)
   end
 end
 
-transition TotalSupply ()
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; total_tokens : total_tokens};
+transition MaxAllowance ()
+m<-maxAllowanceInclusive;
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; total_tokens : m};
   msgs = one_msg msg;
   send msgs
 end

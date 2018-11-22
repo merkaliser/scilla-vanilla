@@ -12,7 +12,7 @@
     {
         "vname" : "total_tokens",
         "type" : "Uint128",
-        "value" : "1"
+        "value" : "100"
     }
 ]
 
