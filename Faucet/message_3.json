@@ -5,8 +5,8 @@
     "params": [
       {
         "vname": "_isPaused",
-        "type": "Bool",
-        "value": "True"
+        "type": "Uint128",
+        "value": "1"
       }
 
     ]

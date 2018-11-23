@@ -61,7 +61,8 @@ field maxAllowanceInclusive: Uint128 =Uint128 50
 field claimedTokens:  Map ByStr20 Uint128 =
 Emp ByStr20 Uint128
 
-field isPaused : Bool =  False
+(*0 represents false, 1 represents true*)
+field isPaused : Uint128 =  _zero
 
 field mReentrancyLock : Bool =  False
 
@@ -78,7 +79,11 @@ success="success";
 c <- claimedTokens[_sender];
 m <- maxAllowanceInclusive;
 bl <- balances[_sender];
+p <- isPaused;
+paused=builtin eq p _zero; 
 balContract<-balances[owner];
+match paused with
+| True =>
 match balContract with
 | Some _bal =>
 newBalContract=builtin sub _bal amount; 
@@ -154,7 +159,11 @@ end
             msgs = one_msg msg;
             send msgs
           end
-       
+| False =>       
+            msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
+            msgs = one_msg msg;
+            send msgs
+          end
 
 end
 
@@ -217,7 +226,7 @@ end
   
 
 
-transition setPause( _isPaused : Bool)
+transition setPause( _isPaused : Uint128)
 success="success";
 isOwner= builtin eq _sender owner;
 match isOwner with
