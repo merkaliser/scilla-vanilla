@@ -9,7 +9,6 @@
       ]
     },
     { "vname": "isPaused", "type": "Uint128", "value": "0" },
-   
     {
       "vname": "balances",
       "type": "Map (ByStr20) (Uint128)",
