@@ -54,19 +54,17 @@ contract ERC20Faucet
 (owner : ByStr20,
 total_tokens:Uint128)
 
-(* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
-
+(*maximum allowance for each account*)
 field maxAllowanceInclusive: Uint128 =Uint128 50
 
+(*mapping of account with claimed tokens*)
 field claimedTokens:  Map ByStr20 Uint128 =
 Emp ByStr20 Uint128
 
 (*0 represents false, 1 represents true*)
 field isPaused : Uint128 =  _zero
 
-field mReentrancyLock : Bool =  False
-
-
+(*all balances of tokens for each account including owner*)
 field balances : Map ByStr20 Uint128 =
   let m = Emp ByStr20 Uint128 in
     builtin put m owner total_tokens
@@ -83,19 +81,18 @@ p <- isPaused;
 paused=builtin eq p _zero; 
 balContract<-balances[owner];
 match paused with
-| True =>
-match balContract with
-| Some _bal =>
-newBalContract=builtin sub _bal amount; 
-match c with
-| Some v =>
-    new_amount= builtin add v amount;
-
-    is_allowed=le_int new_amount m;
-    match is_allowed with
+  | True =>
+  match balContract with
+    | Some _bal =>
+    newBalContract=builtin sub _bal amount; 
+    match c with
+      | Some v =>
+      new_amount= builtin add v amount;
+      is_allowed=le_int new_amount m;
+      match is_allowed with
         |True =>
-           match bl with
-        | Some v1 =>
+        match bl with
+          | Some v1 =>
 	    newBalAmount= builtin add v1 amount;
             claimedTokens[_sender] := new_amount;
 	    balances[_sender]:= newBalAmount;
@@ -104,7 +101,7 @@ match c with
             msgs = one_msg msg;
             send msgs
            
-        | None =>
+         | None =>
             claimedTokens[_sender] := new_amount;
 	    balances[_sender]:= amount;
 	    balances[owner]:=newBalContract;
@@ -113,8 +110,7 @@ match c with
             send msgs
           end
             
-            
-        |False =>
+       |False =>
             msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code: notallowed };
             msgs = one_msg msg;
             send msgs
@@ -122,13 +118,12 @@ match c with
         
         
      
-| None =>
-
+    | None =>
     is_allowed=le_int amount m;
     match is_allowed with
         |True =>
            match bl with
-        | Some v1 =>
+           | Some v1 =>
 	    newBalAmount= builtin add v1 amount;
             claimedTokens[_sender] := amount;
 	    balances[_sender]:= newBalAmount;
@@ -137,7 +132,7 @@ match c with
             msgs = one_msg msg;
             send msgs
            
-        | None =>
+           | None =>
             claimedTokens[_sender] := amount;
 	    balances[_sender]:= amount;
 	    balances[owner]:=newBalContract;
@@ -147,23 +142,23 @@ match c with
           end
             
             
-        |False =>
+       |False =>
             msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code: notallowed };
             msgs = one_msg msg;
             send msgs
         end
         
-end
+     end
  | None =>
-            msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
-            msgs = one_msg msg;
-            send msgs
-          end
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
+    msgs = one_msg msg;
+    send msgs
+  end
 | False =>       
-            msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
-            msgs = one_msg msg;
-            send msgs
-          end
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
+ msgs = one_msg msg;
+ send msgs
+end
 
 end
 
@@ -182,8 +177,7 @@ match isOwner with
     |False =>
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : notallowed };
         msgs = one_msg msg;
-        send msgs
-            
+        send msgs      
     end
 end
   
@@ -195,36 +189,29 @@ true="true";
 false="false";
 isOwner= builtin eq _sender owner;
 match isOwner with
-    |True =>
+  |True =>
   bl <- balances;
   bal = builtin get bl owner;
   match bal with
-  | Some b =>
+    | Some b =>
       balances[owner] := _zero;
       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : true };
       msgs = one_msg msg;
       send msgs
-  | None =>
+    | None =>
     (* no balance record, can't transfer *)
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : false };
-    msgs = one_msg msg;
-    send msgs
-  end
-
-        
-    |False =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : notallowed };
-        msgs = one_msg msg;
-        send msgs
-            
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : false };
+      msgs = one_msg msg;
+      send msgs
     end
+     
+  |False =>
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : notallowed };
+   msgs = one_msg msg;
+   send msgs      
+  end
 end
   
-  
-  
-  
-  
-
 
 transition setPause( _isPaused : Uint128)
 success="success";
@@ -238,13 +225,10 @@ match isOwner with
     |False =>
         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : notallowed };
         msgs = one_msg msg;
-        send msgs
-            
+        send msgs      
     end
 end
   
-
-
 
 transition BalanceOf (tokenOwner : ByStr20)
   bl <- balances;
@@ -261,6 +245,7 @@ transition BalanceOf (tokenOwner : ByStr20)
   end
 end
 
+
 transition MaxAllowance ()
 m<-maxAllowanceInclusive;
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; total_tokens : m};
@@ -269,9 +254,7 @@ m<-maxAllowanceInclusive;
 end
 
 
-
 transition TotalSupply ()
-
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; total_tokens : total_tokens};
   msgs = one_msg msg;
   send msgs
