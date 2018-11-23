@@ -8,7 +8,7 @@ https://github.com/WeTrustPlatform/erc20faucet-contracts/blob/master/contracts/E
 ## Test cases
 
 0. getTokens: get the tokens by `_amount`. Expected: [Success].
-1. setMaxAllowance: sets maximum allowance of tokens to claim (allowed to owner only). Expected: [Success] .
+1. setMaxAllowance: sets maximum allowance of tokens to claim (allowed to owner only). Expected: [Success] `success`.
 2. reclaimTokens: reclaim the tokens (allowed to owner only). Expected: [Success] 
 3. setPause: pauses the selling of tokens  Expected: [Success]. 
 4. BalanceOf: returns balance of `tokenOwner`. Expected: [Success] `True`
