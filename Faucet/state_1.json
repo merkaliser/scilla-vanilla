@@ -8,16 +8,8 @@
         { "key": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a", "val": "5" }
       ]
     },
-    {
-      "vname": "isPaused",
-      "type": "Bool",
-      "value": { "constructor": "False", "argtypes": [], "arguments": [] }
-    },
-    {
-      "vname": "mReentrancyLock",
-      "type": "Bool",
-      "value": { "constructor": "False", "argtypes": [], "arguments": [] }
-    },
+    { "vname": "isPaused", "type": "Uint128", "value": "0" },
+   
     {
       "vname": "balances",
       "type": "Map (ByStr20) (Uint128)",

@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "7260",
+  "gas_remaining": "7262",
   "message": {
     "_tag": "Main",
     "_amount": "0",
@@ -18,11 +18,6 @@
       ]
     },
     { "vname": "isPaused", "type": "Uint128", "value": "0" },
-    {
-      "vname": "mReentrancyLock",
-      "type": "Bool",
-      "value": { "constructor": "False", "argtypes": [], "arguments": [] }
-    },
     {
       "vname": "balances",
       "type": "Map (ByStr20) (Uint128)",
