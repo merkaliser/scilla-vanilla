@@ -3,16 +3,16 @@ Refundable Crowd Sale contract allows the owner of a token doing crowdsale to ch
 
 ## TEST CASES
 
-1.deposit : a user `[_sender]`: `0x0DF797A389C75520B9FBDC2F7AE2266B994776AF` send zil coins to a contract to buy tokens .Expected `[SUCCESS]` 
-2.deposit : a user `[_sender]`: `0x1648634E0ECAA48C36A5C137FFB1830389DDF4AA` send zil coins to a contract to buy tokens .Expected `[SUCCESS]` 
-3.deposit : a user `[_sender]`: `0x1EB825DC86C189B8E693013CB9CFFA77C9AD1134` send zil coins to a contract to buy tokens .Expected `[SUCCESS]`  
-4.closed : `payee` (owner of tokens/contract) tries to change the state from `active` to `closed` .Expected `[FAILURE]` 
-5.beneficiaryWithdraw : a user `[_sender]`: `0x1648634E0ECAA48C36A5C137FFB1830389DDF4AA` send a request to withdraw his/her zil coins .Expected `[FAILURE]` `state` is not `refunding`
-6.withdrawPrimary : `payee` (owner of tokens/contract) send a request to withdraw his/her zil coins .Expected `[FAILURE]` `state` is not `closed`
-7.deposit : a user `[_sender]`: `0x2624AE774221A5C7DF329535B40C60E2BD85BD2A` send zil coins to a contract to buy tokens .Expected `[SUCCESS]`
-8.deposit : a user `[_sender]`: `0x355677AA606A408939A717A1ED1F66931377FEFF` send zil coins to a contract to buy tokens .Expected `[SUCCESS]`
-9.refunding : `payee` (owner of tokens/contract) tries to change the state from `active` to `refunding` .Expected `[FAILURE]` as goal already achieved 
-10.closed : `payee` (owner of tokens/contract) tries to change the state from `active` to `closed` .Expected `[SUCCESS]` 
-11.withdrawPrimary : `payee` (owner of tokens/contract) send a request to withdraw his/her zil coins .Expected `[SUCCESS]` 
+1.deposit : a user `[_sender]`: `0x0DF797A389C75520B9FBDC2F7AE2266B994776AF` send zil coins to a contract to buy tokens .Expected `[SUCCESS]` <br/>
+2.deposit : a user `[_sender]`: `0x1648634E0ECAA48C36A5C137FFB1830389DDF4AA` send zil coins to a contract to buy tokens .Expected `[SUCCESS]` <br/>
+3.deposit : a user `[_sender]`: `0x1EB825DC86C189B8E693013CB9CFFA77C9AD1134` send zil coins to a contract to buy tokens .Expected `[SUCCESS]`  <br/>
+4.closed : `payee` (owner of tokens/contract) tries to change the state from `active` to `closed` .Expected `[FAILURE]` <br/>
+5.beneficiaryWithdraw : a user `[_sender]`: `0x1648634E0ECAA48C36A5C137FFB1830389DDF4AA` send a request to withdraw his/her zil coins .Expected `[FAILURE]` `state` is not `refunding` <br/>
+6.withdrawPrimary : `payee` (owner of tokens/contract) send a request to withdraw his/her zil coins .Expected `[FAILURE]` `state` is not `closed` <br/>
+7.deposit : a user `[_sender]`: `0x2624AE774221A5C7DF329535B40C60E2BD85BD2A` send zil coins to a contract to buy tokens .Expected `[SUCCESS]` <br/>
+8.deposit : a user `[_sender]`: `0x355677AA606A408939A717A1ED1F66931377FEFF` send zil coins to a contract to buy tokens .Expected `[SUCCESS]` <br/>
+9.refunding : `payee` (owner of tokens/contract) tries to change the state from `active` to `refunding` .Expected `[FAILURE]` as goal already achieved  <br/>
+10.closed : `payee` (owner of tokens/contract) tries to change the state from `active` to `closed` .Expected `[SUCCESS]`  <br/>
+11.withdrawPrimary : `payee` (owner of tokens/contract) send a request to withdraw his/her zil coins .Expected `[SUCCESS]` <br/>
 
 
