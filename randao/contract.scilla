@@ -108,10 +108,11 @@ match isEqualDeposit with
     | True =>
 	match in_time1 with
 	  | True =>
+	    accept;	    
  	    participant[_sender][_hs]:=_zero;
             revealed[_sender]:=_zero1;
 	    rewarded[_sender]:=_zero1;
-	    cn<-	commitNum;
+	    cn<-commitNum;
 	    newCommitNum=builtin add cn _one;
             commitNum:=newCommitNum;
 	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
@@ -233,7 +234,6 @@ end
 
 
 
-
 (*to get the reward after reveal phase is over*)
 transition getMyBounty()
 failure="Failure";
@@ -272,18 +272,18 @@ match isEnd with
               am1<-consumer[_sender];
 	      match am1 with
 	        |Some cAmt1 =>
- 		senderReward=builtin add cAmt1 distributionAmount;
- 		senderAmt=builtin add senderReward _deposit;
+	        totalReward= builtin add distributionAmount _deposit;
+ 		senderAmt=builtin add cAmt1 totalReward;
  		consumer[_sender]:=senderAmt;
- 		msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+ 		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward ; status : success };
     	        msgs = one_msg msg;
    	        send msgs
  
 		|None=>
- 		senderReward= distributionAmount;
- 		senderAmt=builtin add senderReward _deposit;
+	        totalReward= builtin add distributionAmount _deposit;
+ 		senderAmt=totalReward;
 		consumer[_sender]:=senderAmt;
- 		msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+ 		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
 		msgs = one_msg msg;
     		send msgs
  		end 
@@ -300,22 +300,22 @@ match isEnd with
 	 	am<-consumer[founder];
 		match am with
 		  |Some cAmt =>
-	 	  founderAmt=builtin sub cAmt distributionShare;
+	 	  founderAmt = builtin sub cAmt distributionShare;
 	 	  consumer[founder]:=founderAmt;
 	 	  am1<-consumer[_sender];
 		  match am1 with
 		    |Some cAmt1 =>
-	 	     senderReward=builtin add cAmt1 distributionAmount;
-		     senderAmt=builtin add senderReward _deposit;
+          	     totalReward = builtin add distributionAmount _deposit;
+ 		     senderAmt = builtin add cAmt1 totalReward;
 		     consumer[_sender]:=senderAmt;
-	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
 	  	     msgs = one_msg msg;
 	  	     send msgs
 		   |None=>
-		     senderReward= distributionAmount;
-	 	     senderAmt=builtin add senderReward _deposit;
-		     consumer[_sender]:=senderAmt;
-	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : success };
+		     totalReward = builtin add distributionAmount _deposit;
+ 		     senderAmt = totalReward;
+	             consumer[_sender]:=senderAmt;
+	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
 	   	     msgs = one_msg msg;
 	    	     send msgs
 	  	     end 
@@ -325,7 +325,6 @@ match isEnd with
 	 	send msgs
 	 	end 
 	      end
-
   	   |True =>
   	   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status5 : failure  };
   	   msgs = one_msg msg;
@@ -379,5 +378,18 @@ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail
 msgs = one_msg msg;
 send msgs
 end 
+
 end
+
+
+
+
+
+
+
+
+
+
+
+
 
