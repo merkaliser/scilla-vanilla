@@ -117,13 +117,11 @@ transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : v1 };
     msgs = one_msg msg;
     send msgs
-    
     | None =>
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
     msgs = one_msg msg;
     send msgs
     end
-
   | None =>
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
     msgs = one_msg msg;
@@ -402,7 +400,6 @@ send msgs
 end
 
 
-
 transition isOperatorFor ( _operator : ByStr20, _owner : ByStr20 )
 t="True";
 f="False";
@@ -429,6 +426,7 @@ match isTrue with
 end
 
 
+(*checks if _operator exists for _tranche*)
 transition isOperatorForTranche ( _tranche : Uint32, _operator : ByStr20, _owner : ByStr20 )
 t="True";
 f="False";
@@ -455,7 +453,8 @@ match isTrue with
 end
 
 
-transition burn (_tranche:Uint32,  _data : String)
+(*for _tranche given _amount is burnt*)
+transition burn (_tranche : Uint32,  _data : String)
 success="burn successful";
 unsuccess="burn unsuccessful";
 v <- tranches[_sender][_tranche];
@@ -479,7 +478,6 @@ match v with
   msgs = one_msg msg;
   send msgs
   end
-
 | None =>
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : unsuccess };
   msgs = one_msg msg;
@@ -488,9 +486,8 @@ match v with
 end
 
 
-
-
-transition mint (_tranche:Uint32, _owner:ByStr20, _data : String)
+(*for _tranche given _amount is minted*)
+transition mint (_tranche : Uint32, _owner:ByStr20, _data : String)
 success="mint for tranche successful";
 v <- tranches[_sender][_tranche];
 match v with
@@ -519,7 +516,6 @@ match v with
    msgs = one_msg msg;
    send msgs
    end
-
 | None =>
  v1<-balances[_sender];
  fromBalTranche= _amount;
@@ -545,9 +541,5 @@ match v with
   msgs = one_msg msg;
   send msgs
   end
-
 end
 end
-
-
-
