@@ -56,13 +56,10 @@ field balances : Map ByStr20 Uint128 = Emp ByStr20 Uint128
 
 field _totalSupply: Uint128 = _zero
 
-  
 (* Mapping from investor to their tranches (Address ->  tranche amount)*)
 field tranches : Map ByStr20 (Map Uint32 Uint128) = Emp ByStr20 (Map Uint32 Uint128)
 (*field tranchesLastID=Uint32 0*)
 (* new ids would be tranchesLastID plus one*)
-
-
 
 (* Mapping from (investor, tranche, operator) to approved status*)
 field trancheApprovals : Map ByStr20 (Map Uint32 (Map ByStr20 Uint32)) = Emp ByStr20 (Map Uint32 (Map ByStr20 Uint32))
@@ -70,7 +67,6 @@ field trancheApprovals : Map ByStr20 (Map Uint32 (Map ByStr20 Uint32)) = Emp ByS
 (* Mapping from (investor, operator) to approved status (can be used against any tranches)*)
 field approvals : Map ByStr20 (Map ByStr20 Uint32) = Emp ByStr20 (Map ByStr20 Uint32)
 
- 
  
 transition name()
  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; name : name};
@@ -93,7 +89,6 @@ transition totalSupply ()
  end
 
 
-
 transition balanceOf (_owner : ByStr20)
   bl <- balances;
   val = builtin get bl _owner;
@@ -110,10 +105,7 @@ transition balanceOf (_owner : ByStr20)
 end 
 
 
-
-
 (*Returns restricted token balance*)
-
 transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
   tr <- tranches;
   val = builtin get tr _owner;
@@ -140,7 +132,6 @@ transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
 end
 
 
-
 (* @notice Enables caller to determine the count of tranches owned by an address*)
 (* @param _owner An address over which to enumerate tranches*)
 (* @return The number of tranches owned by an `_owner`*)
@@ -152,18 +143,11 @@ end
 (*end*)
 
 
-
-
-(*Transfers the ownership of tokens from a specified tranche from one address to another address*)
 (*@param _tranche The tranche from which to transfer tokens*)
 (*@param _to The address to which to transfer tokens to*)
 (*@param amount The amount of tokens to transfer from `_tranche`*)
-(*@param _data Additional data attached to the transfer of tokens*)
-(*@return A reason code related to the success of the send operation*)
-(*@return The tranche to which the transferred tokens were allocated for the _to address*)
-   
+(*@param _data Additional data attached to the transfer of tokens*)   
 (* Transfers tokens from the sender to the _to address, keeping the _tranche the same*)
-   
 transition sendTranche (_tranche : Uint32, _to : ByStr20, _data:String )
 success="send tranche successful";
 v <- tranches[_sender][_tranche];
@@ -194,12 +178,10 @@ match v with
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
-	
 	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
 	msgs = one_msg msg;
 	send msgs
 	end
-
     | None =>
     toBalTranche=_amount;
      v3 <- balances[_to] ;
@@ -229,18 +211,15 @@ match v with
   msgs = one_msg msg;
   send msgs
   end
-
 | None =>	
 msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint32 4 };
 msgs = one_msg msg;
 send msgs
 end
-
 end
 
 
 (* returns (address[])*)
-
 transition defaultOperators ()
 (* No default operators*)
      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; default : owner};
@@ -262,15 +241,12 @@ transition authorizeOperator ( operator : ByStr20)
   send msgs
 end
 
-
-
 transition revokeOperator ( operator : ByStr20)
   approvals[_sender][operator] := false;
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; unauthorized : Uint128 1  };
   msgs = one_msg msg;
   send msgs
 end
-
 
 
 transition operatorSend(_from : ByStr20, _to : ByStr20, _data:String, _operatorData:String )
@@ -300,32 +276,24 @@ match v with
     msgs = one_msg msg;
     send msgs
     end
-
   | None =>
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint128 4 };
   msgs = one_msg msg;
   send msgs
   end
-
 | False =>
 noOp="not an operator";
 msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
 msgs = one_msg msg;
 send msgs
 end
-
 | None =>
 noOp="not an operator";
 msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
 msgs = one_msg msg;
 send msgs
 end
-
 end
-
-
-
-
 
 
 transition operatorSendTranche (_tranche : Uint32,_from : ByStr20, _to : ByStr20, _data:String, _operatorData:String )
@@ -364,7 +332,6 @@ match v with
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
-	
 	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
 	msgs = one_msg msg;
 	send msgs
@@ -388,7 +355,6 @@ match v with
         balances[_from] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
-	
 	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
 	msgs = one_msg msg;
 	send msgs
@@ -399,29 +365,24 @@ match v with
   msgs = one_msg msg;
   send msgs
   end
-
 | None =>	
 msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint128 6 };
 msgs = one_msg msg;
 send msgs
 end
-
 | False =>
 noOp="not an operator";
 msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
 msgs = one_msg msg;
 send msgs
 end
-
 | None =>
 noOp="not an operator";
 msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
 msgs = one_msg msg;
 send msgs
 end
-
 end
-
 
 
 transition authorizeOperatorTranche ( _operator : ByStr20, _tranche:Uint32 )
@@ -431,7 +392,6 @@ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : s
 msgs = one_msg msg;
 send msgs
 end
-
 
 
 transition revokeOperatorTranche ( _operator : ByStr20,_tranche:Uint32 )
@@ -469,7 +429,6 @@ match isTrue with
 end
 
 
-
 transition isOperatorForTranche ( _tranche : Uint32, _operator : ByStr20, _owner : ByStr20 )
 t="True";
 f="False";
@@ -496,7 +455,6 @@ match isTrue with
 end
 
 
-
 transition burn (_tranche:Uint32,  _data : String)
 success="burn successful";
 unsuccess="burn unsuccessful";
@@ -513,14 +471,10 @@ match v with
    t<-_totalSupply;
    newSupply=builtin sub t _amount;
    _totalSupply:= newSupply;
-
    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success};
    msgs = one_msg msg;
-   send msgs
-	
-
+   send msgs	
   | None =>
-  
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : unsuccess};
   msgs = one_msg msg;
   send msgs
@@ -531,9 +485,6 @@ match v with
   msgs = one_msg msg;
   send msgs
   end
-
-
-
 end
 
 
@@ -554,12 +505,9 @@ match v with
    t<-_totalSupply;
    newSupply=builtin add t _amount;
    _totalSupply:= newSupply;
-
    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
    msgs = one_msg msg;
    send msgs
-	
-
   | None =>
    fromBal=_amount;
    tranches[_sender][_tranche] := fromBalTranche;
@@ -567,15 +515,14 @@ match v with
    t<-_totalSupply;
    newSupply=builtin add t _amount;
    _totalSupply:= newSupply;
-
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success};
-  msgs = one_msg msg;
-  send msgs
-  end
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success};
+   msgs = one_msg msg;
+   send msgs
+   end
 
 | None =>
  v1<-balances[_sender];
-  fromBalTranche= _amount;
+ fromBalTranche= _amount;
  match v1 with
    | Some v1x =>
    fromBal=builtin add v1x _amount;
@@ -584,12 +531,9 @@ match v with
    t<-_totalSupply;
    newSupply=builtin add t _amount;
    _totalSupply:= newSupply;
-
    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
    msgs = one_msg msg;
    send msgs
-	
-
   | None =>
   fromBal= _amount;
    tranches[_sender][_tranche] := fromBalTranche;
@@ -597,14 +541,12 @@ match v with
    t<-_totalSupply;
    newSupply=builtin add t _amount;
    _totalSupply:= newSupply;
-
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
   msgs = one_msg msg;
   send msgs
   end
 
 end
-
 end
 
 
