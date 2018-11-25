@@ -25,9 +25,10 @@ valid by running sha3 against s and comparing the result with previous
 committed data. Valid s will be saved to the collection of seeds to finally
 generate the random number.
 
-##### The third phase: calculating a random number, refund deposits and bonus
+##### The third phase: calculating a random number, refund deposits, fines and bonus
 1. After phase 2 is complete, random number is generated that can be sent to all other contracts that requested the random number before.
 2. Contract will send back the deposit to the participants who successfully took part in both phases, and the profit (fine + consumer's bounty) is divided into equal parts and sent to all participants as an additional bonus. 
+3. Participants failing to reveal the secret number s cannot get refund their deposits and this amount is used as a fine.
 
 
 ## Test cases
