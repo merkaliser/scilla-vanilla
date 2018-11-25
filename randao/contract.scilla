@@ -182,7 +182,6 @@ failWrong="Failed, wrong secret revealed";
 failure= "Failure, not commited";
 failEarly="Failed, early to reveal";
 failDeadline="Failed, deadline finished to reveal";
-
 blk <- & BLOCKNUMBER;
 (*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
 in_time=blk_leq commitDeadline blk;
@@ -378,18 +377,4 @@ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail
 msgs = one_msg msg;
 send msgs
 end 
-
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
