@@ -93,12 +93,10 @@ field random: Uint128 = _zero
 
 (*commit sha256 hash (of secret) in commit phase*)
 transition commit (_hs : ByStr32 )
-
 success="successful";
 fail1="deposit amount of zil is not equal to deposit required";
 failEarly="Failed, early to commit";
 failDeadline="Failed, deadline finished to commit";
-
 isEqualDeposit= builtin eq _amount _deposit;
 blk <- & BLOCKNUMBER;
 (*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
@@ -381,18 +379,5 @@ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail
 msgs = one_msg msg;
 send msgs
 end 
-
 end
-
-
-
-
-
-
-
-
-
-
-
-
 
