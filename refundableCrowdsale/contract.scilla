@@ -88,19 +88,22 @@ transition closed()
       | True =>
         st <- _state;
         cl=builtin sub st active;  
-        _state := cl  
+        _state := cl ; 
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "closed(goal acheived)" };
+        msgs = one_msg msg;
+        send msgs
       | False=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "goal not acheived" };
         msgs = one_msg msg;
         send msgs    
       end
     | None =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "no zil found" };
       msgs = one_msg msg;
       send msgs  
     end  
   | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "only payee can change the state of Crowdsale" };
     msgs = one_msg msg;
     send msgs  
   end
@@ -120,19 +123,22 @@ transition refunding()
       | True =>
         st <- _state;
         cl=builtin add st active;  
-        _state := cl  
+        _state := cl ;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "refunding" };
+        msgs = one_msg msg;
+        send msgs
       | False=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "goal already achieved" };
         msgs = one_msg msg;
         send msgs    
       end
     | None =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "no zil found" };
       msgs = one_msg msg;
       send msgs  
     end  
   | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "only payee can change the state of Crowdsale" };
     msgs = one_msg msg;
     send msgs  
   end
@@ -145,25 +151,29 @@ st <- _state;
 isState=builtin eq st active;
 match isState with
 | True =>
+  accept ;
+  dep=_amount ;
   bl <- all_deposits;
   s <- token;
-  bal = builtin get bl _sender;
+   
   val = builtin eq _sender payee;
   match val with
   | False =>
-    val1=equal_int _amount zero;
+    accept ;
+    val1=equal_int dep zero;
     match val1 with 
     | False =>
-      number_of_token = builtin mul _rate _amount; 
-      
-          
-      
-      match bal with
-      | Some b =>
-        can_do = le_int _amount b;
+      number_of_token = builtin mul _rate dep; 
+      payee_tok_bal=builtin get s payee;
+      match payee_tok_bal with
+      | Some x =>
+        can_do=le_int number_of_token x;
         match can_do with
         | True =>
-          (* debit tokens from payee and credit to _sender(investor) *)
+          p = number_of_token;
+          payee_tok_bal1=builtin sub x p;
+          payee_tok_bal1_new=builtin put s payee payee_tok_bal1;
+          token:=payee_tok_bal1_new;
           tk=builtin get s _sender;
           match tk with 
           | Some x =>
@@ -174,65 +184,53 @@ match isState with
           | None =>
             new_tk_bal1=builtin put s _sender number_of_token;
             token := new_tk_bal1;
-            payee_tok_bal=builtin get s payee;
-            match payee_tok_bal with
-            | Some x =>
-              payee_tok_bal1=builtin sub x number_of_token;
-              payee_tok_bal1_new=builtin put s payee payee_tok_bal1;
-              token:=payee_tok_bal1_new
-            | None =>
-              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
-              msgs = one_msg msg;
-              send msgs
-            end  
-          end;
-          (*debit zil balance from _sender(investor and credit in payee(token owner) account)*)
-          new_sender_bal = builtin sub b _amount;
-          new_balances = builtin put bl _sender new_sender_bal;
-          to_bal = builtin get new_balances payee;
+          to_bal = builtin get bl payee;
           match to_bal with
           | Some x =>
-            new_to_bal = builtin add x _amount;
-            new_balances2 = builtin put new_balances payee new_to_bal;
+            new_to_bal = builtin add x dep;
+            new_balances2 = builtin put bl payee new_to_bal;
             all_deposits := new_balances2
             
           | None =>
-            new_balances3 = builtin put new_balances payee _amount;
+            new_balances3 = builtin put bl payee dep;
             all_deposits := new_balances3
           end;
-    
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : _amount };        msgs = one_msg msg;
-          send msgs
-        | False =>
-          (* balance not sufficient. *)
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+          
+          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "tokens purchased successfully" };        
           msgs = one_msg msg;
-          send msgs
-        end
+          send msgs    
+            
+              
+          end
+          
+        | False =>
+          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "not enough tokens left for sale" };
+          msgs = one_msg msg;
+          send msgs 
+        end  
       | None =>
-        (* no balance record, can't transfer *)
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "payee token balance not found" };
         msgs = one_msg msg;
         send msgs
       end
     | True =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "deposit amount cannot be zero" };
       msgs = one_msg msg;
-      send msgs 
-    end  
+      send msgs  
+    end      
   | True =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "token owner cannot purchase tokens" };
     msgs = one_msg msg;
     send msgs  
-  end        
- 
-  
+  end     
 | False =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "state is not active" };
   msgs = one_msg msg;
   send msgs    
 end
 end
+
+      
 
 (*beneficiaryWithdraw() allows the investor to withdraw the investment if state of the sale has been changed to refunding.*)
 transition beneficiaryWithdraw()
@@ -254,6 +252,7 @@ transition beneficiaryWithdraw()
          
         beneficiary_zil_bal=builtin div x _rate;
         bene_zil_bal := beneficiary_zil_bal;
+        bene_zil_return <- bene_zil_bal;
         beneficiary_tok_bal_new=builtin mul zero x;
         tok_new_bal=builtin put s _sender beneficiary_tok_bal_new;
         token := tok_new_bal;
@@ -263,34 +262,28 @@ transition beneficiaryWithdraw()
           payee_tok_bal1=builtin add p x;
           payee_tok_bal_new=builtin put s payee payee_tok_bal1;
           token := payee_tok_bal_new;
-          bene_zil_bal1= builtin get bl _sender;
-          match bene_zil_bal1 with
-          | Some q =>
-            bene_zil_bal2=builtin add q beneficiary_zil_bal;
-            bene_zil_bal_new=builtin put bl _sender bene_zil_bal2;
-            all_deposits := bene_zil_bal_new  
-          | None =>     
-            bene_zil_bal_new=builtin put bl _sender beneficiary_zil_bal;
-            all_deposits := bene_zil_bal_new
-          end    
+          bene_zil_bal1= builtin get bl _sender
+             
         | None =>  
           payee_tok_bal_new=builtin put s payee x;
-          token := payee_tok_bal_new
-          
+          token := payee_tok_bal_new;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : bene_zil_return ; message : "refunded" };
+        msgs = one_msg msg;
+        send msgs  
         end  
       | None =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "tokens not found" };
         msgs = one_msg msg;
         send msgs
       end 
         
     | True =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "token owner cannot be a beneficiary" };
       msgs = one_msg msg;
       send msgs
     end    
   | False =>      
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "Not in a refunding state" };
     msgs = one_msg msg;
     send msgs
   end
@@ -299,7 +292,7 @@ end
   
   
   
-(*withdrawPrimary() transition allows the owner to withdraw the zil raised if the goad has been achieved.*)
+(*withdrawPrimary() transition allows the owner to withdraw the zil raised if the goal has been achieved.*)
 transition withdrawPrimary (withdrawalamount : Uint128)
   st<-_state;
   msg2="not primary";
@@ -320,39 +313,32 @@ transition withdrawPrimary (withdrawalamount : Uint128)
           (* subtract withdrawalamount from pprimary  and add it to  _sender*)
           new_sender_bal = builtin sub b withdrawalamount;
           new_balances = builtin put bl _sender new_sender_bal;
-          to_bal = builtin get new_balances _sender;
-          match to_bal with
-          | Some x =>
-            new_to_bal = builtin add x withdrawalamount;
-            new_balances2 = builtin put new_balances _sender new_to_bal;
-            all_deposits := new_balances2
-          | None =>
-            new_balances3 = builtin put new_balances _sender withdrawalamount;
-            all_deposits := new_balances3
-          end;
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : withdrawalamount };
+          all_deposits := new_balances;
+          
+          
+          msg = { _tag : "Main"; _recipient : _sender; _amount : withdrawalamount ; transferred : withdrawalamount };
           msgs = one_msg msg;
           send msgs
         | False =>
           (* balance not sufficient. *)
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "balance not sufficient" };
           msgs = one_msg msg;
           send msgs
         end
       | None =>
         (* no balance record, can't transfer *)
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "no zil balanc found" };
         msgs = one_msg msg;
         send msgs
       end
     | False=>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; _transfer : msg2 };
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "state is not closed" };
       msgs = one_msg msg;
       send msgs
     end    
         
   | False =>
-     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; _transfer : msg2 };
+     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "sender is not the token owner" };
      msgs = one_msg msg;
      send msgs
   end
