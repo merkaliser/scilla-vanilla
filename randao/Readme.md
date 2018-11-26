@@ -52,6 +52,6 @@ Hence, 2 out of 3 `commitments` have revealed secret in reveal phase.
 15. getMyBounty: try to get bounty before the reveal phase is over. Expected: [Failure] `Failure, reveal phase has not ended yet`.
 16. commit: try to `commit` before commit phase (`5` to `15`)has started. Expected: [Failure] `Failed, early to commit`.
 17. reveal: try to `reveal` before reveal phase (`15`) has started. Expected: [Failure] `Failed, early to reveal`.
-18. reveal: try to `reveal` if commits in phase1 are less than required minimum participants. `_deposit` is refunded to participants of phase 1. Random no. generation fails. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`.
+18. reveal: try to `reveal` if commits in phase1 are less than required minimum participants `3`. `_deposit` is refunded to participants of phase 1 `2`. Random no. generation fails. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`.
  
 
