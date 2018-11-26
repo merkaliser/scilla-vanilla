@@ -30,6 +30,11 @@
         "value" : "100"
     },
     {
+        "vname" : "minParticipant",
+        "type" : "Uint128",
+        "value" : "3"
+    },
+    {
         "vname" : "_creation_block",
         "type" : "BNum",
         "value" : "1"

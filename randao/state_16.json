@@ -1,6 +1,6 @@
 [
-    { "vname": "_balance", "type": "Uint128", "value": "0" },
-    { "vname": "balances", "type": "Map (ByStr20) (Uint128)", "value": [] },
+    { "vname": "_balance", "type": "Uint128", "value": "55" },
+
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",

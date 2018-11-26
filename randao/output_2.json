@@ -1,18 +1,17 @@
 {
-  "gas_remaining": "6904",
+  "gas_remaining": "6892",
   "message": {
     "_tag": "Main",
     "_amount": "0",
-    "_accepted": "false",
+    "_accepted": "true",
     "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
     "params": [
       { "vname": "status", "type": "String", "value": "successful" }
     ]
   },
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "_balance", "type": "Uint128", "value": "105" },
     { "vname": "commitNum", "type": "Uint128", "value": "1" },
-    { "vname": "balances", "type": "Map (ByStr20) (Uint128)", "value": [] },
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",

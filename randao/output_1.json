@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "7096",
+  "gas_remaining": "7085",
   "message": {
     "_tag": "Main",
     "_amount": "0",
@@ -15,8 +15,7 @@
     ]
   },
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "0" },
-    { "vname": "balances", "type": "Map (ByStr20) (Uint128)", "value": [] },
+    { "vname": "_balance", "type": "Uint128", "value": "100" },
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",

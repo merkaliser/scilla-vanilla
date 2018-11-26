@@ -1,21 +1,7 @@
-{
-  "gas_remaining": "6599",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0xfe77f63ba9e93c22197d7ed3ed11734cbc93e925",
-    "params": [
-      {
-        "vname": "status",
-        "type": "String",
-        "value": "Failed, deadline finished to commit"
-      }
-    ]
-  },
-  "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "115" },
-    { "vname": "commitNum", "type": "Uint128", "value": "3" },
+ [
+    { "vname": "_balance", "type": "Uint128", "value": "55" },
+    { "vname": "commitNum", "type": "Uint128", "value": "2" },
+
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
@@ -26,16 +12,6 @@
             {
               "key":
                 "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88",
-              "val": "0"
-            }
-          ]
-        },
-        {
-          "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
-          "val": [
-            {
-              "key":
-                "0x8ab3bf6e8bfac3771707cd4a013bdeef828f62ff73a9290720d0f4112902bf9b",
               "val": "0"
             }
           ]
@@ -79,6 +55,4 @@
     },
     { "vname": "revealsNum", "type": "Uint128", "value": "0" },
     { "vname": "random", "type": "Uint128", "value": "0" }
-  ],
-  "events": []
-}
+  ]
