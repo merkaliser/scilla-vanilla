@@ -1,20 +1,8 @@
 {
-  "gas_remaining": "6671",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "true",
-    "_recipient": "0x1eb825dc86c189b8e693013cb9cffa77c9ad1134",
-    "params": [
-      {
-        "vname": "message",
-        "type": "String",
-        "value": "tokens purchased successfully"
-      }
-    ]
-  },
+  "gas_remaining": "6675",
+  "message": null,
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "21" },
+    { "vname": "_balance", "type": "Uint128", "value": "31" },
     {
       "vname": "all_deposits",
       "type": "Map (ByStr20) (Uint128)",
@@ -28,7 +16,7 @@
       "value": [
         {
           "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-          "val": "4790"
+          "val": "4850"
         },
         { "key": "0x0df797a389c75520b9fbdc2f7ae2266b994776af", "val": "100" },
         { "key": "0x1eb825dc86c189b8e693013cb9cffa77c9ad1134", "val": "60" },
@@ -39,5 +27,22 @@
     { "vname": "bene_zil_bal", "type": "Uint128", "value": "0" },
     { "vname": "bene_tok_bal", "type": "Uint128", "value": "0" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "purchasedSuccessfully",
+      "params": [
+        {
+          "vname": "_recipient",
+          "type": "ByStr20",
+          "value": "0x1eb825dc86c189b8e693013cb9cffa77c9ad1134"
+        },
+        { "vname": "_amount", "type": "Uint128", "value": "0" },
+        {
+          "vname": "message",
+          "type": "String",
+          "value": "tokens purchased successfully"
+        }
+      ]
+    }
+  ]
 }

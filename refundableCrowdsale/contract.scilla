@@ -94,30 +94,25 @@ transition closed()
           st <- _state;
           cl=builtin sub st active;  
           _state := cl ; 
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "closed(goal acheived)" };
-          msgs = one_msg msg;
-          send msgs
+          e = { _eventname : "closed"; _recipient : _sender; _amount : Uint128 0; status : "closed(goal acheived)" };
+          event e
         | False=>
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "goal not acheived" };
-          msgs = one_msg msg;
-          send msgs    
+          e = { _eventname : "goalNotAchieved"; _recipient : _sender; _amount : Uint128 0; status : "goal not acheived" };
+          event e    
         end
       | None =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "no zil found" };
-        msgs = one_msg msg;
-        send msgs  
+        e = { _eventname : "noZil"; _recipient : _sender; _amount : Uint128 0; message : "no zil found" };
+        event e  
       end  
     | False =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "only payee can change the state of Crowdsale" };
-      msgs = one_msg msg;
-      send msgs  
+      e = { _eventname : "notOwner"; _recipient : _sender; _amount : Uint128 0; message : "only payee can change the state of Crowdsale" };
+      event e  
     end
   | True =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "state is already closed" };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "alreadyCLosed"; _recipient : _sender; _amount : Uint128 0; message : "state is already closed" };
+    event e
   end    
-end  
+end    
 (*closed() transition changes the state from active to refunding if the goal is not reached ,can only be accessed the payee*)
 transition refunding()
 
@@ -134,23 +129,19 @@ transition refunding()
         st <- _state;
         cl=builtin add st active;  
         _state := cl ;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "refunding" };
-        msgs = one_msg msg;
-        send msgs
+        e = { _eventname : "refund"; _recipient : _sender; _amount : Uint128 0; status : "refunding" };
+        event e
       | False=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "goal already achieved" };
-        msgs = one_msg msg;
-        send msgs    
+        e = { _eventname : "goalAchieved"; _recipient : _sender; _amount : Uint128 0; status : "goal already achieved" };
+        event e    
       end
     | None =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "no zil found" };
-      msgs = one_msg msg;
-      send msgs  
+      e = { _eventname : "noZil"; _recipient : _sender; _amount : Uint128 0; message : "no zil found" };
+      event e  
     end  
   | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "only payee can change the state of Crowdsale" };
-    msgs = one_msg msg;
-    send msgs  
+    e = { _eventname : "notOwner"; _recipient : _sender; _amount : Uint128 0; message : "only payee can change the state of Crowdsale" };
+    event e  
   end
 end
   
@@ -206,37 +197,31 @@ match isState with
             all_deposits := new_balances3
           end;
           
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "tokens purchased successfully" };        
-          msgs = one_msg msg;
-          send msgs    
+          e = { _eventname : "purchasedSuccessfully"; _recipient : _sender; _amount : Uint128 0; message : "tokens purchased successfully" };        
+          event e   
             
               
           end
           
         | False =>
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "not enough tokens left for sale" };
-          msgs = one_msg msg;
-          send msgs 
+          e = { _tag : "insufficientTokens"; _recipient : _sender; _amount : Uint128 0; message : "not enough tokens left for sale" };
+          event e  
         end  
       | None =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "payee token balance not found" };
-        msgs = one_msg msg;
-        send msgs
+        e = { _tag : "noTokenBalance"; _recipient : _sender; _amount : Uint128 0; message : "payee token balance not found" };
+        event e 
       end
     | True =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "deposit amount cannot be zero" };
-      msgs = one_msg msg;
-      send msgs  
+      e = { _tag : "zeroDeposit"; _recipient : _sender; _amount : Uint128 0; message : "deposit amount cannot be zero" };
+      event e   
     end      
   | True =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "token owner cannot purchase tokens" };
-    msgs = one_msg msg;
-    send msgs  
+    e = { _tag : "owner"; _recipient : _sender; _amount : Uint128 0; message : "token owner cannot purchase tokens" };
+    event e  
   end     
 | False =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "state is not active" };
-  msgs = one_msg msg;
-  send msgs    
+  e = { _tag : "notActive"; _recipient : _sender; _amount : Uint128 0; message : "state is not active" };
+  event e     
 end
 end
 
@@ -282,20 +267,17 @@ transition beneficiaryWithdraw()
         send msgs  
         end  
       | None =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "tokens not found" };
-        msgs = one_msg msg;
-        send msgs
+        e = { _eventname : "noTokens"; _recipient : _sender; _amount : Uint128 0; message : "tokens not found" };
+        event e
       end 
         
     | True =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "token owner cannot be a beneficiary" };
-      msgs = one_msg msg;
-      send msgs
+      e = { _eventname : "notBeneficiary"; _recipient : _sender; _amount : Uint128 0; message : "token owner cannot be a beneficiary" };
+      event e
     end    
   | False =>      
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "Not in a refunding state" };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "notRefunding"; _recipient : _sender; _amount : Uint128 0; message : "Not in a refunding state" };
+    event e
   end
 end  
   
@@ -326,31 +308,31 @@ transition withdrawPrimary (withdrawalamount : Uint128)
           all_deposits := new_balances;
           
           
-          msg = { _tag : "Main"; _recipient : _sender; _amount : withdrawalamount ; transferred : withdrawalamount };
-          msgs = one_msg msg;
-          send msgs
+          e = { _eventname : "withdrawPrimary"; _recipient : _sender; _amount : withdrawalamount ; transferred : withdrawalamount };
+          event e
+          
         | False =>
           (* balance not sufficient. *)
-          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "balance not sufficient" };
-          msgs = one_msg msg;
-          send msgs
+          e = { _eventname : "balInsufficient"; _recipient : _sender; _amount : Uint128 0; message : "balance not sufficient" };
+          event e
+          
         end
       | None =>
         (* no balance record, can't transfer *)
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "no zil balanc found" };
-        msgs = one_msg msg;
-        send msgs
+        e = { _eventname : "noZilBalance"; _recipient : _sender; _amount : Uint128 0; message : "no zil balanc found" };
+        event e
       end
     | False=>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "state is not closed" };
-      msgs = one_msg msg;
-      send msgs
+        
+      e= { _eventname : "notClosed"; _recipient : _sender; _amount : Uint128 0; message : "state is not closed" };    
+      event e
+      
     end    
         
   | False =>
-     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "sender is not the token owner" };
-     msgs = one_msg msg;
-     send msgs
+    e = {_eventname : "TransferFailure"; sender : _sender;  amount : Uint128 0};
+    event e
+     
   end
   
 end
