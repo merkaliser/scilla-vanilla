@@ -77,36 +77,46 @@ field bene_tok_bal : Uint128 = zero
       
 transition closed()
   isPrimary=builtin eq _sender payee;
-  bl<-all_deposits;
-  zilraised=builtin get bl _sender;
-  match isPrimary with 
-  | True =>
-    match zilraised with
-    | Some x =>
-      israised=le_int goal x;
-      match israised with
-      | True =>
-        st <- _state;
-        cl=builtin sub st active;  
-        _state := cl ; 
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "closed(goal acheived)" };
+  st1 <- _state;
+  isstate=builtin eq st1 closed;
+  match isstate with
+  | False =>
+      
+    bl<-all_deposits;
+    zilraised=builtin get bl _sender;
+    match isPrimary with 
+    | True =>
+      match zilraised with
+      | Some x =>
+        israised=le_int goal x;
+        match israised with
+        | True =>
+          st <- _state;
+          cl=builtin sub st active;  
+          _state := cl ; 
+          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "closed(goal acheived)" };
+          msgs = one_msg msg;
+          send msgs
+        | False=>
+          msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "goal not acheived" };
+          msgs = one_msg msg;
+          send msgs    
+        end
+      | None =>
+        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "no zil found" };
         msgs = one_msg msg;
-        send msgs
-      | False=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : "goal not acheived" };
-        msgs = one_msg msg;
-        send msgs    
-      end
-    | None =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "no zil found" };
+        send msgs  
+      end  
+    | False =>
+      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "only payee can change the state of Crowdsale" };
       msgs = one_msg msg;
       send msgs  
-    end  
-  | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "only payee can change the state of Crowdsale" };
+    end
+  | True =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : "state is already closed" };
     msgs = one_msg msg;
-    send msgs  
-  end
+    send msgs
+  end    
 end  
 (*closed() transition changes the state from active to refunding if the goal is not reached ,can only be accessed the payee*)
 transition refunding()
