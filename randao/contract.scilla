@@ -56,7 +56,7 @@ let _one1   = Uint32 1
 (***************************************************)
 
 contract Randao 
-( founder : ByStr20, _deposit: Uint128, commitBalkline: BNum, commitDeadline: BNum, bnum: BNum, _bounty: Uint128 )
+( founder : ByStr20, _deposit: Uint128, commitBalkline: BNum, commitDeadline: BNum, bnum: BNum, _bounty: Uint128, minParticipant : Uint128 )
 (*founder is the account that has all _bounty at initialisation*)
 (*_deposit is _amount of zil required to send to take part in commit phase*)
 (*commitBalkline is the Bnum when the commit phase starts*)
@@ -178,56 +178,74 @@ end
 (*reveal secret in reveal phase of commitment*)
 transition reveal(_s : Uint128)
 success="successful";
+failParticipant="Failed compaign and refunded deposit as minParticipants < total commits";
 failWrong="Failed, wrong secret revealed";
 failure= "Failure, not commited";
 failEarly="Failed, early to reveal";
 failDeadline="Failed, deadline finished to reveal";
+cn<-commitNum;
 blk <- & BLOCKNUMBER;
 (*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
+isMinParticipants = le_int minParticipant cn;
 in_time=blk_leq commitDeadline blk;
 in_time1 = blk_leq blk bnum ;
-match in_time with
+match isMinParticipants with
 | True =>
-  match in_time1 with
-  | True =>
-  commit= builtin sha256hash _s;
+match in_time with
+ | True =>
+   match in_time1 with
+   | True =>
+      commit= builtin sha256hash _s;
       val5 <- participant [_sender];
       match val5 with
       | Some v5 =>
-      val1=builtin get v5 commit ;
-      match val1 with
-	 | Some v6 =>
-	       rn<-revealsNum;
-	       newRevealNum=builtin add rn _one;
-               revealsNum:=newRevealNum;
-	       (*generate random no.*)
-	       prRandom<-random;
-	       newRandom=builtin add prRandom _s;
-               random:=newRandom;	
-	       participant[_sender][commit] := _s;
-	       revealed[_sender]:=_one1;
-	       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	       msgs = one_msg msg;
-	       send msgs
-        | None =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failWrong };
-        msgs = one_msg msg;
-        send msgs
-        end
-     | None =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error2 : failure };
-      msgs = one_msg msg;
-      send msgs
-      end
-  | False => 
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
+       val1=builtin get v5 commit ;
+       match val1 with
+ 	 | Some v6 =>
+	        rn<-revealsNum;
+	        newRevealNum=builtin add rn _one;
+                revealsNum:=newRevealNum;
+	        (*generate random no.*)
+	        prRandom<-random;
+	        newRandom=builtin add prRandom _s;
+                random:=newRandom;	
+	        participant[_sender][commit] := _s;
+	        revealed[_sender]:=_one1;
+	        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+	        msgs = one_msg msg;
+	        send msgs
+         | None =>
+         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failWrong };
+         msgs = one_msg msg;
+         send msgs
+         end
+      | None =>
+       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error2 : failure };
+       msgs = one_msg msg;
+       send msgs
+       end
+   | False => 
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
+   msgs = one_msg msg;
+   send msgs
+   end
+ | False => 
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
+ msgs = one_msg msg;
+ send msgs
+ end
+| False => 
+hash <- participant [_sender];
+match hash with
+  | Some v6 =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : _deposit; status : failParticipant };
+  msgs = one_msg msg;
+  send msgs
+  | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failure };
   msgs = one_msg msg;
   send msgs
   end
-| False => 
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
-msgs = one_msg msg;
-send msgs
 end
 end
 
