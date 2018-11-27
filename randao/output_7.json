@@ -1,14 +1,6 @@
 {
-  "gas_remaining": "6267",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
-    "params": [
-      { "vname": "status", "type": "String", "value": "successful" }
-    ]
-  },
+  "gas_remaining": "6420",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
     { "vname": "random", "type": "Uint128", "value": "6" },

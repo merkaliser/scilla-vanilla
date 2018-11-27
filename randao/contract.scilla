@@ -50,6 +50,23 @@ let _one   = Uint128 1
 let _zero1   = Uint32 0
 let _one1   = Uint32 1
 
+(* Error events *)
+let mk_error_event =
+  fun (err_code : Int32) =>
+    { _eventname : "RandaoError" ; err_code : err_code }
+
+(* Error messages *)
+let insufficient_deposit_err_code = Int32 -1
+let early_commit_err_code  = Int32 -2
+let deadline_finish_err_code = Int32 -3
+let not_reveal_deadline_err_code = Int32 -4
+let not_committed_err_code = Int32 -5
+let early_reveal_err_code = Int32 -6
+let reveal_deadline_not_ended_err_code = Int32 -7
+let failure_err_code = Int32 -8
+let failure_wrong_secret = Int32 -9
+
+
 
 (***************************************************)
 (*             The contract definition             *)
@@ -93,10 +110,6 @@ field random: Uint128 = _zero
 
 (*commit sha256 hash (of secret) in commit phase*)
 transition commit (_hs : ByStr32 )
-success="successful";
-fail1="deposit amount of zil is not equal to deposit required";
-failEarly="Failed, early to commit";
-failDeadline="Failed, deadline finished to commit";
 isEqualDeposit= builtin eq _amount _deposit;
 blk <- & BLOCKNUMBER;
 (*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
@@ -115,43 +128,33 @@ match isEqualDeposit with
 	    cn<-commitNum;
 	    newCommitNum=builtin add cn _one;
             commitNum:=newCommitNum;
-	    e = { _eventname : "LogCommit"; from : _sender  ; commitment : _hs  };
-	    event e;	    
-	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	    msgs = one_msg msg;
-	    send msgs
+	    e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
+	    event e
 	  | False => 
-	   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
-	   msgs = one_msg msg;
-	   send msgs
+	   e = mk_error_event deadline_finish_err_code;
+           event e 
 	   end
     | False => 
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
-	msgs = one_msg msg;
-	send msgs
+        e = mk_error_event early_commit_err_code;
+        event e 
      end
-
   | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : fail1 };
-    msgs = one_msg msg;
-    send msgs
+   e = mk_error_event insufficient_deposit_err_code;
+   event e 
   end
 end
 
 
 (*sha256 hash of any secret*)
 transition shaCommit(_s : Uint128)
- failure="hashing failed";
  commit= builtin sha256hash _s;
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : commit };
- msgs = one_msg msg;
- send msgs
+ e = { _eventname : "shaCommit"; commitment : commit  };
+ event e
  end
 
 
 (*returns commitment, sha256 hash of _sender*)
 transition getCommitment ()
-  failure="commitment not found for _sender";
   valMap <- participant [_sender];
   match valMap with
   | Some v =>
@@ -160,19 +163,16 @@ transition getCommitment ()
    | Cons h t => 
       match h with
       | Pair a b => 
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : a };
-        msgs = one_msg msg;
-        send msgs
+        e = { _eventname : "Commitment"; commitment : a  };
+        event e
         end
    | Nil =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : failure };
-    msgs = one_msg msg;
-    send msgs
+    e = mk_error_event not_committed_err_code;
+    event e 
     end
  | None=>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : failure };
-    msgs = one_msg msg;
-    send msgs
+  e = mk_error_event not_committed_err_code;
+  event e 
   end
 end
 
@@ -180,11 +180,6 @@ end
 (*reveal secret in reveal phase of commitment*)
 transition reveal(_s : Uint128)
 success="successful";
-failParticipant="Failed compaign and refunded deposit as minParticipants < total commits";
-failWrong="Failed, wrong secret revealed";
-failure= "Failure, not commited";
-failEarly="Failed, early to reveal";
-failDeadline="Failed, deadline finished to reveal";
 cn<-commitNum;
 blk <- & BLOCKNUMBER;
 (*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
@@ -214,41 +209,33 @@ match in_time with
 	        participant[_sender][commit] := _s;
 	        revealed[_sender]:=_one1;
         	e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
-	        event e;
-	        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	        msgs = one_msg msg;
-	        send msgs
-         | None =>
-         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failWrong };
-         msgs = one_msg msg;
-         send msgs
-         end
+	        event e
+	 | None =>
+  	        e = mk_error_event failure_wrong_secret;
+		event e
+		end
       | None =>
-       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error2 : failure };
-       msgs = one_msg msg;
-       send msgs
+       e = mk_error_event failure_err_code;
+       event e 
        end
    | False => 
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
-   msgs = one_msg msg;
-   send msgs
+   e = mk_error_event deadline_finish_err_code;
+   event e 
    end
  | False => 
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
- msgs = one_msg msg;
- send msgs
- end
+   e = mk_error_event early_reveal_err_code;
+   event e 
+   end
 | False => 
 hash <- participant [_sender];
 match hash with
   | Some v6 =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : _deposit; status : failParticipant };
+  msg = { _tag : "Main"; _recipient : _sender; _amount : _deposit; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
   msgs = one_msg msg;
   send msgs
   | None =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failure };
-  msgs = one_msg msg;
-  send msgs
+  e = mk_error_event failure_err_code;
+  event e 
   end
 end
 end
@@ -257,11 +244,6 @@ end
 
 (*to get the reward after reveal phase is over*)
 transition getMyBounty()
-failure="Failure";
-failureReveal="Failure, didnot reveal in deadline";
-failureCommit="Failure, didnot commit";
-failureDeadline="Failure, reveal phase has not ended yet";
-success="success";
 blk <- & BLOCKNUMBER;
 isEnd=blk_leq bnum blk;
 revealno<-revealsNum;
@@ -299,7 +281,6 @@ match isEnd with
  		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward ; status : success };
     	        msgs = one_msg msg;
    	        send msgs
- 
 		|None=>
 	        totalReward= builtin add distributionAmount _deposit;
  		senderAmt=totalReward;
@@ -309,11 +290,9 @@ match isEnd with
     		send msgs
  		end 
 	     |None=>
-	     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status2 : failure  };
-             msgs = one_msg msg;
-             send msgs
-             end 
-
+	      e = mk_error_event failure_err_code;
+	      event e 
+              end 
 		|False =>
 		fine=builtin mul diffRevealed _deposit;
 		distributionShare=builtin div _bounty revealno;
@@ -329,54 +308,47 @@ match isEnd with
           	     totalReward = builtin add distributionAmount _deposit;
  		     senderAmt = builtin add cAmt1 totalReward;
 		     consumer[_sender]:=senderAmt;
-	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
+	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
 	  	     msgs = one_msg msg;
 	  	     send msgs
 		   |None=>
 		     totalReward = builtin add distributionAmount _deposit;
  		     senderAmt = totalReward;
 	             consumer[_sender]:=senderAmt;
-	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
+	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
 	   	     msgs = one_msg msg;
 	    	     send msgs
 	  	     end 
 		|None=>
-	 	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status4 : failure  };
-	 	msgs = one_msg msg;
-	 	send msgs
-	 	end 
-	      end
+	 	 e = mk_error_event failure_err_code;
+        	 event e 
+	         end
+		 end
   	   |True =>
-  	   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status5 : failure  };
-  	   msgs = one_msg msg;
-  	   send msgs
-  	   end 
+  	    e = mk_error_event failure_err_code;
+            event e 
+            end 
         |None=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status6 : failure  };
-        msgs = one_msg msg;
-        send msgs
+        e = mk_error_event failure_err_code;
+        event e 
         end 
      |False=>
-     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status: failureReveal  };
-     msgs = one_msg msg;
-     send msgs
-     end 
+	e = mk_error_event not_reveal_deadline_err_code;
+        event e 
+        end 
   |None=>
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failureCommit  };
-   msgs = one_msg msg;
-   send msgs
+   e = mk_error_event not_committed_err_code;
+   event e 
    end 
 |False =>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failureDeadline  };
- msgs = one_msg msg;
- send msgs
+ e = mk_error_event reveal_deadline_not_ended_err_code;
+ event e 
  end 
 end
 
 
 (*random no. generated by contract*)
 transition getRandom ()
-fail="Failure";
 blk <- & BLOCKNUMBER;
 isEnd=blk_leq bnum blk;
 r<-revealsNum;
@@ -386,17 +358,14 @@ match isEnd with
  isSettled=builtin lt _zero r;
  match isSettled with
  | True =>
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  number : rn  };
-   msgs = one_msg msg;
-   send msgs
+   e = { _eventname : "RandomNumber" ; number : rn  };
+   event e
  | False =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status1 : fail  };
-  msgs = one_msg msg;
-  send msgs
- end
+    e = mk_error_event failure_err_code;
+    event e 
+    end
 | False =>
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail  };
-msgs = one_msg msg;
-send msgs
-end 
+ e = mk_error_event reveal_deadline_not_ended_err_code;
+ event e 
+ end
 end

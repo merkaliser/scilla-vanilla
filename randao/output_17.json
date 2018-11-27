@@ -1,18 +1,6 @@
 {
-  "gas_remaining": "6558",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
-    "params": [
-      {
-        "vname": "status",
-        "type": "String",
-        "value": "Failed, early to reveal"
-      }
-    ]
-  },
+  "gas_remaining": "6647",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "55" },
     { "vname": "commitNum", "type": "Uint128", "value": "3" },
@@ -80,5 +68,10 @@
     { "vname": "revealsNum", "type": "Uint128", "value": "0" },
     { "vname": "random", "type": "Uint128", "value": "0" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-6" } ]
+    }
+  ]
 }

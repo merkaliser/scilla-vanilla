@@ -1,12 +1,6 @@
 {
-  "gas_remaining": "6748",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
-    "params": [ { "vname": "number", "type": "Uint128", "value": "606" } ]
-  },
+  "gas_remaining": "6811",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
     { "vname": "random", "type": "Uint128", "value": "606" },
@@ -74,5 +68,10 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "RandomNumber",
+      "params": [ { "vname": "number", "type": "Uint128", "value": "606" } ]
+    }
+  ]
 }

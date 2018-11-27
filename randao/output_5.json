@@ -1,18 +1,6 @@
 {
-  "gas_remaining": "7070",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x1234567890123456789012345678906784567891",
-    "params": [
-      {
-        "vname": "commitment",
-        "type": "String",
-        "value": "commitment not found for _sender"
-      }
-    ]
-  },
+  "gas_remaining": "7160",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "105" },
     { "vname": "commitNum", "type": "Uint128", "value": "1" },
@@ -56,5 +44,10 @@
     { "vname": "revealsNum", "type": "Uint128", "value": "0" },
     { "vname": "random", "type": "Uint128", "value": "0" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-5" } ]
+    }
+  ]
 }
