@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6826",
+  "gas_remaining": "6644",
   "message": {
     "_tag": "Main",
     "_amount": "0",
@@ -89,5 +89,19 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Burnt",
+      "params": [
+        {
+          "vname": "owner",
+          "type": "ByStr20",
+          "value": "0x1234567890123456789012345678906784567891"
+        },
+        { "vname": "tranche", "type": "Uint32", "value": "1" },
+        { "vname": "amount", "type": "Uint128", "value": "100" },
+        { "vname": "data", "type": "String", "value": "data1" }
+      ]
+    }
+  ]
 }
