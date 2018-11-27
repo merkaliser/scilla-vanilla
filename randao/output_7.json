@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6385",
+  "gas_remaining": "6267",
   "message": {
     "_tag": "Main",
     "_amount": "0",
@@ -76,5 +76,17 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "LogReveal",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
+        },
+        { "vname": "secret", "type": "Uint128", "value": "6" }
+      ]
+    }
+  ]
 }

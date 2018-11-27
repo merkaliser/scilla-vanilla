@@ -115,6 +115,8 @@ match isEqualDeposit with
 	    cn<-commitNum;
 	    newCommitNum=builtin add cn _one;
             commitNum:=newCommitNum;
+	    e = { _eventname : "LogCommit"; from : _sender  ; commitment : _hs  };
+	    event e;	    
 	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
 	    msgs = one_msg msg;
 	    send msgs
@@ -211,6 +213,8 @@ match in_time with
                 random:=newRandom;	
 	        participant[_sender][commit] := _s;
 	        revealed[_sender]:=_one1;
+        	e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
+	        event e;
 	        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
 	        msgs = one_msg msg;
 	        send msgs

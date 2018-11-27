@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6892",
+  "gas_remaining": "6758",
   "message": {
     "_tag": "Main",
     "_amount": "0",
@@ -52,5 +52,22 @@
     { "vname": "revealsNum", "type": "Uint128", "value": "0" },
     { "vname": "random", "type": "Uint128", "value": "0" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "LogCommit",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
+        },
+        {
+          "vname": "commitment",
+          "type": "ByStr32",
+          "value":
+            "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88"
+        }
+      ]
+    }
+  ]
 }
