@@ -1,20 +1,8 @@
 {
-  "gas_remaining": "7137",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-    "params": [
-      {
-        "vname": "status",
-        "type": "String",
-        "value": "goal already achieved"
-      }
-    ]
-  },
+  "gas_remaining": "7142",
+  "message": null,
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "57" },
+    { "vname": "_balance", "type": "Uint128", "value": "67" },
     {
       "vname": "all_deposits",
       "type": "Map (ByStr20) (Uint128)",
@@ -41,5 +29,22 @@
     { "vname": "bene_zil_bal", "type": "Uint128", "value": "0" },
     { "vname": "bene_tok_bal", "type": "Uint128", "value": "0" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "goalAchieved",
+      "params": [
+        {
+          "vname": "_recipient",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        { "vname": "_amount", "type": "Uint128", "value": "0" },
+        {
+          "vname": "status",
+          "type": "String",
+          "value": "goal already achieved"
+        }
+      ]
+    }
+  ]
 }

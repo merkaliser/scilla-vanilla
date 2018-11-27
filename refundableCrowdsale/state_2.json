@@ -1,5 +1,5 @@
 [
-    { "vname": "_balance", "type": "Uint128", "value": "15" },
+    { "vname": "_balance", "type": "Uint128", "value": "25" },
     {
       "vname": "all_deposits",
       "type": "Map (ByStr20) (Uint128)",

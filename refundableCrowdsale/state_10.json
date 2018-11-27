@@ -1,5 +1,5 @@
 [
-    { "vname": "_balance", "type": "Uint128", "value": "57" },
+    { "vname": "_balance", "type": "Uint128", "value": "67" },
     { "vname": "_state", "type": "Uint128", "value": "0" },
     {
       "vname": "all_deposits",
