@@ -1,11 +1,27 @@
+
 {
-    "_tag": "reveal",
-    "_amount": "0",
-    "_sender" : "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
-    "params": [
+    "_tag": "sendTranche",
+    "_amount": "50",
+    "_sender" : "0x1234567890123456789012345678906784567891",
+    "params":  [
         {
-            "vname": "_s",
-            "type": "Uint128",
-            "value": "6"
-        }    ]
+            "vname": "_tranche",
+            "type": "Uint32",
+            "value": "1"
+        },
+        {
+            "vname": "_to",
+            "type": "ByStr20",
+            "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        {
+            "vname": "_data",
+            "type": "String",
+            "value": "sent Tranche to account 617"
+        }
+    ]
 }
+
+
+
+

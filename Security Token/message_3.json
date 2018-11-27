@@ -1,11 +1,24 @@
 {
-    "_tag": "commit",
-    "_amount": "4",
-    "_sender" : "0x6D8794A2B6B98EABC1F466D0C5A4C1EE9E0F77F4",
+    "_tag": "mint",
+    "_amount": "600",
+    "_sender" : "0x1234567890123456789012345678906784567891",
     "params": [
-        {
-            "vname": "_hs",
-            "type": "ByStr32",
-            "value": "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88"
-        }    ]
+	{
+            "vname": "_tranche",
+            "type": "Uint32",
+            "value": "1"
+        },
+	{
+            "vname": "_owner",
+            "type": "ByStr20",
+            "value": "0x1234567890123456789012345678906784567891"
+        },
+	{
+            "vname": "_data",
+            "type": "String",
+            "value": "data1"
+        }
+
+]
 }
+

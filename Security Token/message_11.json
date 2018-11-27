@@ -1,7 +1,15 @@
+
 {
-    "_tag": "getRandom",
+    "_tag": "revokeOperator",
     "_amount": "0",
-    "_sender" : "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
-    "params": []
-       }
+    "_sender" : "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617",
+    "params": [
+        {
+            "vname": "operator",
+            "type": "ByStr20",
+            "value": "0x1234567890123456789012345678906784567891"
+        }
+    ]
+}
+
 

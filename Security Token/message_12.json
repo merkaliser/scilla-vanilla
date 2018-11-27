@@ -1,7 +1,17 @@
 {
-    "_tag": "getMyBounty",
+    "_tag": "authorizeOperatorTranche",
     "_amount": "0",
-    "_sender" : "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+    "_sender" : "0x1234567890123456789012345678906784567891",
     "params": [
-           ]
+        {
+            "vname": "_operator",
+            "type": "ByStr20",
+            "value": "0x74D045132C83F0C6478930569ECCC963C89E2467"
+        },
+        {
+            "vname": "_tranche",
+            "type": "Uint32",
+            "value": "1"
+        }
+    ]
 }

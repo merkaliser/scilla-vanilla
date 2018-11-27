@@ -1,11 +1,22 @@
+
 {
-    "_tag": "reveal",
-    "_amount": "0",
-    "_sender" : "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+    "_tag": "burn",
+    "_amount": "100",
+    "_sender" : "0x1234567890123456789012345678906784567891",
     "params": [
-        {
-            "vname": "_s",
-            "type": "Uint128",
-            "value": "6"
-        }    ]
+	{
+            "vname": "_tranche",
+            "type": "Uint32",
+            "value": "1"
+        },
+	{
+            "vname": "_data",
+            "type": "String",
+            "value": "data1"
+        }
+
+]
 }
+
+
+

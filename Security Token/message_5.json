@@ -1,8 +1,17 @@
 {
-    "_tag": "getCommitment",
+    "_tag": "balanceOfTranche",
     "_amount": "0",
     "_sender" : "0x1234567890123456789012345678906784567891",
     "params": [
-        
+        {
+            "vname": "_tranche",
+            "type": "Uint32",
+            "value": "1"
+        },
+        {
+            "vname": "_owner",
+            "type": "ByStr20",
+            "value": "0x1234567890123456789012345678906784567891"
+        }
     ]
 }

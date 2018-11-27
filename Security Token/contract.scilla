@@ -3,9 +3,9 @@
 (*               Associated library                *)
 (***************************************************)
 
-import BoolUtils ListUtils 
+import BoolUtils
 
-library Randao 
+library SecurityToken 
 
 let one_msg = 
   fun (msg : Message) => 
@@ -14,12 +14,6 @@ let one_msg =
 
 let no_msg = Nil {Message}
 
-let blk_leq =
-  fun (blk1 : BNum) =>
-  fun (blk2 : BNum) =>
-    let bc1 = builtin blt blk1 blk2 in 
-    let bc2 = builtin eq blk1 blk2 in 
-    orb bc1 bc2
 
 let min_int =
   fun (a : Uint128) => fun (b : Uint128) =>
@@ -44,359 +38,537 @@ let le_int =
       end
     end
     
-(*Constants*)
+let true   = Uint32 1
+let false   = Uint32 0
 let _zero   = Uint128 0
-let _one   = Uint128 1
-let _zero1   = Uint32 0
-let _one1   = Uint32 1
-
 
 (***************************************************)
 (*             The contract definition             *)
 (***************************************************)
 
-contract Randao 
-( founder : ByStr20, _deposit: Uint128, commitBalkline: BNum, commitDeadline: BNum, bnum: BNum, _bounty: Uint128, minParticipant : Uint128 )
-(*founder is the account that has all _bounty at initialisation*)
-(*_deposit is _amount of zil required to send to take part in commit phase*)
-(*commitBalkline is the Bnum when the commit phase starts*)
-(*commitDeadline is the Bnum when the commit phase ends*)
-(*bnum is the Bnum when the reveal phase ends*)
-(*between commitDeadline and bnum is the reveal phase*)
-(*so commitBalkline < commitDeadline < bnum*)
+contract SecurityToken 
+(name:String ,
+ symbol: String,
+ owner : ByStr20)
 
-(*address, commitment (i.e. sha256 hash of secret), secret *)
-field participant :Map ByStr20 ( Map ByStr32 Uint128 ) = Emp ByStr20 ( Map ByStr32  Uint128 )
-(*secret is initialized to zero in mapping*)
+(* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
+field balances : Map ByStr20 Uint128 = Emp ByStr20 Uint128 
 
-(*mapping for if address has revealed secret in reveal phase and is eligible for bounty*)
-field revealed : Map ByStr20 Uint32 = Emp ByStr20 Uint32 
+field _totalSupply: Uint128 = _zero
 
-(*mapping for if address has been rewarded*)
-field rewarded: Map ByStr20 Uint32 = Emp ByStr20 Uint32 
+(* Mapping from investor to their tranches (Address ->  tranche amount)*)
+field tranches : Map ByStr20 (Map Uint32 Uint128) = Emp ByStr20 (Map Uint32 Uint128)
+(*field tranchesLastID=Uint32 0*)
+(* new ids would be tranchesLastID plus one*)
 
-(*balance of Consumer in zil*)
-(*founder is the account that has all _bounty at initialisation*)
-field consumer : Map ByStr20 Uint128 =
-  let m = Emp ByStr20 Uint128 in
-    builtin put m founder _bounty
+(* Mapping from (investor, tranche, operator) to approved status*)
+field trancheApprovals : Map ByStr20 (Map Uint32 (Map ByStr20 Uint32)) = Emp ByStr20 (Map Uint32 (Map ByStr20 Uint32))
 
-field commitNum : Uint128 = _zero
-(*equal to zero at initialisation*)
+(* Mapping from (investor, operator) to approved status (can be used against any tranches)*)
+field approvals : Map ByStr20 (Map ByStr20 Uint32) = Emp ByStr20 (Map ByStr20 Uint32)
 
-field revealsNum : Uint128 = _zero
-(*equal to zero at initialisation*)
+ 
+transition name()
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; name : name};
+  msgs = one_msg msg;
+  send msgs
+end
 
-(*random number is generated after reveal phase is over*) 
-field random: Uint128 = _zero
-
-
-(*commit sha256 hash (of secret) in commit phase*)
-transition commit (_hs : ByStr32 )
-success="successful";
-fail1="deposit amount of zil is not equal to deposit required";
-failEarly="Failed, early to commit";
-failDeadline="Failed, deadline finished to commit";
-isEqualDeposit= builtin eq _amount _deposit;
-blk <- & BLOCKNUMBER;
-(*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
-in_time=builtin blt commitBalkline blk;
-in_time1 = builtin blt blk commitDeadline;
-match isEqualDeposit with
-  | True =>
-   match in_time with
-    | True =>
-	match in_time1 with
-	  | True =>
-	    accept;	    
- 	    participant[_sender][_hs]:=_zero;
-            revealed[_sender]:=_zero1;
-	    rewarded[_sender]:=_zero1;
-	    cn<-commitNum;
-	    newCommitNum=builtin add cn _one;
-            commitNum:=newCommitNum;
-	    e = { _eventname : "LogCommit"; from : _sender  ; commitment : _hs  };
-	    event e;	    
-	    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	    msgs = one_msg msg;
-	    send msgs
-	  | False => 
-	   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
-	   msgs = one_msg msg;
-	   send msgs
-	   end
-    | False => 
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
-	msgs = one_msg msg;
-	send msgs
-     end
-
-  | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : fail1 };
-    msgs = one_msg msg;
-    send msgs
-  end
+transition symbol()
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; symbol : symbol};
+  msgs = one_msg msg;
+  send msgs
 end
 
 
-(*sha256 hash of any secret*)
-transition shaCommit(_s : Uint128)
- failure="hashing failed";
- commit= builtin sha256hash _s;
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : commit };
- msgs = one_msg msg;
- send msgs
+transition totalSupply ()
+  t<-_totalSupply;
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; totalSupply : t};
+  msgs = one_msg msg;
+  send msgs
  end
 
 
-(*returns commitment, sha256 hash of _sender*)
-transition getCommitment ()
-  failure="commitment not found for _sender";
-  valMap <- participant [_sender];
-  match valMap with
+transition balanceOf (_owner : ByStr20)
+  bl <- balances;
+  val = builtin get bl _owner;
+  match val with
   | Some v =>
-    val=builtin to_list v;
-    match val with 
-   | Cons h t => 
-      match h with
-      | Pair a b => 
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : a };
-        msgs = one_msg msg;
-        send msgs
-        end
-   | Nil =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : failure };
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : v };
+    msgs = one_msg msg;
+    send msgs
+  | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint128 0 };
+    msgs = one_msg msg;
+    send msgs
+  end
+end 
+
+
+(*Returns restricted token balance*)
+transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
+  tr <- tranches;
+  val = builtin get tr _owner;
+  match val with
+  | Some v =>
+    bl = builtin get v _tranche;
+    match bl with
+    | Some v1 => 
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : v1 };
+    msgs = one_msg msg;
+    send msgs
+    | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
     msgs = one_msg msg;
     send msgs
     end
- | None=>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; commitment : failure };
+  | None =>
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
     msgs = one_msg msg;
     send msgs
   end
 end
 
 
-(*reveal secret in reveal phase of commitment*)
-transition reveal(_s : Uint128)
-success="successful";
-failParticipant="Failed compaign and refunded deposit as minParticipants < total commits";
-failWrong="Failed, wrong secret revealed";
-failure= "Failure, not commited";
-failEarly="Failed, early to reveal";
-failDeadline="Failed, deadline finished to reveal";
-cn<-commitNum;
-blk <- & BLOCKNUMBER;
-(*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
-isMinParticipants = le_int minParticipant cn;
-in_time=blk_leq commitDeadline blk;
-in_time1 = blk_leq blk bnum ;
-match isMinParticipants with
+(* @notice Enables caller to determine the count of tranches owned by an address*)
+(* @param _owner An address over which to enumerate tranches*)
+(* @return The number of tranches owned by an `_owner`*)
+(*transition tranchesOf(ByStr20 _owner) *)
+(*s<-tranches[_owner].length;*)
+(*msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tranches : s};*)
+(*msgs = one_msg msg;*)
+(*send msgs*)
+(*end*)
+
+
+(*@param _tranche The tranche from which to transfer tokens*)
+(*@param _to The address to which to transfer tokens to*)
+(*@param amount The amount of tokens to transfer from `_tranche`*)
+(*@param _data Additional data attached to the transfer of tokens*)   
+(* Transfers tokens from the sender to the _to address, keeping the _tranche the same*)
+transition sendTranche (_tranche : Uint32, _to : ByStr20, _data:String )
+success="send tranche successful";
+v <- tranches[_sender][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin sub vx _amount;
+ v1<-balances[_sender];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin sub v1x _amount;
+   v2<-tranches[_to][_tranche];
+   match v2 with
+     | Some v2x =>
+     toBalTranche=builtin add v2x _amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x _amount;
+ 	balances[_to] := toBal;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+        event e;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
+	msgs = one_msg msg;
+	send msgs
+	| None =>
+        tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	balances[_to] := _amount;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+        event e;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
+	msgs = one_msg msg;
+	send msgs
+	end
+    | None =>
+    toBalTranche=_amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x _amount;
+ 	balances[_to] := toBal;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+        event e;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
+	msgs = one_msg msg;
+	send msgs
+	| None =>
+        tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	balances[_to] := _amount;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+        event e;	
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
+	msgs = one_msg msg;
+	send msgs
+	end
+    end
+  | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint32 3 };
+  msgs = one_msg msg;
+  send msgs
+  end
+| None =>	
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint32 4 };
+msgs = one_msg msg;
+send msgs
+end
+end
+
+
+(* returns (address[])*)
+transition defaultOperators ()
+(* No default operators*)
+     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; default : owner};
+     msgs = one_msg msg;
+     send msgs
+end
+
+
+transition defaultOperatorsTranche ()
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; default : owner};
+    msgs = one_msg msg;
+    send msgs
+end
+
+transition authorizeOperator ( operator : ByStr20)
+  approvals[_sender][operator] := true;
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : Uint128 1  };
+  msgs = one_msg msg;
+  send msgs
+end
+
+transition revokeOperator ( operator : ByStr20)
+  approvals[_sender][operator] := false;
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; unauthorized : Uint128 1  };
+  msgs = one_msg msg;
+  send msgs
+end
+
+
+transition operatorSend(_from : ByStr20, _to : ByStr20, _data:String, _operatorData:String )
+success="operator send successful";
+app <- approvals[_sender][_from];
+match app with
+| Some val =>
+isTrue=builtin eq val true;
+match isTrue with
 | True =>
-match in_time with
+v <- balances[_from];
+match v with
+ | Some vx =>
+   fromBal=builtin sub vx _amount;
+   balances[_from] := fromBal;
+   v1 <- balances[_to];
+   match v1 with
+    | Some v1x =>
+    toBal=builtin add v1x _amount;
+    balances[_to] := toBal;
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+    msgs = one_msg msg;
+    send msgs
+    | None =>
+    balances[_to] := _amount;
+    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+    msgs = one_msg msg;
+    send msgs
+    end
+  | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint128 4 };
+  msgs = one_msg msg;
+  send msgs
+  end
+| False =>
+noOp="not an operator";
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
+msgs = one_msg msg;
+send msgs
+end
+| None =>
+noOp="not an operator";
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
+msgs = one_msg msg;
+send msgs
+end
+end
+
+
+transition operatorSendTranche (_tranche : Uint32,_from : ByStr20, _to : ByStr20, _data:String, _operatorData:String )
+success="operator tranche send successful";
+trApp <- trancheApprovals[_sender][_tranche][_from];
+match trApp with
+| Some val =>
+isTrue=builtin eq val true;
+match isTrue with
+| True =>
+v <- tranches[_from][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin sub vx _amount;
+ v1<-balances[_from];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin sub v1x _amount;
+   v2<-tranches[_to][_tranche];
+   match v2 with
+     | Some v2x =>
+     toBalTranche=builtin add v2x _amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_from][_tranche] := fromBalTranche;
+        balances[_from] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x _amount;
+ 	balances[_to] := toBal;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+	msgs = one_msg msg;
+	send msgs
+	| None =>
+        tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	balances[_to] := _amount;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+        event e;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+	msgs = one_msg msg;
+	send msgs
+	end
+
+    | None =>
+    toBalTranche=_amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_from][_tranche] := fromBalTranche;
+        balances[_from] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x _amount;
+ 	balances[_to] := toBal;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+	msgs = one_msg msg;
+	send msgs
+	| None =>
+        tranches[_from][_tranche] := fromBalTranche;
+        balances[_from] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	balances[_to] := _amount;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e;
+	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+	msgs = one_msg msg;
+	send msgs
+	end
+    end
+  | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint128 5 };
+  msgs = one_msg msg;
+  send msgs
+  end
+| None =>	
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint128 6 };
+msgs = one_msg msg;
+send msgs
+end
+| False =>
+noOp="not an operator";
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
+msgs = one_msg msg;
+send msgs
+end
+| None =>
+noOp="not an operator";
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
+msgs = one_msg msg;
+send msgs
+end
+end
+
+
+transition authorizeOperatorTranche ( _operator : ByStr20, _tranche:Uint32 )
+success="authorized the operator for tranche";
+trancheApprovals[_operator][_tranche][_sender] := true;
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : success  };
+msgs = one_msg msg;
+send msgs
+end
+
+
+transition revokeOperatorTranche ( _operator : ByStr20,_tranche:Uint32 )
+trancheApprovals[_operator][_tranche][_sender] := false;
+msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; unauthorized : Uint128 1  };
+msgs = one_msg msg;
+send msgs
+end
+
+
+transition isOperatorFor ( _operator : ByStr20, _owner : ByStr20 )
+t="True";
+f="False";
+r="False (revoked)";
+tr<-approvals[_operator][_owner];
+match tr with
+| Some v =>
+isTrue=builtin eq v true;
+match isTrue with 
  | True =>
-   match in_time1 with
-   | True =>
-      commit= builtin sha256hash _s;
-      val5 <- participant [_sender];
-      match val5 with
-      | Some v5 =>
-       val1=builtin get v5 commit ;
-       match val1 with
- 	 | Some v6 =>
-	        rn<-revealsNum;
-	        newRevealNum=builtin add rn _one;
-                revealsNum:=newRevealNum;
-	        (*generate random no.*)
-	        prRandom<-random;
-	        newRandom=builtin add prRandom _s;
-                random:=newRandom;	
-	        participant[_sender][commit] := _s;
-	        revealed[_sender]:=_one1;
-        	e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
-	        event e;
-	        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	        msgs = one_msg msg;
-	        send msgs
-         | None =>
-         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failWrong };
-         msgs = one_msg msg;
-         send msgs
-         end
-      | None =>
-       msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error2 : failure };
-       msgs = one_msg msg;
-       send msgs
-       end
-   | False => 
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failDeadline };
-   msgs = one_msg msg;
-   send msgs
-   end
- | False => 
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failEarly };
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : t };
+ msgs = one_msg msg;
+ send msgs
+ | False =>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : r };
  msgs = one_msg msg;
  send msgs
  end
-| False => 
-hash <- participant [_sender];
-match hash with
-  | Some v6 =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : _deposit; status : failParticipant };
-  msgs = one_msg msg;
-  send msgs
-  | None =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : failure };
+| None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : f };
   msgs = one_msg msg;
   send msgs
   end
 end
-end
 
 
-
-(*to get the reward after reveal phase is over*)
-transition getMyBounty()
-failure="Failure";
-failureReveal="Failure, didnot reveal in deadline";
-failureCommit="Failure, didnot commit";
-failureDeadline="Failure, reveal phase has not ended yet";
-success="success";
-blk <- & BLOCKNUMBER;
-isEnd=blk_leq bnum blk;
-revealno<-revealsNum;
-commitno<-commitNum;
-match isEnd with
-  | True =>
-  isRevealed<-revealed[_sender];
-  match isRevealed with
-    |Some rv =>
-    hasRevealed=builtin eq rv _one1;
-    match hasRevealed with
-      |True =>
-      isRewarded<-rewarded[_sender];
-      match isRewarded with
-        |Some rv1 =>
-        hasRewarded=builtin eq rv1 _one1;
-        match hasRewarded with
-          |False =>
-	  diffRevealed=builtin sub commitno revealno;
-	  isEqualRevealed=builtin eq diffRevealed _zero;
-	  match isEqualRevealed with
-	    |True =>
- 	    distributionAmount=builtin div _bounty revealno;
- 	    am<-consumer[founder];
-            match am with
-              |Some cAmt =>
- 	      founderAmt=builtin sub cAmt distributionAmount;
- 	      consumer[founder]:=founderAmt;
-              am1<-consumer[_sender];
-	      match am1 with
-	        |Some cAmt1 =>
-	        totalReward= builtin add distributionAmount _deposit;
- 		senderAmt=builtin add cAmt1 totalReward;
- 		consumer[_sender]:=senderAmt;
- 		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward ; status : success };
-    	        msgs = one_msg msg;
-   	        send msgs
- 
-		|None=>
-	        totalReward= builtin add distributionAmount _deposit;
- 		senderAmt=totalReward;
-		consumer[_sender]:=senderAmt;
- 		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
-		msgs = one_msg msg;
-    		send msgs
- 		end 
-	     |None=>
-	     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status2 : failure  };
-             msgs = one_msg msg;
-             send msgs
-             end 
-
-		|False =>
-		fine=builtin mul diffRevealed _deposit;
-		distributionShare=builtin div _bounty revealno;
-		distributionAmount=builtin add fine distributionShare;
-	 	am<-consumer[founder];
-		match am with
-		  |Some cAmt =>
-	 	  founderAmt = builtin sub cAmt distributionShare;
-	 	  consumer[founder]:=founderAmt;
-	 	  am1<-consumer[_sender];
-		  match am1 with
-		    |Some cAmt1 =>
-          	     totalReward = builtin add distributionAmount _deposit;
- 		     senderAmt = builtin add cAmt1 totalReward;
-		     consumer[_sender]:=senderAmt;
-	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
-	  	     msgs = one_msg msg;
-	  	     send msgs
-		   |None=>
-		     totalReward = builtin add distributionAmount _deposit;
- 		     senderAmt = totalReward;
-	             consumer[_sender]:=senderAmt;
-	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
-	   	     msgs = one_msg msg;
-	    	     send msgs
-	  	     end 
-		|None=>
-	 	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status4 : failure  };
-	 	msgs = one_msg msg;
-	 	send msgs
-	 	end 
-	      end
-  	   |True =>
-  	   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status5 : failure  };
-  	   msgs = one_msg msg;
-  	   send msgs
-  	   end 
-        |None=>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status6 : failure  };
-        msgs = one_msg msg;
-        send msgs
-        end 
-     |False=>
-     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status: failureReveal  };
-     msgs = one_msg msg;
-     send msgs
-     end 
-  |None=>
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failureCommit  };
-   msgs = one_msg msg;
-   send msgs
-   end 
-|False =>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : failureDeadline  };
+(*checks if _operator exists for _tranche*)
+transition isOperatorForTranche ( _tranche : Uint32, _operator : ByStr20, _owner : ByStr20 )
+t="True";
+f="False";
+r="False (revoked)";
+tr<-trancheApprovals[_operator][_tranche][_owner];
+match tr with
+| Some v =>
+isTrue=builtin eq v true;
+match isTrue with 
+ | True =>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : t };
  msgs = one_msg msg;
  send msgs
- end 
+ | False =>
+ msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : r };
+ msgs = one_msg msg;
+ send msgs
+ end
+| None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : f };
+  msgs = one_msg msg;
+  send msgs
+  end
 end
 
 
-(*random no. generated by contract*)
-transition getRandom ()
-fail="Failure";
-blk <- & BLOCKNUMBER;
-isEnd=blk_leq bnum blk;
-r<-revealsNum;
-rn<-random;
-match isEnd with
-| True =>
- isSettled=builtin lt _zero r;
- match isSettled with
- | True =>
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  number : rn  };
+(*for _tranche given _amount is burnt*)
+transition burn (_tranche : Uint32,  _data : String)
+success="burn successful";
+unsuccess="burn unsuccessful";
+v <- tranches[_sender][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin sub vx _amount;
+ v1<-balances[_sender];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin sub v1x _amount;
+   tranches[_sender][_tranche] := fromBalTranche;
+   balances[_sender] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin sub t _amount;
+   _totalSupply:= newSupply;
+   e = { _eventname : "Burnt"; owner: _sender ; tranche : _tranche ; amount : _amount ; data : _data };
+   event e;
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success};
    msgs = one_msg msg;
-   send msgs
- | False =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status1 : fail  };
+   send msgs	
+  | None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : unsuccess};
   msgs = one_msg msg;
   send msgs
- end
-| False =>
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0;  status : fail  };
-msgs = one_msg msg;
-send msgs
-end 
+  end
+| None =>
+  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : unsuccess };
+  msgs = one_msg msg;
+  send msgs
+  end
+end
+
+
+(*for _tranche given _amount is minted*)
+transition mint (_tranche : Uint32, _owner : ByStr20, _data : String)
+success="mint for tranche successful";
+v <- tranches[_sender][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin add vx _amount;
+ v1<-balances[_sender];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin add v1x _amount;
+   tranches[_sender][_tranche] := fromBalTranche;
+   balances[_sender] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin add t _amount;
+   _totalSupply:= newSupply;
+   accept;
+   e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
+   event e;
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+   msgs = one_msg msg;
+   send msgs
+  | None =>
+   fromBal=_amount;
+   tranches[_sender][_tranche] := fromBalTranche;
+   balances[_sender] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin add t _amount;
+   _totalSupply:= newSupply;
+   accept;
+   e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
+   event e;
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success};
+   msgs = one_msg msg;
+   send msgs
+   end
+| None =>
+ v1<-balances[_sender];
+ fromBalTranche= _amount;
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin add v1x _amount;
+   tranches[_sender][_tranche] := fromBalTranche;
+   balances[_sender] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin add t _amount;
+   _totalSupply:= newSupply;
+   accept;
+   e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
+   event e;
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+   msgs = one_msg msg;
+   send msgs
+  | None =>
+  fromBal= _amount;
+   tranches[_sender][_tranche] := fromBalTranche;
+   balances[_sender] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin add t _amount;
+   _totalSupply:= newSupply;
+   accept;
+   e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
+   event e;
+   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
+   msgs = one_msg msg;
+   send msgs
+   end
+end
 end

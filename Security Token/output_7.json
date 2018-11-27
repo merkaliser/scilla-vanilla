@@ -1,91 +1,75 @@
 {
-  "gas_remaining": "6267",
+  "gas_remaining": "6690",
   "message": {
     "_tag": "Main",
     "_amount": "0",
     "_accepted": "false",
-    "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+    "_recipient": "0x1234567890123456789012345678906784567891",
     "params": [
-      { "vname": "status", "type": "String", "value": "successful" }
+      {
+        "vname": "sent",
+        "type": "String",
+        "value": "send tranche successful"
+      }
     ]
   },
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "115" },
-    { "vname": "random", "type": "Uint128", "value": "6" },
-    { "vname": "revealsNum", "type": "Uint128", "value": "1" },
-    { "vname": "commitNum", "type": "Uint128", "value": "3" },
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "_totalSupply", "type": "Uint128", "value": "600" },
     {
-      "vname": "participant",
-      "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
+      "vname": "balances",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "50" },
+        { "key": "0x1234567890123456789012345678906784567891", "val": "550" }
+      ]
+    },
+    {
+      "vname": "tranches",
+      "type": "Map (ByStr20) (Map (Uint32) (Uint128))",
       "value": [
         {
-          "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
-          "val": [
-            {
-              "key":
-                "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88",
-              "val": "6"
-            }
-          ]
+          "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+          "val": [ { "key": "1", "val": "50" } ]
         },
         {
-          "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
-          "val": [
-            {
-              "key":
-                "0x8ab3bf6e8bfac3771707cd4a013bdeef828f62ff73a9290720d0f4112902bf9b",
-              "val": "0"
-            }
-          ]
-        },
-        {
-          "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
-          "val": [
-            {
-              "key":
-                "0x7144ebc847f5a478ae6b080dad70476618121c12f294897ea746741fd194c721",
-              "val": "0"
-            }
-          ]
+          "key": "0x1234567890123456789012345678906784567891",
+          "val": [ { "key": "1", "val": "550" } ]
         }
       ]
     },
     {
-      "vname": "revealed",
-      "type": "Map (ByStr20) (Uint32)",
-      "value": [
-        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "1" },
-        { "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81", "val": "0" },
-        { "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5", "val": "0" }
-      ]
+      "vname": "trancheApprovals",
+      "type": "Map (ByStr20) (Map (Uint32) (Map (ByStr20) (Uint32)))",
+      "value": []
     },
     {
-      "vname": "rewarded",
-      "type": "Map (ByStr20) (Uint32)",
-      "value": [
-        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" },
-        { "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81", "val": "0" },
-        { "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5", "val": "0" }
-      ]
-    },
-    {
-      "vname": "consumer",
-      "type": "Map (ByStr20) (Uint128)",
-      "value": [
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
-      ]
+      "vname": "approvals",
+      "type": "Map (ByStr20) (Map (ByStr20) (Uint32))",
+      "value": []
     }
   ],
   "events": [
     {
-      "_eventname": "LogReveal",
+      "_eventname": "SentTranche",
       "params": [
         {
           "vname": "from",
           "type": "ByStr20",
-          "value": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
+          "value": "0x1234567890123456789012345678906784567891"
         },
-        { "vname": "secret", "type": "Uint128", "value": "6" }
+        {
+          "vname": "to",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        { "vname": "tranche", "type": "Uint32", "value": "1" },
+        { "vname": "amount", "type": "Uint128", "value": "50" },
+        {
+          "vname": "data",
+          "type": "String",
+          "value": "sent Tranche to account 617"
+        }
       ]
     }
   ]
