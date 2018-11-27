@@ -1,0 +1,11 @@
+{
+    "_tag": "shaCommit",
+    "_amount": "0",
+    "_sender" : "0x31B0921AC3E8BC6815DF52ECC7F7BC61A2B65DE2",
+    "params": [
+        {
+            "vname": "_s",
+            "type": "Uint128",
+            "value": "6"
+        }    ]
+}
