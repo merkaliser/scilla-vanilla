@@ -1,14 +1,6 @@
 {
-  "gas_remaining": "6381",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
-    "params": [
-      { "vname": "status", "type": "String", "value": "successful" }
-    ]
-  },
+  "gas_remaining": "6416",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
     { "vname": "random", "type": "Uint128", "value": "606" },
@@ -76,5 +68,17 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "LogReveal",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81"
+        },
+        { "vname": "secret", "type": "Uint128", "value": "600" }
+      ]
+    }
+  ]
 }

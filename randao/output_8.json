@@ -1,18 +1,6 @@
 {
-  "gas_remaining": "6480",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
-    "params": [
-      {
-        "vname": "error",
-        "type": "String",
-        "value": "Failed, wrong secret revealed"
-      }
-    ]
-  },
+  "gas_remaining": "6575",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
     { "vname": "random", "type": "Uint128", "value": "6" },
@@ -80,5 +68,10 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-9" } ]
+    }
+  ]
 }

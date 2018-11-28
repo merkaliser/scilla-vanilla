@@ -1,18 +1,6 @@
 {
-  "gas_remaining": "6816",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4",
-    "params": [
-      {
-        "vname": "status",
-        "type": "String",
-        "value": "deposit amount of zil is not equal to deposit required"
-      }
-    ]
-  },
+  "gas_remaining": "6934",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "105" },
     { "vname": "commitNum", "type": "Uint128", "value": "1" },
@@ -56,5 +44,10 @@
     { "vname": "revealsNum", "type": "Uint128", "value": "0" },
     { "vname": "random", "type": "Uint128", "value": "0" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-1" } ]
+    }
+  ]
 }
