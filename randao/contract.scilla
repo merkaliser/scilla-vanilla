@@ -278,6 +278,7 @@ match isEnd with
 	        totalReward= builtin add distributionAmount _deposit;
  		senderAmt=builtin add cAmt1 totalReward;
  		consumer[_sender]:=senderAmt;
+	        rewarded[_sender]:=_one1;
  		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward ; status : success };
     	        msgs = one_msg msg;
    	        send msgs
@@ -285,6 +286,7 @@ match isEnd with
 	        totalReward= builtin add distributionAmount _deposit;
  		senderAmt=totalReward;
 		consumer[_sender]:=senderAmt;
+	        rewarded[_sender]:=_one1;
  		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
 		msgs = one_msg msg;
     		send msgs
@@ -308,6 +310,7 @@ match isEnd with
           	     totalReward = builtin add distributionAmount _deposit;
  		     senderAmt = builtin add cAmt1 totalReward;
 		     consumer[_sender]:=senderAmt;
+	             rewarded[_sender]:=_one1;
 	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
 	  	     msgs = one_msg msg;
 	  	     send msgs
@@ -315,6 +318,7 @@ match isEnd with
 		     totalReward = builtin add distributionAmount _deposit;
  		     senderAmt = totalReward;
 	             consumer[_sender]:=senderAmt;
+	             rewarded[_sender]:=_one1;
 	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
 	   	     msgs = one_msg msg;
 	    	     send msgs
