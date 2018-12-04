@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6515",
+  "gas_remaining": "6510",
   "message": {
     "_tag": "Main",
     "_amount": "60",
@@ -61,7 +61,7 @@
       "vname": "rewarded",
       "type": "Map (ByStr20) (Uint32)",
       "value": [
-        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" },
+        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "1" },
         { "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81", "val": "0" },
         { "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5", "val": "0" }
       ]

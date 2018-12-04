@@ -112,14 +112,14 @@ field random: Uint128 = _zero
 transition commit (_hs : ByStr32 )
 isEqualDeposit= builtin eq _amount _deposit;
 blk <- & BLOCKNUMBER;
-(*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
-in_time=builtin blt commitBalkline blk;
-in_time1 = builtin blt blk commitDeadline;
+(*in_time_start and in_time_end if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
+in_time_start = builtin blt commitBalkline blk;
+in_time_end = builtin blt blk commitDeadline;
 match isEqualDeposit with
   | True =>
-   match in_time with
+   match in_time_start with
     | True =>
-	match in_time1 with
+	match in_time_end with
 	  | True =>
 	    accept;	    
  	    participant[_sender][_hs]:=_zero;
@@ -182,15 +182,15 @@ transition reveal(_s : Uint128)
 success="successful";
 cn<-commitNum;
 blk <- & BLOCKNUMBER;
-(*in_time and in_time1 if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
+(*in_time_start and in_time_end if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
 isMinParticipants = le_int minParticipant cn;
-in_time=blk_leq commitDeadline blk;
-in_time1 = blk_leq blk bnum ;
+in_time_start = blk_leq commitDeadline blk;
+in_time_end = blk_leq blk bnum ;
 match isMinParticipants with
 | True =>
-match in_time with
+match in_time_start with
  | True =>
-   match in_time1 with
+   match in_time_end with
    | True =>
       commit= builtin sha256hash _s;
       val5 <- participant [_sender];
@@ -278,6 +278,7 @@ match isEnd with
 	        totalReward= builtin add distributionAmount _deposit;
  		senderAmt=builtin add cAmt1 totalReward;
  		consumer[_sender]:=senderAmt;
+	        rewarded[_sender]:=_one1;
  		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward ; status : success };
     	        msgs = one_msg msg;
    	        send msgs
@@ -285,6 +286,7 @@ match isEnd with
 	        totalReward= builtin add distributionAmount _deposit;
  		senderAmt=totalReward;
 		consumer[_sender]:=senderAmt;
+	        rewarded[_sender]:=_one1;
  		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
 		msgs = one_msg msg;
     		send msgs
@@ -308,6 +310,7 @@ match isEnd with
           	     totalReward = builtin add distributionAmount _deposit;
  		     senderAmt = builtin add cAmt1 totalReward;
 		     consumer[_sender]:=senderAmt;
+	             rewarded[_sender]:=_one1;
 	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
 	  	     msgs = one_msg msg;
 	  	     send msgs
@@ -315,6 +318,7 @@ match isEnd with
 		     totalReward = builtin add distributionAmount _deposit;
  		     senderAmt = totalReward;
 	             consumer[_sender]:=senderAmt;
+	             rewarded[_sender]:=_one1;
 	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
 	   	     msgs = one_msg msg;
 	    	     send msgs
