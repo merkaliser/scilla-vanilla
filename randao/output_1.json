@@ -1,8 +1,9 @@
 {
-  "gas_remaining": "7148",
+  "gas_remaining": "7137",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "100" },
+    { "vname": "paused", "type": "Uint32", "value": "0" },
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
