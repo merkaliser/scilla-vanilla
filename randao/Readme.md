@@ -38,7 +38,7 @@ The contract is deployed by the one who wants to generate random number. Followi
   * **commitBalkline** : Initial (BlockNumber) when phase 1 will start. Before this no one can take part.
   * **commitDeadline** : Deadline (BlockNumber) when phase 1 ends. After phase 1 ends no more participants can take part.
   * **bnum** : Deadline (BlockNumber) when phase 2 ends. After phase 2 ends, random no. is generated. In between commitDeadline and bnum is the phase 2.
-  * **_amount** (_bounty) : zils provided by founder as reward to be distributed equally amongst participants when both phases are finished.
+  * **_bounty** : zils provided by founder as reward to be distributed equally amongst participants when both phases are finished. This should be equal to contract _balances in that state. 
   * **minParticipant** : minimum no of participants that are required to take part in phase 1. If the no of participants that took part in phase 1 are less than this i.e. if it fails to collect enough sha3(s) within the time period, then deposits are returned in phase 2 by reveal function itself.
   
 Following test cases are explained in sequence of how transitions can be called.
