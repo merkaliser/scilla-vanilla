@@ -5,7 +5,7 @@ References taken:<br>
 https://github.com/randao/randao/blob/master/contracts/Randao.sol
 
 
-#### Randao in Scilla
+## Randao in Scilla
 First of all, we need to create a RANDAO contract in the blockchain,
 which defines the participation rules.
 Then the basic process of generating a random number can be divided into
@@ -15,7 +15,7 @@ three phases:
 Anyone who want to participate in the random number generation needs to
 send a transaction to the contract with required deposit as pledge in a specified
 time period, accompanied by the result of sha3(s), s is the secret number respective picked by
-participant.
+participant. `commit` is used with sha256 hash of any number as parameter.
 
 ##### The second phase (reveal phase): collecting valid s
 After the first phase, anyone who submitted sha3(s) successfully needs
@@ -23,13 +23,25 @@ to send a transaction with the secret number s in the first stage to
 contract within a specified time period. Contract will check if s is
 valid by running sha3 against s and comparing the result with previous
 committed data. Valid s will be saved to the collection of seeds to finally
-generate the random number.
+generate the random number. `reveal` is used with secret as parameter.
+
 
 ##### The third phase: calculating a random number, refund deposits, fines and bonus
-1. After phase 2 is complete, random number is generated that can be sent to all other contracts that requested the random number before.
-2. Contract will send back the deposit to the participants who successfully took part in both phases, and the profit (fine + consumer's bounty) is divided into equal parts and sent to all participants as an additional bonus. 
+1. After phase 2 is complete, random number is generated that can be sent to all other contracts that requested the random number before. `getRandom` returns Random number.
+2. Contract will send back the deposit to the participants who successfully took part in both phases, and the profit (fine + consumer's bounty) is divided into equal parts and sent to all participants as an additional bonus. `getMyBounty` provides bounty.
 3. Participants failing to reveal the secret number s cannot get refund their deposits and this amount is used as a fine.
 
+## Rationale
+
+The contract is deployed by the one who wants to generate random number. Following fields are required :
+  * **_deposit** : deposit required (zils) by participants to take part in phase 1. This can be thought as security deposit for generating the random no. After both phases are successfully completed, deposits are returned alongwith bounty.
+  * **commitBalkline** : Initial (BlockNumber) when phase 1 will start. Before this no one can take part.
+  * **commitDeadline** : Deadline (BlockNumber) when phase 1 ends. After phase 1 ends no more participants can take part.
+  * **bnum** : Deadline (BlockNumber) when phase 2 ends. After phase 2 ends, random no. is generated. In between commitDeadline and bnum is the phase 2.
+  * **_amount** (_bounty) : zils provided by founder as reward to be distributed equally amongst participants when both phases are finished.
+  * **minParticipant** : minimum no of participants that are required to take part in phase 1. If the no of participants that took part in phase 1 are less than this i.e. if it fails to collect enough sha3(s) within the time period, then deposits are returned in phase 2 by reveal function itself.
+  
+Following test cases are explained in sequence of how transitions can be called.
 
 ## Test cases
 
