@@ -1,9 +1,10 @@
 {
-  "gas_remaining": "6909",
+  "gas_remaining": "6887",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "105" },
     { "vname": "commitNum", "type": "Uint128", "value": "1" },
+    { "vname": "paused", "type": "Uint32", "value": "0" },
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",

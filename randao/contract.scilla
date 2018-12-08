@@ -65,7 +65,9 @@ let early_reveal_err_code = Int32 -6
 let reveal_deadline_not_ended_err_code = Int32 -7
 let failure_err_code = Int32 -8
 let failure_wrong_secret = Int32 -9
-
+let bounty_unequal_err_code = Int32 -10
+let not_founder_err_code = Int32 -11
+let bounty_not_funded_err_code = Int32 -12
 
 
 (***************************************************)
@@ -74,7 +76,6 @@ let failure_wrong_secret = Int32 -9
 
 contract Randao 
 ( founder : ByStr20, _deposit: Uint128, commitBalkline: BNum, commitDeadline: BNum, bnum: BNum, _bounty: Uint128, minParticipant : Uint128 )
-(*founder is the account that has all _bounty at initialisation*)
 (*_deposit is _amount of zil required to send to take part in commit phase*)
 (*commitBalkline is the Bnum when the commit phase starts*)
 (*commitDeadline is the Bnum when the commit phase ends*)
@@ -107,14 +108,45 @@ field revealsNum : Uint128 = _zero
 (*random number is generated after reveal phase is over*) 
 field random: Uint128 = _zero
 
+(*is paused until it is funded*)
+field paused : Uint32 = _one1
+
+
+(*deposit of bounty by founder*)
+transition depositBounty()
+isEqualToBounty = builtin eq _bounty _amount;
+isFounder = builtin eq _sender founder;
+match isFounder with 
+  | True =>
+    match isEqualToBounty with 
+      | True =>
+         accept;
+         paused:=_zero1;
+         e = { _eventname : "BountyReceived"; amount : _amount};
+         event e
+      | False =>
+         e = mk_error_event bounty_unequal_err_code;
+         event e 
+        end
+  | False =>
+     e = mk_error_event not_founder_err_code;
+     event e 
+    end
+end
+
 
 (*commit sha256 hash (of secret) in commit phase*)
 transition commit (_hs : ByStr32 )
+(*if bounty is funded isPaused is false (0) *)
+p<-paused;
+isPaused = builtin eq p _one1;
 isEqualDeposit= builtin eq _amount _deposit;
 blk <- & BLOCKNUMBER;
 (*in_time_start and in_time_end if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
 in_time_start = builtin blt commitBalkline blk;
 in_time_end = builtin blt blk commitDeadline;
+match isPaused with 
+  | False =>
 match isEqualDeposit with
   | True =>
    match in_time_start with
@@ -140,6 +172,10 @@ match isEqualDeposit with
      end
   | False =>
    e = mk_error_event insufficient_deposit_err_code;
+   event e 
+  end
+  | True =>
+   e = mk_error_event bounty_not_funded_err_code;
    event e 
   end
 end
