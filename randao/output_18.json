@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6521",
+  "gas_remaining": "6504",
   "message": {
     "_tag": "Main",
     "_amount": "5",
@@ -16,6 +16,7 @@
   },
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "50" },
+    { "vname": "paused", "type": "Uint32", "value": "1" },
     { "vname": "commitNum", "type": "Uint128", "value": "2" },
     {
       "vname": "participant",

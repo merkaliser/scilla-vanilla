@@ -1,7 +1,7 @@
 [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
     { "vname": "random", "type": "Uint128", "value": "606" },
-    { "vname": "revealsNum", "type": "Uint128", "value": "2" },
+    { "vname": "revealsNum", "type": "Uint128", "value": "3" },
     { "vname": "commitNum", "type": "Uint128", "value": "3" },
 
     {
@@ -33,8 +33,8 @@
           "val": [
             {
               "key":
-                "0x7144ebc847f5a478ae6b080dad70476618121c12f294897ea746741fd194c721",
-              "val": "0"
+                "0xDB5F40CB5E445AF120B9D28E30293297B50F2ADCE5AB64796692CF80FAF19DC4",
+              "val": "660"
             }
           ]
         }
@@ -46,7 +46,7 @@
       "value": [
         { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "1" },
         { "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81", "val": "1" },
-        { "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5", "val": "0" }
+        { "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5", "val": "1" }
       ]
     },
     {

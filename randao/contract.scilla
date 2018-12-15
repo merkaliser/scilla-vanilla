@@ -72,7 +72,7 @@ let failure_wrong_secret = Int32 -9
 let bounty_unequal_err_code = Int32 -10
 let not_founder_err_code = Int32 -11
 let bounty_not_funded_err_code = Int32 -12
-
+let sender_already_committed_err_code = Int32 -13
 
 (***************************************************)
 (*             The contract definition             *)
@@ -157,20 +157,27 @@ match isEqualDeposit with
     | True =>
 	match in_time_end with
 	  | True =>
-	    accept;	    
- 	    participant[_sender][_hs]:=_zero;
-            revealed[_sender]:=_zero1;
-	    rewarded[_sender]:=_zero1;
-	    cn<-commitNum;
-	    newCommitNum=builtin add cn _one;
-            newCommitNumOpt = Some {Uint128} newCommitNum;
-            commitNum:=newCommitNumOpt;
-	    e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
-	    event e
-	  | False => 
-	   e = mk_error_event deadline_finish_err_code;
-           event e 
-	   end
+             p<-participant[_sender];
+	     match p with
+	      | Some v =>
+     		 e = mk_error_event sender_already_committed_err_code;
+  		 event e 
+ 	      |None =>
+  	        accept;	    
+ 	        participant[_sender][_hs]:=_zero;
+                revealed[_sender]:=_zero1;
+	        rewarded[_sender]:=_zero1;
+	        cn<-commitNum;
+	        newCommitNum=builtin add cn _one;
+                newCommitNumOpt = Some {Uint128} newCommitNum;
+                commitNum:=newCommitNumOpt;
+	        e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
+	        event e
+	        end
+	 | False => 
+	    e = mk_error_event deadline_finish_err_code;
+            event e 
+	    end
     | False => 
         e = mk_error_event early_commit_err_code;
         event e 
@@ -397,7 +404,7 @@ match isConsumer with
 | True =>
   match isEnd with
   | True =>
-   isSettled = le_int minParticipant r;
+   isSettled= le_int minParticipant r;
    match isSettled with
    | True =>
       e = { _eventname : "RandomNumber" ; number : rn  };

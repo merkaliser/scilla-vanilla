@@ -1,8 +1,9 @@
 {
-  "gas_remaining": "7048",
+  "gas_remaining": "7024",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "55" },
+    { "vname": "paused", "type": "Uint32", "value": "1" },
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
@@ -24,7 +25,7 @@
   "events": [
     {
       "_eventname": "RandaoError",
-      "params": [ { "vname": "err_code", "type": "Int32", "value": "-2" } ]
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-12" } ]
     }
   ]
 }

@@ -46,8 +46,8 @@ Following test cases are explained in sequence of how transitions can be called.
 ## Test cases
 
 0. depositBounty : deposit the bounty specified while deploying contract by sending `_amount`. Expected: [Success] `BountyReceived`.
-1. shaCommit: get the sha256 hash of `secret`. Expected: [Success] `0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88`.
-2. commit: `commitment` (i.e. the sha256 hash of any number) is provided in between the commit phase (`5` to `15`) with correct `_deposit` (`_amount`). Expected: [Success].
+1. commit: `commitment` (i.e. the sha256 hash of any number) is provided in between the commit phase (`5` to `15`) with correct `_deposit` (`_amount`). Expected: [Success].
+2. commit: `commitment` cannot be submitted twice by any address. Expected: [Failure] `-13`.
 3. commit: wrong `_amount` of zils i.e. required `deposit` is not sent. Expected: [Failure]`-1`.
 4. getCommitment: `_sender` can see the `commitment` he has made. Expected: [Success] `0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88`.
 5. getCommitment: for no `commitment` by `sender`. Expected: [Failure]`-5`. 

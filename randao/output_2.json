@@ -1,9 +1,17 @@
 {
-  "gas_remaining": "6887",
+  "gas_remaining": "6849",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "105" },
-    { "vname": "commitNum", "type": "Uint128", "value": "1" },
+    {
+      "vname": "commitNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "1" ]
+      }
+    },
     { "vname": "paused", "type": "Uint32", "value": "0" },
     {
       "vname": "participant",
@@ -47,20 +55,8 @@
   ],
   "events": [
     {
-      "_eventname": "LogCommit",
-      "params": [
-        {
-          "vname": "from",
-          "type": "ByStr20",
-          "value": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
-        },
-        {
-          "vname": "commitment",
-          "type": "ByStr32",
-          "value":
-            "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88"
-        }
-      ]
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-13" } ]
     }
   ]
 }

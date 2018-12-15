@@ -1,8 +1,9 @@
 {
-  "gas_remaining": "6575",
+  "gas_remaining": "6558",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
+    { "vname": "paused", "type": "Uint32", "value": "1" },
     { "vname": "random", "type": "Uint128", "value": "6" },
     { "vname": "revealsNum", "type": "Uint128", "value": "1" },
     { "vname": "commitNum", "type": "Uint128", "value": "3" },

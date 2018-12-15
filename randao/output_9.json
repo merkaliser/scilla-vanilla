@@ -1,10 +1,27 @@
 {
-  "gas_remaining": "6416",
+  "gas_remaining": "6395",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
-    { "vname": "random", "type": "Uint128", "value": "606" },
-    { "vname": "revealsNum", "type": "Uint128", "value": "2" },
+    {
+      "vname": "random",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "606" ]
+      }
+    },
+    {
+      "vname": "revealsNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "2" ]
+      }
+    },
+    { "vname": "paused", "type": "Uint32", "value": "1" },
     { "vname": "commitNum", "type": "Uint128", "value": "3" },
     {
       "vname": "participant",
