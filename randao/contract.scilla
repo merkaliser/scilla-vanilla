@@ -43,7 +43,11 @@ let le_int =
       | False => False
       end
     end
-    
+   
+let zero_opt =
+  let z = Uint128 0 in
+  Some {Uint128} z
+
 (*Constants*)
 let _zero   = Uint128 0
 let _one   = Uint128 1
@@ -99,14 +103,14 @@ field consumer : Map ByStr20 Uint128 =
   let m = Emp ByStr20 Uint128 in
     builtin put m founder _bounty
 
-field commitNum : Uint128 = _zero
+field commitNum : Option Uint128 = zero_opt
 (*equal to zero at initialisation*)
 
-field revealsNum : Uint128 = _zero
+field revealsNum : Option Uint128 = zero_opt
 (*equal to zero at initialisation*)
 
-(*random number is generated after reveal phase is over*) 
-field random: Uint128 = _zero
+(*random number is generated after reveal phase is over, initializes to zero*) 
+field random: Option Uint128 = zero_opt
 
 (*is paused until it is funded*)
 field paused : Uint32 = _one1
@@ -159,7 +163,8 @@ match isEqualDeposit with
 	    rewarded[_sender]:=_zero1;
 	    cn<-commitNum;
 	    newCommitNum=builtin add cn _one;
-            commitNum:=newCommitNum;
+            newCommitNumOpt = Some {Uint128} newCommitNum;
+            commitNum:=newCommitNumOpt;
 	    e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
 	    event e
 	  | False => 
@@ -179,14 +184,6 @@ match isEqualDeposit with
    event e 
   end
 end
-
-
-(*sha256 hash of any secret*)
-transition shaCommit(_s : Uint128)
- commit= builtin sha256hash _s;
- e = { _eventname : "shaCommit"; commitment : commit  };
- event e
- end
 
 
 (*returns commitment, sha256 hash of _sender*)
@@ -237,11 +234,13 @@ match in_time_start with
  	 | Some v6 =>
 	        rn<-revealsNum;
 	        newRevealNum=builtin add rn _one;
-                revealsNum:=newRevealNum;
+                newRevealNumOpt = Some {Uint128} newRevealNum;
+                revealsNum:=newRevealNumOpt;
 	        (*generate random no.*)
 	        prRandom<-random;
 	        newRandom=builtin add prRandom _s;
-                random:=newRandom;	
+                newRandomNumOpt = Some {Uint128} newRandom;
+                random:=newRandomNumOpt;	
 	        participant[_sender][commit] := _s;
 	        revealed[_sender]:=_one1;
         	e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
@@ -393,19 +392,26 @@ blk <- & BLOCKNUMBER;
 isEnd=blk_leq bnum blk;
 r<-revealsNum;
 rn<-random;
-match isEnd with
+isConsumer= builtin eq _sender founder;
+match isConsumer with
 | True =>
- isSettled=builtin lt _zero r;
- match isSettled with
- | True =>
-   e = { _eventname : "RandomNumber" ; number : rn  };
-   event e
- | False =>
-    e = mk_error_event failure_err_code;
+  match isEnd with
+  | True =>
+   isSettled = le_int minParticipant r;
+   match isSettled with
+   | True =>
+      e = { _eventname : "RandomNumber" ; number : rn  };
+      event e
+   | False =>
+      e = mk_error_event failure_err_code;
+      event e 
+      end
+  | False =>
+    e = mk_error_event reveal_deadline_not_ended_err_code;
     event e 
     end
 | False =>
- e = mk_error_event reveal_deadline_not_ended_err_code;
- event e 
- end
+   e = mk_error_event not_founder_err_code;
+   event e 
+   end
 end
