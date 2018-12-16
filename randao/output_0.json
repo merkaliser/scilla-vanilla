@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6077",
+  "gas_remaining": "6092",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "100" },
@@ -78,9 +78,9 @@
       "vname": "random",
       "type": "Option (Uint128)",
       "value": {
-        "constructor": "Some",
+        "constructor": "None",
         "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
+        "arguments": []
       }
     }
   ],

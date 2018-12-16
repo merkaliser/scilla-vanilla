@@ -80,8 +80,10 @@ let in_time =
  match bn2 with
     | None => False
     | Some b2 => 
-     builtin blt bn b2
-     end
+    let bc1 = builtin blt bn b2 in 
+    let bc2 = builtin eq bn b2 in 
+    orb bc1 bc2
+ end
     end
     end     
 

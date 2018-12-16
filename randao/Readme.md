@@ -55,10 +55,10 @@ Following test cases are explained in sequence of how transitions can be called.
 6. commit: trying to commit after the `commit` phase ends (after `15`). Expected: [Failure] `-2`. 
 7. reveal: In the reveal phase (`16` to `20`), one has to reveal the secret (number) whose `commitment` was submitted in commit phase(`5` to `15`) . Expected: [Success].
 8. reveal: if the secret submitted doesnot match with the sha256 `commitment`. Expected: [Failure] `-9`.
-9. reveal: Reveal the secret (number) at `20` whose `commitment` was submitted in commit phase. Expected: [Success].
-10. reveal: try to reveal the secret after the reveal phase is over. Expected: [Failure] `-3`.
-Hence, 2 out of 3 `commitments` have revealed secret in reveal phase.
-11. getRandom: After the reveal phase is over (after `20`), one can get the random number generated. Expected: [Success]`606`.
+9. reveal: Reveal the secret (number) at `20` (as 20 bnum is included in 16 to 20 range) whose `commitment` was submitted in commit phase. Expected: [Success].
+10. reveal: try to reveal the secret after the reveal phase is over. Expected: [Failure] `-6`.
+11. getRandom: After the reveal phase is over (after `20`), one can get the random number generated. Expected: [Success]`666`.
+Now say, 2 out of 3 `commitments` have revealed secret in reveal phase.
 12. getMyBounty: After the reveal phase is over (after `20`), one can get his share of bounty. Expected: [Success] `successful`.`60` => `50` (bounty divide share) + `5` (deposit) + `5` (fine as 1 commit didnot successfully reveal).
 13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `-4`.
 14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure] `-5`. 

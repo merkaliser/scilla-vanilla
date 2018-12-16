@@ -1,12 +1,49 @@
 {
-  "gas_remaining": "6558",
+  "gas_remaining": "6436",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
-    { "vname": "paused", "type": "Uint32", "value": "1" },
-    { "vname": "random", "type": "Uint128", "value": "6" },
+    {
+      "vname": "random",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "6" ]
+      }
+    },
     { "vname": "revealsNum", "type": "Uint128", "value": "1" },
     { "vname": "commitNum", "type": "Uint128", "value": "3" },
+    { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
+    {
+      "vname": "_bnum",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "20" ]
+      }
+    },
+    {
+      "vname": "_commitDeadline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "15" ]
+      }
+    },
+    {
+      "vname": "_commitBalkline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "5" ]
+      }
+    },
+    { "vname": "_deposit", "type": "Uint128", "value": "5" },
+    { "vname": "paused", "type": "Uint32", "value": "0" },
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
@@ -26,7 +63,7 @@
           "val": [
             {
               "key":
-                "0xc9c47180cefec2e7ebe2bcb23deec416df60f74a68ed07df98a8e61a408eb050",
+                "0x8ab3bf6e8bfac3771707cd4a013bdeef828f62ff73a9290720d0f4112902bf9b",
               "val": "0"
             }
           ]
@@ -67,6 +104,15 @@
       "value": [
         { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
       ]
+    },
+    {
+      "vname": "rewardNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
     }
   ],
   "events": [
