@@ -5,36 +5,6 @@
         "value" : "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617"
     },
     {
-        "vname" : "_deposit",
-        "type" : "Uint128",
-        "value" : "5"
-    },
-    {
-        "vname" : "commitBalkline",
-        "type" : "BNum",
-        "value" : "5"
-    },
-    {
-        "vname" : "commitDeadline",
-        "type" : "BNum",
-        "value" : "15"
-    },
-    {
-        "vname" : "bnum",
-        "type" : "BNum",
-        "value" : "20"
-    },
-    {
-        "vname" : "_bounty",
-        "type" : "Uint128",
-        "value" : "100"
-    },
-    {
-        "vname" : "minParticipant",
-        "type" : "Uint128",
-        "value" : "3"
-    },
-    {
         "vname" : "_creation_block",
         "type" : "BNum",
         "value" : "1"
