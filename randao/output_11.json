@@ -1,10 +1,47 @@
 {
-  "gas_remaining": "6754",
+  "gas_remaining": "6656",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
-    { "vname": "paused", "type": "Uint32", "value": "1" },
-    { "vname": "random", "type": "Uint128", "value": "606" },
+    {
+      "vname": "random",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "666" ]
+      }
+    },
+    { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
+    {
+      "vname": "_bnum",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "20" ]
+      }
+    },
+    {
+      "vname": "_commitDeadline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "15" ]
+      }
+    },
+    {
+      "vname": "_commitBalkline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "5" ]
+      }
+    },
+    { "vname": "_deposit", "type": "Uint128", "value": "5" },
+    { "vname": "paused", "type": "Uint32", "value": "0" },
     { "vname": "revealsNum", "type": "Uint128", "value": "3" },
     { "vname": "commitNum", "type": "Uint128", "value": "3" },
     {
@@ -36,8 +73,8 @@
           "val": [
             {
               "key":
-                "0x7144ebc847f5a478ae6b080dad70476618121c12f294897ea746741fd194c721",
-              "val": "0"
+                "0xdb5f40cb5e445af120b9d28e30293297b50f2adce5ab64796692cf80faf19dc4",
+              "val": "660"
             }
           ]
         }
@@ -67,12 +104,21 @@
       "value": [
         { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
       ]
+    },
+    {
+      "vname": "rewardNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
     }
   ],
   "events": [
     {
       "_eventname": "RandomNumber",
-      "params": [ { "vname": "number", "type": "Uint128", "value": "606" } ]
+      "params": [ { "vname": "number", "type": "Uint128", "value": "666" } ]
     }
   ]
 }
