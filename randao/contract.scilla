@@ -62,6 +62,34 @@ let is_eq =
      end
     end     
 
+let in_time =
+  fun (bn1 : Option BNum) =>
+  fun (bn2 : Option BNum) =>
+  fun (bn : BNum) =>
+    match bn1 with
+    | None => False
+    | Some b1 => 
+    let d = builtin blt b1 bn in
+ match d with
+    | False => False
+    | True => 
+ match bn2 with
+    | None => False
+    | Some b2 => 
+     builtin blt bn b2
+     end
+    end
+    end     
+
+let addOne =
+fun (a : Option Uint128) =>
+    match a with
+    | None => None
+    | Some v => 
+    let _one = Uint128 1 in
+    builtin add v _one
+end
+
 
 (*Constants*)
 let _zero   = Uint128 0
@@ -76,11 +104,11 @@ let mk_error_event =
 
 (* Error messages *)
 let insufficient_deposit_err_code = Int32 -1
-let early_commit_err_code  = Int32 -2
+let commit_time_err_code  = Int32 -2
 let deadline_finish_err_code = Int32 -3
 let not_reveal_deadline_err_code = Int32 -4
 let not_committed_err_code = Int32 -5
-let early_reveal_err_code = Int32 -6
+let reveal_time_err_code = Int32 -6
 let reveal_deadline_not_ended_err_code = Int32 -7
 let failure_err_code = Int32 -8
 let failure_wrong_secret = Int32 -9
@@ -183,17 +211,15 @@ blk <- & BLOCKNUMBER;
 (*in_time_start and in_time_end if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
 cb<-_commitBalkline;
 cd<-_commitDeadline;
-in_time_start = builtin blt cb blk;
-in_time_end = builtin blt blk cd;
+cn<- commitNum;
+inTime = in_time cb cd blk;
 
 match isPaused with 
   | False =>
 match isEqualDeposit with
   | True =>
-   match in_time_start with
+   match inTime with
     | True =>
-	match in_time_end with
-	  | True =>
              p<-participant[_sender];
 	     match p with
 	      | Some v =>
@@ -204,19 +230,13 @@ match isEqualDeposit with
  	        participant[_sender][_hs]:=_zero;
                 revealed[_sender]:=_zero1;
 	        rewarded[_sender]:=_zero1;
-	        cn<-commitNum;
-	        newCommitNum=builtin add cn _one;
-                newCommitNumOpt = Some {Uint128} newCommitNum;
-                commitNum:=newCommitNumOpt;
+                newCommitNum=addOne cn;
+                commitNum:=newCommitNum;
 	        e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
 	        event e
 	        end
-	 | False => 
-	    e = mk_error_event deadline_finish_err_code;
-            event e 
-	    end
     | False => 
-        e = mk_error_event early_commit_err_code;
+        e = mk_error_event commit_time_err_code;
         event e 
      end
   | False =>
@@ -258,17 +278,18 @@ end
 transition reveal(_s : Uint128)
 success="successful";
 cn<-commitNum;
+cd<-_commitDeadline;
+bn<-_bnum;
+
 blk <- & BLOCKNUMBER;
-(*in_time_start and in_time_end if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
-isMinParticipants = le_int minParticipant cn;
-in_time_start = blk_leq commitDeadline blk;
-in_time_end = blk_leq blk bnum ;
+(*inTime if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
+mp<-_minParticipant;
+isMinParticipants = le_int mp cn;
+inTime = in_time cd bn blk;
 match isMinParticipants with
 | True =>
-match in_time_start with
- | True =>
-   match in_time_end with
-   | True =>
+match inTime with
+| True =>
       commit= builtin sha256hash _s;
       val5 <- participant [_sender];
       match val5 with
@@ -297,12 +318,8 @@ match in_time_start with
        e = mk_error_event failure_err_code;
        event e 
        end
-   | False => 
-   e = mk_error_event deadline_finish_err_code;
-   event e 
-   end
  | False => 
-   e = mk_error_event early_reveal_err_code;
+   e = mk_error_event reveal_time_err_code;
    event e 
    end
 | False => 

@@ -1,8 +1,46 @@
 {
-  "gas_remaining": "7063",
+  "gas_remaining": "7238",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "105" },
+    { "vname": "_deposit", "type": "Uint128", "value": "0" },
+    {
+      "vname": "_commitBalkline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "None",
+        "argtypes": [ "BNum" ],
+        "arguments": []
+      }
+    },
+    {
+      "vname": "_commitDeadline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "None",
+        "argtypes": [ "BNum" ],
+        "arguments": []
+      }
+    },
+    {
+      "vname": "_bnum",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "None",
+        "argtypes": [ "BNum" ],
+        "arguments": []
+      }
+    },
+    { "vname": "_minParticipant", "type": "Uint128", "value": "0" },
+    {
+      "vname": "rewardNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
+    },
     { "vname": "paused", "type": "Uint32", "value": "1" },
     { "vname": "commitNum", "type": "Uint128", "value": "1" },
     {

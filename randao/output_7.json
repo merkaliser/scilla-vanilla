@@ -1,24 +1,44 @@
 {
-  "gas_remaining": "6399",
+  "gas_remaining": "6941",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "115" },
+    { "vname": "_deposit", "type": "Uint128", "value": "0" },
     {
-      "vname": "random",
-      "type": "Option (Uint128)",
+      "vname": "_commitBalkline",
+      "type": "Option (BNum)",
       "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "6" ]
+        "constructor": "None",
+        "argtypes": [ "BNum" ],
+        "arguments": []
       }
     },
     {
-      "vname": "revealsNum",
+      "vname": "_commitDeadline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "None",
+        "argtypes": [ "BNum" ],
+        "arguments": []
+      }
+    },
+    {
+      "vname": "_bnum",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "None",
+        "argtypes": [ "BNum" ],
+        "arguments": []
+      }
+    },
+    { "vname": "_minParticipant", "type": "Uint128", "value": "0" },
+    {
+      "vname": "rewardNum",
       "type": "Option (Uint128)",
       "value": {
         "constructor": "Some",
         "argtypes": [ "Uint128" ],
-        "arguments": [ "1" ]
+        "arguments": [ "0" ]
       }
     },
     { "vname": "paused", "type": "Uint32", "value": "1" },
@@ -33,7 +53,7 @@
             {
               "key":
                 "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88",
-              "val": "6"
+              "val": "0"
             }
           ]
         },
@@ -63,7 +83,7 @@
       "vname": "revealed",
       "type": "Map (ByStr20) (Uint32)",
       "value": [
-        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "1" },
+        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" },
         { "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81", "val": "0" },
         { "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5", "val": "0" }
       ]
@@ -83,19 +103,14 @@
       "value": [
         { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
       ]
-    }
+    },
+    { "vname": "revealsNum", "type": "Uint128", "value": "0" },
+    { "vname": "random", "type": "Uint128", "value": "0" }
   ],
   "events": [
     {
-      "_eventname": "LogReveal",
-      "params": [
-        {
-          "vname": "from",
-          "type": "ByStr20",
-          "value": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
-        },
-        { "vname": "secret", "type": "Uint128", "value": "6" }
-      ]
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-6" } ]
     }
   ]
 }
