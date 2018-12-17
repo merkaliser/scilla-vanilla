@@ -52,6 +52,18 @@ let zero_opt =
   let z = Uint128 0 in
   Some {Uint128} z
   
+let subNum =
+  fun (bn1 : Option Uint128) =>
+  fun (bn2 : Option Uint128) =>
+    match bn1 with
+    | None => None
+    | Some b1 => 
+    match bn2 with
+    | None => None
+    | Some b2 => 
+     builtin sub b1 b2 
+     end
+    end     
 
 let is_eq =
   fun (bn1 : Option Uint128) =>
@@ -356,7 +368,8 @@ end
 (*to get the reward after reveal phase is over*)
 transition getMyBounty()
 blk <- & BLOCKNUMBER;
-isEnd=blk_leq bnum blk;
+bn<-_bnum;
+isEnd=blk_leq blk bn;
 revealno<-revealsNum;
 commitno<-commitNum;
 match isEnd with
@@ -373,7 +386,7 @@ match isEnd with
         hasRewarded=builtin eq rv1 _one1;
         match hasRewarded with
           |False =>
-	  diffRevealed=builtin sub commitno revealno;
+	  diffRevealed= subNum commitno revealno;
 	  isEqualRevealed=builtin eq diffRevealed _zero;
 	  match isEqualRevealed with
 	    |True =>
