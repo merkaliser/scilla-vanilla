@@ -25,6 +25,17 @@ let blk_leq =
     orb bc1 bc2
 end
 
+let blk_geq =
+  fun (blk1 : Option BNum) =>
+  fun (blk2 : BNum) =>
+  match blk1 with
+    | None => False
+    | Some bl1 => 
+    let bc1 = builtin blt blk2 bl1 in 
+    let bc2 = builtin eq bl1 blk2 in 
+    orb bc1 bc2
+end
+
 let min_int =
   fun (a : Uint128) => fun (b : Uint128) =>
   let alt = builtin lt a b in
@@ -185,6 +196,8 @@ field random: Option Uint128 = None {Uint128}
 (*is paused until it is funded*)
 field paused : Uint32 = _one1
 
+field _bounty : Uint128 = _zero
+
 (*deposit of bounty by consumer/founder and set/reset compaign*)
 transition setCompaign ( deposit : Uint128, commitBalkline: BNum, commitDeadline: BNum, bnum: BNum, minParticipant : Uint128)
 reward<-rewardNum;
@@ -198,6 +211,7 @@ match isEndedCompaign with
          accept;
          paused:=_zero1;
 	 consumer[founder] := _amount;
+	 _bounty := _amount;
 	 _deposit := deposit;
          commitBalklineOpt = Some {BNum} commitBalkline;
 	 _commitBalkline := commitBalklineOpt;
@@ -369,9 +383,12 @@ end
 transition getMyBounty()
 blk <- & BLOCKNUMBER;
 bn<-_bnum;
-isEnd=blk_leq blk bn;
+match bn with
+|Some b =>
+isEnd=builtin blt b blk;
 revealno<-revealsNum;
 commitno<-commitNum;
+bnty<- _bounty;
 match isEnd with
   | True =>
   isRevealed<-revealed[_sender];
@@ -390,7 +407,7 @@ match isEnd with
 	  isEqualRevealed=builtin eq diffRevealed _zero;
 	  match isEqualRevealed with
 	    |True =>
- 	    distributionAmount=builtin div _bounty revealno;
+ 	    distributionAmount=builtin div bnty revealno;
  	    am<-consumer[founder];
             match am with
               |Some cAmt =>
@@ -403,12 +420,10 @@ match isEnd with
  		senderAmt=builtin add cAmt1 totalReward;
  		consumer[_sender]:=senderAmt;
 	        rewarded[_sender]:=_one1;
-
 	        rn<-rewardNum;
 	        newRewardNum=builtin add rn _one;
                 newRewardNumOpt = Some {Uint128} newRewardNum;
                 rewardNum:=newRewardNumOpt;
-
  		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward ; status : success };
     	        msgs = one_msg msg;
    	        send msgs
@@ -432,7 +447,7 @@ match isEnd with
               end 
 		|False =>
 		fine=builtin mul diffRevealed _deposit;
-		distributionShare=builtin div _bounty revealno;
+		distributionShare=builtin div bnty revealno;
 		distributionAmount=builtin add fine distributionShare;
 	 	am<-consumer[founder];
 		match am with
@@ -463,7 +478,6 @@ match isEnd with
 	             newRewardNum=builtin add rn _one;
                      newRewardNumOpt = Some {Uint128} newRewardNum;
                      rewardNum:=newRewardNumOpt;
-
 	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
 	   	     msgs = one_msg msg;
 	    	     send msgs
@@ -493,6 +507,12 @@ match isEnd with
  e = mk_error_event reveal_deadline_not_ended_err_code;
  event e 
  end 
+
+|None=>
+   e = mk_error_event failure_err_code;
+   event e 
+   end 
+
 end
 
 
