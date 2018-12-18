@@ -383,9 +383,7 @@ end
 transition getMyBounty()
 blk <- & BLOCKNUMBER;
 bn<-_bnum;
-match bn with
-|Some b =>
-isEnd=builtin blt b blk;
+isEnd=blk_leq bn blk;
 revealno<-revealsNum;
 commitno<-commitNum;
 bnty<- _bounty;
@@ -507,11 +505,6 @@ match isEnd with
  e = mk_error_event reveal_deadline_not_ended_err_code;
  event e 
  end 
-
-|None=>
-   e = mk_error_event failure_err_code;
-   event e 
-   end 
 
 end
 
