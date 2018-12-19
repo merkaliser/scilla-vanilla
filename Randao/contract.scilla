@@ -96,25 +96,25 @@ let is_eq =
     end     
 
 let in_time =
-  fun (bn1 : Option BNum) =>
-  fun (bn2 : Option BNum) =>
+  fun (bn1 : BNum) =>
+  fun (bn2 : BNum) =>
   fun (bn : BNum) =>
     match bn1 with
     | None => False
     | Some b1 => 
     let d = builtin blt b1 bn in
- match d with
+    match d with
     | False => False
     | True => 
  match bn2 with
     | None => False
     | Some b2 => 
     let bc1 = builtin blt bn b2 in 
-    let bc2 = builtin eq bn b2 in 
+    let bc2 = builtin eq bn b1 in 
     orb bc1 bc2
  end
-    end
-    end     
+ end
+end     
 
 
 
@@ -227,9 +227,8 @@ match isEndedCompaign with
            bnumOpt = Some {BNum} bnum;
  	   _bnum := bnumOpt;
 	   _minParticipant := minParticipant;
-           msg = { _tag : "Main"; _recipient : _sender; deposit : deposit; _amount : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant };
-           msgs = one_msg msg;
-           send msgs
+           e = { _eventname : "Compaign Created"; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant };
+        event e
        | False =>
            e = mk_error_event bounty_unequal_err_code;
            event e 
@@ -244,6 +243,7 @@ end
 transition commit (_hs : ByStr32 )
 (*if bounty is funded isPaused is false (0) *)
 p <- paused;
+cn<- commitNum;
 isPaused = builtin eq p _one1;
 d <- _deposit;
 isEqualDeposit= builtin eq _amount d;
@@ -251,7 +251,6 @@ blk <- & BLOCKNUMBER;
 (*in_time_start and in_time_end if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase 1*)
 cb<-_commitBalkline;
 cd<-_commitDeadline;
-cn<- commitNum;
 inTime = in_time cb cd blk;
 match isPaused with 
   | False =>
@@ -259,12 +258,12 @@ match isPaused with
      | True =>
         match inTime with
         | True =>
-           p<-participant[_one1][_sender];
+           p<-exists participant[_one1][_sender];
 	   match p with
-	      | Some v =>
+	      | True =>
      		 e = mk_error_event sender_already_committed_err_code;
   		 event e 
- 	      | None =>
+ 	      | False =>
   	         accept;	    
  	         participant[_one1][_sender][_hs]:=_zero;
                  revealed[_one1][_sender]:=_zero1;
@@ -482,3 +481,16 @@ match isConsumer with
    event e 
    end
 end
+
+
+
+(*sha256 hash of any secret*)
+transition shaCommit(_s : Uint128)
+ commit= builtin sha256hash _s;
+ e = { _eventname : "shaCommit"; commitment : commit  };
+ event e
+ end
+
+
+
+
