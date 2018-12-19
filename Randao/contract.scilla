@@ -218,9 +218,9 @@ match isEndedCompaign with
          bnumOpt = Some {BNum} bnum;
  	 _bnum := bnumOpt;
 	 _minParticipant := minParticipant;
-        e = { _eventname : "Compaign"; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant };
+         e = { _eventname : "Compaign"; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant };
         event e
-      | False =>
+     | False =>
          e = mk_error_event bounty_unequal_err_code;
          event e 
         end
@@ -238,69 +238,68 @@ isPaused = builtin eq p _one1;
 d <- _deposit;
 isEqualDeposit= builtin eq _amount d;
 blk <- & BLOCKNUMBER;
-(*in_time_start and in_time_end if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
+(*in_time_start and in_time_end if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase 1*)
 cb<-_commitBalkline;
 cd<-_commitDeadline;
 cn<- commitNum;
 inTime = in_time cb cd blk;
-
 match isPaused with 
   | False =>
-match isEqualDeposit with
-  | True =>
-   match inTime with
-    | True =>
-             p<-participant[_sender];
-	     match p with
+     match isEqualDeposit with
+     | True =>
+        match inTime with
+        | True =>
+           p<-participant[_sender];
+	   match p with
 	      | Some v =>
      		 e = mk_error_event sender_already_committed_err_code;
   		 event e 
- 	      |None =>
-  	        accept;	    
- 	        participant[_sender][_hs]:=_zero;
-                revealed[_sender]:=_zero1;
-	        rewarded[_sender]:=_zero1;
-                newCommitNum=addNum cn _one;
-                commitNum:=newCommitNum;
-	        e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
-	        event e
-	        end
-    | False => 
-        e = mk_error_event commit_time_err_code;
-        event e 
-     end
-  | False =>
-   e = mk_error_event insufficient_deposit_err_code;
-   event e 
-  end
+ 	      | None =>
+  	         accept;	    
+ 	         participant[_sender][_hs]:=_zero;
+                 revealed[_sender]:=_zero1;
+	         rewarded[_sender]:=_zero1;
+                 newCommitNum=addNum cn _one;
+                 commitNum:=newCommitNum;
+	         e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
+	         event e
+	         end
+       | False => 
+          e = mk_error_event commit_time_err_code;
+          event e 
+          end
+    | False =>
+      e = mk_error_event insufficient_deposit_err_code;
+      event e 
+      end
   | True =>
-   e = mk_error_event bounty_not_funded_err_code;
-   event e 
-  end
+    e = mk_error_event bounty_not_funded_err_code;
+    event e 
+    end
 end
 
 
 (*returns commitment, sha256 hash of _sender*)
 transition getCommitment ()
-  valMap <- participant [_sender];
-  match valMap with
+valMap <- participant [_sender];
+match valMap with
   | Some v =>
     val=builtin to_list v;
     match val with 
-   | Cons h t => 
-      match h with
-      | Pair a b => 
-        e = { _eventname : "Commitment"; commitment : a  };
-        event e
-        end
-   | Nil =>
+      | Cons h t => 
+         match h with
+           | Pair a b => 
+              e = { _eventname : "Commitment"; commitment : a  };
+              event e
+              end
+      | Nil =>
+   	 e = mk_error_event not_committed_err_code;
+ 	 event e 
+	 end
+  | None=>
     e = mk_error_event not_committed_err_code;
     event e 
     end
- | None=>
-  e = mk_error_event not_committed_err_code;
-  event e 
-  end
 end
 
 
@@ -310,68 +309,68 @@ cn<-commitNum;
 cd<-_commitDeadline;
 bn<-_bnum;
 blk <- & BLOCKNUMBER;
-(*inTime if true signifies that blk lies in commitBalkline and commitDeadline i.e. in phase1*)
+(*inTime if true signifies that blk lies in commitDeadline and _bnum i.e. in phase2*)
 mp<-_minParticipant;
 isMinParticipants = le_int mp cn;
 inTime = in_time cd bn blk;
 match isMinParticipants with
-| True =>
-match inTime with
-| True =>
-      commit= builtin sha256hash _s;
-      val5 <- participant [_sender];
-      match val5 with
-      | Some v5 =>
-       val1=builtin get v5 commit ;
-       match val1 with
- 	 | Some v6 =>
+  | True =>
+    match inTime with
+      | True =>
+        commit= builtin sha256hash _s;
+        val5 <- participant [_sender];
+        match val5 with
+          | Some v5 =>
+            val1=builtin get v5 commit ;
+            match val1 with
+ 	      | Some v6 =>
 	        rn<-revealsNum;
                 newRevealNum=addNum rn _one;
                 revealsNum:=newRevealNum;
                 (*generate random no.*)
 	        prRandom<-random;
-         match prRandom with 
- 	 | Some previousRandom =>
-	        newRandom=builtin add previousRandom _s;
-                newRandomNumOpt = Some {Uint128} newRandom;
-                random:=newRandomNumOpt;	
-	        participant[_sender][commit] := _s;
-	        revealed[_sender]:=_one1;
-        	e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
-	        event e 
-	 | None =>
-                newRandom=builtin add _zero _s;
-                newRandomNumOpt = Some {Uint128} newRandom;
-                random:=newRandomNumOpt;	
-	        participant[_sender][commit] := _s;
-	        revealed[_sender]:=_one1;
-        	e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
-	        event e 
-  	 end
-	 | None =>
-  	        e = mk_error_event failure_wrong_secret;
-		event e
-		end
-      | None =>
-       e = mk_error_event failure_err_code;
+                match prRandom with 
+ 	          | Some previousRandom =>
+	            newRandom=builtin add previousRandom _s;
+                    newRandomNumOpt = Some {Uint128} newRandom;
+                    random:=newRandomNumOpt;	
+	            participant[_sender][commit] := _s;
+	            revealed[_sender]:=_one1;
+                    e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
+	            event e 
+	         | None =>
+                   newRandom=builtin add _zero _s;
+                   newRandomNumOpt = Some {Uint128} newRandom;
+                   random:=newRandomNumOpt;	
+	           participant[_sender][commit] := _s;
+	           revealed[_sender]:=_one1;
+                   e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
+	           event e 
+  	           end
+	    | None =>
+  	      e = mk_error_event failure_wrong_secret;
+	      event e
+	      end
+         | None =>
+           e = mk_error_event failure_err_code;
+           event e 
+           end
+      | False => 
+        e = mk_error_event reveal_time_err_code;
        event e 
        end
- | False => 
-   e = mk_error_event reveal_time_err_code;
-   event e 
-   end
-| False => 
-hash <- participant [_sender];
-match hash with
-  | Some v6 =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : _amount; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
-  msgs = one_msg msg;
-  send msgs
-  | None =>
-  e = mk_error_event failure_err_code;
-  event e 
-  end
-end
+   | False => 
+     hash <- participant [_sender];
+     match hash with
+       | Some v6 =>
+         msg = { _tag : "Main"; _recipient : _sender; _amount : _amount; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
+         msgs = one_msg msg;
+         send msgs
+       | None =>
+  	 e = mk_error_event failure_err_code;
+  	 event e 
+  	 end
+    end
 end
 
 
@@ -405,42 +404,41 @@ match isEnd with
              distributionAmount = builtin add fine distributionShare;
 	     am <- consumer[founder];
 	     match am with
-	       |Some cAmt =>
-	 	  founderAmt = builtin sub cAmt distributionShare;
-	 	  consumer[founder] := founderAmt;
-		     totalReward = builtin add distributionAmount deposit;
- 		     senderAmt = totalReward;
-	             rewarded[_sender] := _one1;
-                      newRewardNum= addNum rewardno _one;
-		      rewardNum:=newRewardNum;
- 		     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success";totalReward:totalReward; fine:fine };
-	   	     msgs = one_msg msg;
-	    	     send msgs
-	  	     
-		|None=>
-	 	 e = mk_error_event failure_err_code;
-        	 event e 
-	         end
-  	   |True =>
+	    |Some cAmt =>
+	       founderAmt = builtin sub cAmt distributionShare;
+	       consumer[founder] := founderAmt;
+	       totalReward = builtin add distributionAmount deposit;
+ 	       senderAmt = totalReward;
+               rewarded[_sender] := _one1; 
+               newRewardNum= addNum rewardno _one;
+               rewardNum:=newRewardNum;
+               msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success";totalReward:totalReward; fine:fine };
+	       msgs = one_msg msg;
+	       send msgs     
+	   |None=>
+	      e = mk_error_event failure_err_code;
+              event e 
+	      end
+  	 |True =>
   	    e = mk_error_event failure_err_code;
             event e 
             end 
-        |None=>
+      |None=>
         e = mk_error_event failure_err_code;
         event e 
         end 
-     |False=>
-	e = mk_error_event not_reveal_deadline_err_code;
-        event e 
-        end 
+    |False=>
+      e = mk_error_event not_reveal_deadline_err_code;
+      event e 
+      end 
   |None=>
-   e = mk_error_event not_committed_err_code;
-   event e 
-   end 
+    e = mk_error_event not_committed_err_code;
+    event e 
+    end 
 |False =>
- e = mk_error_event reveal_deadline_not_ended_err_code;
- event e 
- end 
+  e = mk_error_event reveal_deadline_not_ended_err_code;
+  event e 
+  end 
 end
 
 
@@ -457,18 +455,18 @@ match isConsumer with
 | True =>
   match isEnd with
   | True =>
-   isSettled= le_int mp r;
-   match isSettled with
-   | True =>
-match rn with 
-   | Some random =>
-      e = { _eventname : "RandomNumber" ; number : random  };
-      event e
-   | None =>
-      e = mk_error_event failure_err_code;
-      event e 
-      end
-   | False =>
+    isSettled= le_int mp r;
+    match isSettled with
+     | True =>
+       match rn with 
+         | Some random =>
+            e = { _eventname : "RandomNumber" ; number : random  };
+            event e
+         | None =>
+            e = mk_error_event failure_err_code;
+            event e 
+            end
+    | False =>
       e = mk_error_event failure_err_code;
       event e 
       end
