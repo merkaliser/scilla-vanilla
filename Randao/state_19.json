@@ -1,16 +1,6 @@
  [
     { "vname": "_balance", "type": "Uint128", "value": "5" },
-    {
-      "vname": "random",
-      "type": "Option (Uint128)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "6" ]
-      }
-    },
-    { "vname": "revealsNum", "type": "Uint128", "value": "1" },
-    { "vname": "commitNum", "type": "Uint128", "value": "3" },
+    { "vname": "commitNum", "type": "Uint128", "value": "1" },
     { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
     {
       "vname": "_bnum",
@@ -55,7 +45,7 @@
                 {
                   "key":
                     "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88",
-                  "val": "6"
+                  "val": "0"
                 }
               ]
             }
@@ -72,7 +62,7 @@
           "val": [
             {
               "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
-              "val": "1"
+              "val": "0"
             }
           ]
         }
@@ -101,12 +91,30 @@
       ]
     },
     {
+      "vname": "revealsNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "3" ]
+      }
+    },
+    {
       "vname": "rewardNum",
       "type": "Option (Uint128)",
       "value": {
         "constructor": "Some",
         "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
+        "arguments": [ "3" ]
+      }
+    },
+    {
+      "vname": "random",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "None",
+        "argtypes": [ "Uint128" ],
+        "arguments": []
       }
     }
   ]

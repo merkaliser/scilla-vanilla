@@ -1,5 +1,5 @@
-[
-    { "vname": "_balance", "type": "Uint128", "value": "105" },
+ [
+    { "vname": "_balance", "type": "Uint128", "value": "5" },
     { "vname": "commitNum", "type": "Uint128", "value": "1" },
     { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
     {
@@ -30,18 +30,24 @@
       }
     },
     { "vname": "_deposit", "type": "Uint128", "value": "5" },
+    { "vname": "_bounty", "type": "Uint128", "value": "100" },
     { "vname": "paused", "type": "Uint32", "value": "0" },
     {
       "vname": "participant",
-      "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
+      "type": "Map (Uint32) (Map (ByStr20) (Map (ByStr32) (Uint128)))",
       "value": [
         {
-          "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+          "key": "1",
           "val": [
             {
-              "key":
-                "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88",
-              "val": "0"
+              "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+              "val": [
+                {
+                  "key":
+                    "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88",
+                  "val": "0"
+                }
+              ]
             }
           ]
         }
@@ -49,17 +55,33 @@
     },
     {
       "vname": "revealed",
-      "type": "Map (ByStr20) (Uint32)",
+      "type": "Map (Uint32) (Map (ByStr20) (Uint32))",
       "value": [
-        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" }
-             ]
+        {
+          "key": "1",
+          "val": [
+            {
+              "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+              "val": "0"
+            }
+          ]
+        }
+      ]
     },
     {
       "vname": "rewarded",
-      "type": "Map (ByStr20) (Uint32)",
+      "type": "Map (Uint32) (Map (ByStr20) (Uint32))",
       "value": [
-        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" }
-     ]
+        {
+          "key": "1",
+          "val": [
+            {
+              "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+              "val": "0"
+            }
+          ]
+        }
+      ]
     },
     {
       "vname": "consumer",
@@ -68,7 +90,6 @@
         { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
       ]
     },
-   
     {
       "vname": "revealsNum",
       "type": "Option (Uint128)",
@@ -91,9 +112,9 @@
       "vname": "random",
       "type": "Option (Uint128)",
       "value": {
-        "constructor": "Some",
+        "constructor": "None",
         "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
+        "arguments": []
       }
     }
   ]

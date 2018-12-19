@@ -45,7 +45,7 @@ Following test cases are explained in sequence of how transitions can be called.
 
 ## Test cases
 
-0. depositBounty : deposit the bounty specified while deploying contract by sending `_amount`. Expected: [Success] `BountyReceived`.
+0. setCompaign : deposit of bounty by consumer/founder and set/reset compaign by sending `_amount`. Expected: [Success] `Compaign`.
 1. commit: `commitment` (i.e. the sha256 hash of any number) is provided in between the commit phase (`5` to `15`) with correct `_deposit` (`_amount`). Expected: [Success].
 2. commit: `commitment` cannot be submitted twice by any address. Expected: [Failure] `-13`.
 3. commit: wrong `_amount` of zils i.e. required `deposit` is not sent. Expected: [Failure]`-1`.
@@ -66,5 +66,6 @@ Now say, 2 out of 3 `commitments` have revealed secret in reveal phase.
 16. commit: try to `commit` before commit phase (`5` to `15`)has started. Expected: [Failure] `-2`.
 17. reveal: try to `reveal` before reveal phase (`15`) has started. Expected: [Failure] `-6`.
 18. reveal: try to `reveal` if commits in phase1 are less than required minimum participants. `_deposit` is refunded to participants of phase 1. Random no. generation fails. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`.
+19. setCompaign : when deposit of bounty by consumer/founder and reset compaign by sending `_amount`. Expected: [Success] `Compaign`.
  
 
