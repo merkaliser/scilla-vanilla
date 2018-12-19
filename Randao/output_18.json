@@ -1,8 +1,8 @@
 {
-  "gas_remaining": "7052",
+  "gas_remaining": "6990",
   "message": null,
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "115" },
+    { "vname": "_balance", "type": "Uint128", "value": "55" },
     { "vname": "_deposit", "type": "Uint128", "value": "0" },
     {
       "vname": "_commitBalkline",
@@ -42,9 +42,8 @@
       }
     },
     { "vname": "paused", "type": "Uint32", "value": "1" },
-    { "vname": "random", "type": "Uint128", "value": "606" },
-    { "vname": "revealsNum", "type": "Uint128", "value": "2" },
-    { "vname": "commitNum", "type": "Uint128", "value": "3" },
+    { "vname": "_bounty", "type": "Uint128", "value": "0" },
+    { "vname": "commitNum", "type": "Uint128", "value": "2" },
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
@@ -55,17 +54,7 @@
             {
               "key":
                 "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88",
-              "val": "6"
-            }
-          ]
-        },
-        {
-          "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
-          "val": [
-            {
-              "key":
-                "0xc9c47180cefec2e7ebe2bcb23deec416df60f74a68ed07df98a8e61a408eb050",
-              "val": "600"
+              "val": "0"
             }
           ]
         },
@@ -85,8 +74,8 @@
       "vname": "revealed",
       "type": "Map (ByStr20) (Uint32)",
       "value": [
-        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "1" },
-        { "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81", "val": "1" },
+        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" },
+        { "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81", "val": "0" },
         { "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5", "val": "0" }
       ]
     },
@@ -105,12 +94,14 @@
       "value": [
         { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
       ]
-    }
+    },
+    { "vname": "revealsNum", "type": "Uint128", "value": "0" },
+    { "vname": "random", "type": "Uint128", "value": "0" }
   ],
   "events": [
     {
       "_eventname": "RandaoError",
-      "params": [ { "vname": "err_code", "type": "Int32", "value": "-7" } ]
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-6" } ]
     }
   ]
 }

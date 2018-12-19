@@ -1,8 +1,10 @@
 {
-  "gas_remaining": "6092",
+  "gas_remaining": "6608",
   "message": null,
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "100" },
+    { "vname": "_balance", "type": "Uint128", "value": "105" },
+    { "vname": "_bounty", "type": "Uint128", "value": "0" },
+    { "vname": "commitNum", "type": "Uint128", "value": "1" },
     { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
     {
       "vname": "_bnum",
@@ -36,25 +38,39 @@
     {
       "vname": "participant",
       "type": "Map (ByStr20) (Map (ByStr32) (Uint128))",
-      "value": []
+      "value": [
+        {
+          "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+          "val": [
+            {
+              "key":
+                "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88",
+              "val": "0"
+            }
+          ]
+        }
+      ]
     },
-    { "vname": "revealed", "type": "Map (ByStr20) (Uint32)", "value": [] },
-    { "vname": "rewarded", "type": "Map (ByStr20) (Uint32)", "value": [] },
+    {
+      "vname": "revealed",
+      "type": "Map (ByStr20) (Uint32)",
+      "value": [
+        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" }
+      ]
+    },
+    {
+      "vname": "rewarded",
+      "type": "Map (ByStr20) (Uint32)",
+      "value": [
+        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "0" }
+      ]
+    },
     {
       "vname": "consumer",
       "type": "Map (ByStr20) (Uint128)",
       "value": [
         { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
       ]
-    },
-    {
-      "vname": "commitNum",
-      "type": "Option (Uint128)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
-      }
     },
     {
       "vname": "revealsNum",
@@ -78,23 +94,16 @@
       "vname": "random",
       "type": "Option (Uint128)",
       "value": {
-        "constructor": "None",
+        "constructor": "Some",
         "argtypes": [ "Uint128" ],
-        "arguments": []
+        "arguments": [ "0" ]
       }
     }
   ],
   "events": [
     {
-      "_eventname": "Compaign",
-      "params": [
-        { "vname": "deposit", "type": "Uint128", "value": "5" },
-        { "vname": "bounty", "type": "Uint128", "value": "100" },
-        { "vname": "commitBalkline", "type": "BNum", "value": "5" },
-        { "vname": "commitDeadline", "type": "BNum", "value": "15" },
-        { "vname": "bnum", "type": "BNum", "value": "20" },
-        { "vname": "minParticipant", "type": "Uint128", "value": "3" }
-      ]
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-13" } ]
     }
   ]
 }

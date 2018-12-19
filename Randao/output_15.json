@@ -1,9 +1,48 @@
 {
-  "gas_remaining": "6760",
+  "gas_remaining": "6946",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "55" },
+    { "vname": "_deposit", "type": "Uint128", "value": "0" },
+    {
+      "vname": "_commitBalkline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "None",
+        "argtypes": [ "BNum" ],
+        "arguments": []
+      }
+    },
+    {
+      "vname": "_commitDeadline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "None",
+        "argtypes": [ "BNum" ],
+        "arguments": []
+      }
+    },
+    {
+      "vname": "_bnum",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "None",
+        "argtypes": [ "BNum" ],
+        "arguments": []
+      }
+    },
+    { "vname": "_minParticipant", "type": "Uint128", "value": "0" },
+    {
+      "vname": "rewardNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
+    },
     { "vname": "paused", "type": "Uint32", "value": "1" },
+    { "vname": "_bounty", "type": "Uint128", "value": "0" },
     { "vname": "random", "type": "Uint128", "value": "606" },
     { "vname": "revealsNum", "type": "Uint128", "value": "2" },
     { "vname": "commitNum", "type": "Uint128", "value": "3" },
@@ -73,7 +112,7 @@
   "events": [
     {
       "_eventname": "RandaoError",
-      "params": [ { "vname": "err_code", "type": "Int32", "value": "-4" } ]
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-7" } ]
     }
   ]
 }

@@ -1,8 +1,9 @@
 {
-  "gas_remaining": "6631",
+  "gas_remaining": "7106",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "105" },
+    { "vname": "_bounty", "type": "Uint128", "value": "0" },
     { "vname": "commitNum", "type": "Uint128", "value": "1" },
     { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
     {
@@ -102,7 +103,7 @@
   "events": [
     {
       "_eventname": "RandaoError",
-      "params": [ { "vname": "err_code", "type": "Int32", "value": "-13" } ]
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-5" } ]
     }
   ]
 }

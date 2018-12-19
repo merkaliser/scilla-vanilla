@@ -63,18 +63,24 @@ let zero_opt =
   let z = Uint128 0 in
   Some {Uint128} z
   
-let subNum =
+
+let addNum =
   fun (bn1 : Option Uint128) =>
-  fun (bn2 : Option Uint128) =>
+  fun (bn2 : Uint128) =>
     match bn1 with
     | None => None
     | Some b1 => 
-    match bn2 with
+     builtin add b1 bn2 
+    end   
+
+let divNum   =
+  fun (bn1 : Option Uint128) =>
+  fun (bn2 : Uint128) =>
+    match bn1 with
     | None => None
-    | Some b2 => 
-     builtin sub b1 b2 
-     end
-    end     
+    | Some b1 =>
+     builtin div b1 bn2 
+   end
 
 let is_eq =
   fun (bn1 : Option Uint128) =>
@@ -110,14 +116,6 @@ let in_time =
     end
     end     
 
-let addOne =
-fun (a : Option Uint128) =>
-    match a with
-    | None => None
-    | Some v => 
-    let _one = Uint128 1 in
-    builtin add v _one
-end
 
 
 (*Constants*)
@@ -138,7 +136,7 @@ let deadline_finish_err_code = Int32 -3
 let not_reveal_deadline_err_code = Int32 -4
 let not_committed_err_code = Int32 -5
 let reveal_time_err_code = Int32 -6
-let reveal_deadline_not_ended_err_code = Int32 -7
+let deadline_err_code = Int32 -7
 let failure_err_code = Int32 -8
 let failure_wrong_secret = Int32 -9
 let bounty_unequal_err_code = Int32 -10
@@ -262,7 +260,7 @@ match isEqualDeposit with
  	        participant[_sender][_hs]:=_zero;
                 revealed[_sender]:=_zero1;
 	        rewarded[_sender]:=_zero1;
-                newCommitNum=addOne cn;
+                newCommitNum=addNum cn _one;
                 commitNum:=newCommitNum;
 	        e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
 	        event e
@@ -308,7 +306,6 @@ end
 
 (*reveal secret in reveal phase of commitment*)
 transition reveal(_s : Uint128)
-success="successful";
 cn<-commitNum;
 cd<-_commitDeadline;
 bn<-_bnum;
@@ -329,7 +326,7 @@ match inTime with
        match val1 with
  	 | Some v6 =>
 	        rn<-revealsNum;
-                newRevealNum=addOne rn;
+                newRevealNum=addNum rn _one;
                 revealsNum:=newRevealNum;
                 (*generate random no.*)
 	        prRandom<-random;
@@ -378,15 +375,16 @@ end
 end
 
 
-
 (*to get the reward after reveal phase is over*)
 transition getMyBounty()
 blk <- & BLOCKNUMBER;
-bn<-_bnum;
-isEnd=blk_leq bn blk;
-revealno<-revealsNum;
-commitno<-commitNum;
-bnty<- _bounty;
+bn <- _bnum;
+isEnd = blk_leq bn blk;
+deposit <- _deposit;
+revealno <- revealsNum;
+commitno <- commitNum;
+rewardno<-rewardNum;
+bnty<-consumer[founder];
 match isEnd with
   | True =>
   isRevealed<-revealed[_sender];
@@ -401,90 +399,28 @@ match isEnd with
         hasRewarded=builtin eq rv1 _one1;
         match hasRewarded with
           |False =>
-	  diffRevealed= subNum commitno revealno;
-	  isEqualRevealed=builtin eq diffRevealed _zero;
-	  match isEqualRevealed with
-	    |True =>
- 	    distributionAmount=builtin div bnty revealno;
- 	    am<-consumer[founder];
-            match am with
-              |Some cAmt =>
- 	      founderAmt=builtin sub cAmt distributionAmount;
- 	      consumer[founder]:=founderAmt;
-              am1<-consumer[_sender];
-	      match am1 with
-	        |Some cAmt1 =>
-	        totalReward= builtin add distributionAmount _deposit;
- 		senderAmt=builtin add cAmt1 totalReward;
- 		consumer[_sender]:=senderAmt;
-	        rewarded[_sender]:=_one1;
-	        rn<-rewardNum;
-	        newRewardNum=builtin add rn _one;
-                newRewardNumOpt = Some {Uint128} newRewardNum;
-                rewardNum:=newRewardNumOpt;
- 		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward ; status : success };
-    	        msgs = one_msg msg;
-   	        send msgs
-		|None=>
-	        totalReward= builtin add distributionAmount _deposit;
- 		senderAmt=totalReward;
-		consumer[_sender]:=senderAmt;
-	        rewarded[_sender]:=_one1;
-	        rn<-rewardNum;
-	        newRewardNum=builtin add rn _one;
-                newRewardNumOpt = Some {Uint128} newRewardNum;
-                rewardNum:=newRewardNumOpt;
-
- 		msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : success };
-		msgs = one_msg msg;
-    		send msgs
- 		end 
-	     |None=>
-	      e = mk_error_event failure_err_code;
-	      event e 
-              end 
-		|False =>
-		fine=builtin mul diffRevealed _deposit;
-		distributionShare=builtin div bnty revealno;
-		distributionAmount=builtin add fine distributionShare;
-	 	am<-consumer[founder];
-		match am with
-		  |Some cAmt =>
+	     diffRevealed = builtin sub commitno revealno;
+             fine = builtin mul diffRevealed deposit;
+	     distributionShare = divNum bnty revealno;
+             distributionAmount = builtin add fine distributionShare;
+	     am <- consumer[founder];
+	     match am with
+	       |Some cAmt =>
 	 	  founderAmt = builtin sub cAmt distributionShare;
-	 	  consumer[founder]:=founderAmt;
-	 	  am1<-consumer[_sender];
-		  match am1 with
-		    |Some cAmt1 =>
-          	     totalReward = builtin add distributionAmount _deposit;
- 		     senderAmt = builtin add cAmt1 totalReward;
-		     consumer[_sender]:=senderAmt;
-	             rewarded[_sender]:=_one1;
-      	             rn<-rewardNum;
-	             newRewardNum=builtin add rn _one;
-                     newRewardNumOpt = Some {Uint128} newRewardNum;
-                     rewardNum:=newRewardNumOpt;
-
-	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
-	  	     msgs = one_msg msg;
-	  	     send msgs
-		   |None=>
-		     totalReward = builtin add distributionAmount _deposit;
+	 	  consumer[founder] := founderAmt;
+		     totalReward = builtin add distributionAmount deposit;
  		     senderAmt = totalReward;
-	             consumer[_sender]:=senderAmt;
-	             rewarded[_sender]:=_one1;
- 		     rn<-rewardNum;
-	             newRewardNum=builtin add rn _one;
-                     newRewardNumOpt = Some {Uint128} newRewardNum;
-                     rewardNum:=newRewardNumOpt;
-	 	     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
+	             rewarded[_sender] := _one1;
+                      newRewardNum= addNum rewardno _one;
+		      rewardNum:=newRewardNum;
+ 		     msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success";totalReward:totalReward; fine:fine };
 	   	     msgs = one_msg msg;
 	    	     send msgs
-	  	     end 
+	  	     
 		|None=>
 	 	 e = mk_error_event failure_err_code;
         	 event e 
 	         end
-		 end
   	   |True =>
   	    e = mk_error_event failure_err_code;
             event e 
@@ -505,7 +441,6 @@ match isEnd with
  e = mk_error_event reveal_deadline_not_ended_err_code;
  event e 
  end 
-
 end
 
 

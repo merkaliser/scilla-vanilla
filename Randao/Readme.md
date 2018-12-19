@@ -60,8 +60,8 @@ Following test cases are explained in sequence of how transitions can be called.
 11. getRandom: After the reveal phase is over (after `20`), one can get the random number generated. Expected: [Success]`666`.
 Now say, 2 out of 3 `commitments` have revealed secret in reveal phase.
 12. getMyBounty: After the reveal phase is over (after `20`), one can get his share of bounty. Expected: [Success] `successful`.`60` => `50` (bounty divide share) + `5` (deposit) + `5` (fine as 1 commit didnot successfully reveal).
-13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `-4`.
-14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure] `-5`. 
+13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `-7`.
+14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure] `-7`. 
 15. getMyBounty: try to get bounty before the reveal phase is over. Expected: [Failure] `-7`.
 16. commit: try to `commit` before commit phase (`5` to `15`)has started. Expected: [Failure] `-2`.
 17. reveal: try to `reveal` before reveal phase (`15`) has started. Expected: [Failure] `-6`.
