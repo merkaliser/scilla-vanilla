@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6192",
+  "gas_remaining": "6209",
   "message": {
     "_tag": "Main",
     "_amount": "43",
@@ -74,7 +74,6 @@
       }
     },
     { "vname": "_deposit", "type": "Uint128", "value": "5" },
-    { "vname": "_bounty", "type": "Uint128", "value": "100" },
     { "vname": "paused", "type": "Uint32", "value": "0" },
     {
       "vname": "participant",

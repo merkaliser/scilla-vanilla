@@ -56,7 +56,6 @@
       }
     },
     { "vname": "_deposit", "type": "Uint128", "value": "5" },
-    { "vname": "_bounty", "type": "Uint128", "value": "100" },
     {
       "vname": "rewardNum",
       "type": "Option (Uint128)",

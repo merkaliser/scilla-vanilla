@@ -240,9 +240,6 @@ field random: Option Uint128 = None {Uint128}
 (*is paused until it is funded*)
 field paused : Uint32 = _one1
 
-field _bounty : Uint128 = _zero
-(*redundant to remove*)
-
 (*deposit of bounty by consumer/founder and set/reset compaign*)
 transition setCompaign ( deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
 reward<-rewardNum;
@@ -264,7 +261,6 @@ match isEndedCompaign with
 	   rewardNum:=zero_opt;
 	   random:=zero_opt;
 	   consumer[founder] := _amount;
-	   _bounty := _amount;
 	   _deposit := deposit;
            commitBalklineOpt = Some {BNum} commitBalkline;
 	   _commitBalkline := commitBalklineOpt;
