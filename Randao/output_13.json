@@ -3,7 +3,15 @@
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "77" },
-    { "vname": "rewardNum", "type": "Uint128", "value": "1" },
+    {
+      "vname": "rewardNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "1" ]
+      }
+    },
     {
       "vname": "random",
       "type": "Option (Uint128)",

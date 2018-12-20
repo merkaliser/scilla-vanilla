@@ -1,20 +1,8 @@
 {
-  "gas_remaining": "5749",
-  "message": {
-    "_tag": "Main",
-    "_amount": "200",
-    "_accepted": "true",
-    "_recipient": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-    "params": [
-      { "vname": "deposit", "type": "Uint128", "value": "5" },
-      { "vname": "commitBalkline", "type": "BNum", "value": "5" },
-      { "vname": "commitDeadline", "type": "BNum", "value": "15" },
-      { "vname": "bnum", "type": "BNum", "value": "20" },
-      { "vname": "minParticipant", "type": "Uint128", "value": "3" }
-    ]
-  },
+  "gas_remaining": "5786",
+  "message": null,
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "5" },
+    { "vname": "_balance", "type": "Uint128", "value": "205" },
     { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
     {
       "vname": "_bnum",
@@ -105,5 +93,17 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Compaign Created",
+      "params": [
+        { "vname": "deposit", "type": "Uint128", "value": "5" },
+        { "vname": "bounty", "type": "Uint128", "value": "200" },
+        { "vname": "commitBalkline", "type": "BNum", "value": "5" },
+        { "vname": "commitDeadline", "type": "BNum", "value": "15" },
+        { "vname": "bnum", "type": "BNum", "value": "20" },
+        { "vname": "minParticipant", "type": "Uint128", "value": "3" }
+      ]
+    }
+  ]
 }

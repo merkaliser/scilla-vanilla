@@ -475,8 +475,9 @@ match isEnd with
 	       totalReward = builtin add distributionAmount deposit;
  	       senderAmt = totalReward;
                rewarded[_one1][_sender] := _one1; 
-               newRewardNum= addNum rewardno _one;
-               rewardNum:=newRewardNum;
+               newRewardNum= addOne rewardno;
+	       rewardNumOpt=Some {Uint128} newRewardNum;
+               rewardNum:=rewardNumOpt;
                msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
 	       msgs = one_msg msg;
 	       send msgs     
