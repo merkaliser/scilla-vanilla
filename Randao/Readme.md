@@ -46,12 +46,11 @@ Following test cases are explained in sequence of how transitions can be called.
 ## Test cases
 
 0. setCompaign : deposit of bounty by consumer/founder and set/reset compaign by sending `_amount`. Expected: [Success] `Compaign`.
-1. commit: `commitment` (i.e. the sha256 hash of any number) is provided in between the commit phase (`5` to `15`) with correct `_deposit` (`_amount`). Expected: [Success].
+1. commit: `commitment` (i.e. the sha256 hash of any number) is provided in between the commit phase (`5` to `15`) with correct `_deposit` (`_amount`). Expected: [Success]. Note, 3 successful commits are already present in that state.
 2. commit: `commitment` cannot be submitted twice by any address. Expected: [Failure] `-13`.
 3. commit: wrong `_amount` of zils i.e. required `deposit` is not sent. Expected: [Failure]`-1`.
 4. getCommitment: `_sender` can see the `commitment` he has made. Expected: [Success] `0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88`.
 5. getCommitment: for no `commitment` by `sender`. Expected: [Failure]`-5`. 
-(2 more successful commits are done in the commit phase by 2 more accounts so that now we have 3 accounts participating in contract.)
 6. commit: trying to commit after the `commit` phase ends (after `15`). Expected: [Failure] `-2`. 
 7. reveal: In the reveal phase (`16` to `20`), one has to reveal the secret (number) whose `commitment` was submitted in commit phase(`5` to `15`) . Expected: [Success].
 8. reveal: if the secret submitted doesnot match with the sha256 `commitment`. Expected: [Failure] `-9`.

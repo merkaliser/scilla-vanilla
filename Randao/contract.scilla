@@ -100,22 +100,32 @@ let in_time =
   fun (bn2 : BNum) =>
   fun (bn : BNum) =>
     match bn1 with
-    | None => False
-    | Some b1 => 
-    let d = builtin blt b1 bn in
-    match d with
-    | False => False
-    | True => 
- match bn2 with
-    | None => False
-    | Some b2 => 
-    let bc1 = builtin blt bn b2 in 
-    let bc2 = builtin eq bn b1 in 
-    orb bc1 bc2
- end
- end
+      | None => False
+      | Some b1 => 
+        let d = builtin blt b1 bn in
+        match d with
+      | False => False
+      | True => 
+      match bn2 with
+      | None => False
+      | Some b2 => 
+        let bc1 = builtin blt bn b2 in 
+        let bc2 = builtin eq bn b1 in 
+        orb bc1 bc2
+end
+end
 end     
 
+
+
+let addOne =
+fun (a : Option Uint128) =>
+    match a with
+    | None =>  None
+    | Some v => 
+    let _one = Uint128 1 in
+    builtin add v _one
+end
 
 
 (*Constants*)
@@ -268,8 +278,9 @@ match isPaused with
  	         participant[_one1][_sender][_hs]:=_zero;
                  revealed[_one1][_sender]:=_zero1;
 	         rewarded[_one1][_sender]:=_zero1;
-                 newCommitNum=addNum cn _one;
-                 commitNum:=newCommitNum;
+                 newCommitNum=addOne cn;
+	         commitOpt= Some {Uint128} newCommitNum;
+                 commitNum:=commitOpt;
 	         e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
 	         event e
 	         end
