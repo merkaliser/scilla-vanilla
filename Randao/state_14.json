@@ -1,4 +1,4 @@
- [
+[
     { "vname": "_balance", "type": "Uint128", "value": "77" },
     { "vname": "rewardNum", "type": "Uint128", "value": "1" },
     {
