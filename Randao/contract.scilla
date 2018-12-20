@@ -52,10 +52,20 @@ let le_int =
     match x with
     | True => True
     | False =>
-      let y = builtin eq a b in
-      match y with
-      | True => True
-      | False => False
+      builtin eq a b 
+      end
+   
+
+let le_int_opt =
+  fun (a : Uint128) => fun (b : Option Uint128) =>
+match b with 
+    | None => None
+    | Some b1 => 
+    let x = builtin lt a b1 in
+    match x with
+    | True => True
+    | False =>
+      builtin eq a b1 
       end
     end
    
@@ -96,8 +106,8 @@ let is_eq =
     end     
 
 let in_time =
-  fun (bn1 : BNum) =>
-  fun (bn2 : BNum) =>
+  fun (bn1 : Option BNum) =>
+  fun (bn2 : Option BNum) =>
   fun (bn : BNum) =>
     match bn1 with
       | None => False
@@ -110,7 +120,7 @@ let in_time =
       | None => False
       | Some b2 => 
         let bc1 = builtin blt bn b2 in 
-        let bc2 = builtin eq bn b1 in 
+        let bc2 = builtin eq bn b2 in 
         orb bc1 bc2
 end
 end
@@ -331,7 +341,7 @@ bn<-_bnum;
 blk <- & BLOCKNUMBER;
 (*inTime if true signifies that blk lies in commitDeadline and _bnum i.e. in phase2*)
 mp<-_minParticipant;
-isMinParticipants = le_int mp cn;
+isMinParticipants = le_int_opt mp cn;
 inTime = in_time cd bn blk;
 match isMinParticipants with
   | True =>
@@ -342,8 +352,9 @@ match isMinParticipants with
             match val1 with
  	      | Some v6 =>
 	        rn<-revealsNum;
-                newRevealNum=addNum rn _one;
-                revealsNum:=newRevealNum;
+                newRevealNum=addOne rn;
+		revealOpt= Some{Uint128} newRevealNum;
+                revealsNum:=revealOpt;
                 (*generate random no.*)
 	        prRandom<-random;
                 match prRandom with 
@@ -356,8 +367,7 @@ match isMinParticipants with
                     e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
 	            event e 
 	         | None =>
-                   newRandom=builtin add _zero _s;
-                   newRandomNumOpt = Some {Uint128} newRandom;
+                   newRandomNumOpt = Some {Uint128} _s;
                    random:=newRandomNumOpt;	
 	           participant[_one1][_sender][commit] := _s;
 	           revealed[_one1][_sender]:=_one1;
@@ -468,7 +478,7 @@ match isConsumer with
 | True =>
   match isEnd with
   | True =>
-    isSettled= le_int mp r;
+    isSettled= le_int_opt mp r;
     match isSettled with
      | True =>
        match rn with 
