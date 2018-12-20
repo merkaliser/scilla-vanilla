@@ -25,6 +25,8 @@ valid by running sha3 against s and comparing the result with previous
 committed data. Valid s will be saved to the collection of seeds to finally
 generate the random number. `reveal` is used with secret as parameter.
 
+In case of failure of condition of minimum participants, `reveal` can be used by participant or founder to get back their deposit/ bounty respectively.
+
 
 ##### The third phase: calculating a random number, refund deposits, fines and bonus
 1. After phase 2 is complete, random number is generated that can be sent to all other contracts that requested the random number before. `getRandom` returns Random number.
@@ -33,8 +35,8 @@ generate the random number. `reveal` is used with secret as parameter.
 
 ## Rationale
 
-The contract is deployed by the one who wants to generate random number. Following fields are required :
-  * **_deposit** : deposit required (zils) by participants to take part in phase 1. This can be thought as security deposit for generating the random no. After both phases are successfully completed, deposits are returned alongwith bounty.
+The contract is deployed by the one who wants to generate random number (founder/consumer). Following fields are required for compaign :
+  * **deposit** : deposit required (zils) by participants to take part in phase 1. This can be thought as security deposit for generating the random no. After both phases are successfully completed, deposits are returned alongwith bounty.
   * **commitBalkline** : Initial (BlockNumber) when phase 1 will start. Before this no one can take part.
   * **commitDeadline** : Deadline (BlockNumber) when phase 1 ends. After phase 1 ends no more participants can take part.
   * **bnum** : Deadline (BlockNumber) when phase 2 ends. After phase 2 ends, random no. is generated. In between commitDeadline and bnum is the phase 2.
@@ -59,12 +61,12 @@ Following test cases are explained in sequence of how transitions can be called.
 11. getRandom: After the reveal phase is over (after `20`), one can get the random number generated. Expected: [Success]`666`.
 Now say, 2 out of 3 `commitments` have revealed secret in reveal phase.
 12. getMyBounty: After the reveal phase is over (after `20`), one can get his share of bounty. Expected: [Success] `successful`.`60` => `50` (bounty divide share) + `5` (deposit) + `5` (fine as 1 commit didnot successfully reveal).
-13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `-7`.
-14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure] `-7`. 
-15. getMyBounty: try to get bounty before the reveal phase is over. Expected: [Failure] `-7`.
+13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `-4`.
+14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure] `-4`. 
+15. getMyBounty: try to get bounty before the reveal phase is over. Expected: [Failure] `-4`.
 16. commit: try to `commit` before commit phase (`5` to `15`)has started. Expected: [Failure] `-2`.
 17. reveal: try to `reveal` before reveal phase (`15`) has started. Expected: [Failure] `-6`.
-18. reveal: try to `reveal` if commits in phase1 are less than required minimum participants. `_deposit` is refunded to participants of phase 1. Random no. generation fails. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`.
+18. reveal: try to `reveal` if commits in phase1 are less than required minimum participants. `_deposit` is refunded to participants of phase 1. Random no. generation fails. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`. `deposit` is tranferred.
 19. setCompaign : when deposit of bounty by consumer/founder and reset compaign by sending `_amount`. Expected: [Success] `Compaign`.
- 
+21. reveal : to get back the bounty of consumer/ founder in case if commits in phase1 are less than required minimum participants. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`. `bounty is transferred`.
 

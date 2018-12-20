@@ -72,7 +72,33 @@ match b with
 let zero_opt =
   let z = Uint128 0 in
   Some {Uint128} z
-  
+
+
+let sub_opt  =
+  fun (bn1 : Option Uint128) =>
+  fun (bn2 : Option Uint128) =>
+    match bn1 with
+    | None => None
+    | Some b1 => 
+    match bn2 with
+    | None => None
+    | Some b2 => 
+     builtin sub b1 b2 
+    end   
+end
+
+let div_opt  =
+  fun (bn1 : Option Uint128) =>
+  fun (bn2 : Option Uint128) =>
+    match bn1 with
+    | None => None
+    | Some b1 => 
+    match bn2 with
+    | None => None
+    | Some b2 => 
+     builtin div b1 b2 
+    end   
+end
 
 let addNum =
   fun (bn1 : Option Uint128) =>
@@ -383,16 +409,32 @@ match isMinParticipants with
        event e 
        end
    | False => 
-     hash <- participant [_sender];
+     hash <- participant [_one1][_sender];
      match hash with
        | Some v6 =>
-         msg = { _tag : "Main"; _recipient : _sender; _amount : _amount; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
+         depo<-_deposit;
+         msg = { _tag : "Main"; _recipient : _sender; _amount : depo; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
          msgs = one_msg msg;
          send msgs
        | None =>
-  	 e = mk_error_event failure_err_code;
-  	 event e 
-  	 end
+	 isConsumer= builtin eq founder _sender;
+         match isConsumer with
+           | True =>
+              bounty<-consumer[founder];
+	      match bounty with
+		| Some bnty =>
+                   msg = { _tag : "Main"; _recipient : _sender; _amount : bnty; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
+                   msgs = one_msg msg;
+                   send msgs
+                | None =>
+  	           e = mk_error_event failure_err_code;
+  	           event e
+		 end 
+           | False =>
+  	      e = mk_error_event failure_err_code;
+  	      event e 
+  	    end
+       end      
     end
 end
 
@@ -421,9 +463,9 @@ match isEnd with
         hasRewarded=builtin eq rv1 _one1;
         match hasRewarded with
           |False =>
-	     diffRevealed = builtin sub commitno revealno;
+	     diffRevealed = sub_opt commitno revealno;
              fine = builtin mul diffRevealed deposit;
-	     distributionShare = divNum bnty revealno;
+	     distributionShare = div_opt bnty revealno;
              distributionAmount = builtin add fine distributionShare;
 	     am <- consumer[founder];
 	     match am with
@@ -459,7 +501,7 @@ match isEnd with
     event e 
     end 
 |False =>
-  e = mk_error_event reveal_deadline_not_ended_err_code;
+  e = mk_error_event not_reveal_deadline_err_code;
   event e 
   end 
 end
@@ -502,7 +544,6 @@ match isConsumer with
    event e 
    end
 end
-
 
 
 (*sha256 hash of any secret*)
