@@ -223,7 +223,7 @@ field _deposit : Uint128 = zero_128
 field _commitBalkline: Option BNum  = None {BNum}
 field _commitDeadline:  Option BNum  = None {BNum}
 field _bnum: Option BNum  = None {BNum}
-field _aliveTime: Option Uint128  = None {Uint128}
+field _aliveTime: Option Uint32  = None {Uint32}
 field _minParticipant : Uint128 = zero_128
 
 (*address, commitment (i.e. sha256 hash of secret), secret *)
@@ -265,7 +265,7 @@ blk <- & BLOCKNUMBER;
 commitBalk<-_commitBalkline;
 alive<-_aliveTime;
 isCompaignDeadline = checkAlive commitBalk alive blk;
-isEndedCompaign = builtin orb isRewardedCompaign isCompaignDeadline;
+isEndedCompaign = orb isRewardedCompaign isCompaignDeadline;
 isFounder = builtin eq _sender founder;
 match isEndedCompaign with 
    | True =>
@@ -289,7 +289,7 @@ match isEndedCompaign with
    	   _commitDeadline := commitDeadlineOpt;
            bnumOpt = Some {BNum} bnum;
  	   _bnum := bnumOpt;
-           aliveTimeOpt = Some {Uint128} aliveTime;
+           aliveTimeOpt = Some {Uint32} aliveTime;
 	   _aliveTime := aliveTimeOpt;
 	   _minParticipant := minParticipant;
            e = { _eventname : "Compaign Created"; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant };

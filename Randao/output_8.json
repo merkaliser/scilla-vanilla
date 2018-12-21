@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6356",
+  "gas_remaining": "6371",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -12,7 +12,15 @@
         "arguments": [ "21154" ]
       }
     },
-    { "vname": "revealsNum", "type": "Uint128", "value": "1" },
+    {
+      "vname": "revealsNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "1" ]
+      }
+    },
     {
       "vname": "commitNum",
       "type": "Option (Uint128)",
@@ -167,12 +175,15 @@
       ]
     },
     {
-      "vname": "consumer",
-      "type": "Map (ByStr20) (Uint128)",
-      "value": [
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "100" }
-      ]
-    }
+      "vname": "_aliveTime",
+      "type": "Option (Uint32)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint32" ],
+        "arguments": [ "100" ]
+      }
+    },
+    { "vname": "_bounty", "type": "Uint128", "value": "100" }
   ],
   "events": [
     {

@@ -1,12 +1,37 @@
 {
-    "_tag": "shaCommit",
-    "_amount": "0",
+    "_tag": "setCompaign",
+    "_amount": "200",
     "_sender" : "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617",
     "params": [
         {
-            "vname": "_s",
+            "vname": "deposit",
             "type": "Uint128",
-            "value": "42010"
+            "value": "5"
+        },
+        {
+            "vname": "commitBalkline",
+            "type": "BNum",
+            "value": "5"
+        },
+        {
+            "vname": "commitDeadline",
+            "type": "BNum",
+            "value": "15"
+        },
+        {
+            "vname": "bnum",
+            "type": "BNum",
+            "value": "20"
+        },
+        {
+            "vname": "minParticipant",
+            "type": "Uint128",
+            "value": "3"
+        },
+	{
+            "vname": "aliveTime",
+            "type": "Uint32",
+            "value": "100"
         }
        ]
 }

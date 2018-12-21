@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6451",
+  "gas_remaining": "6466",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "77" },
@@ -166,12 +166,15 @@
         }
       ]
     },
+    { "vname": "_bounty", "type": "Uint128", "value": "67" },
     {
-      "vname": "consumer",
-      "type": "Map (ByStr20) (Uint128)",
-      "value": [
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "67" }
-      ]
+      "vname": "_aliveTime",
+      "type": "Option (Uint32)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint32" ],
+        "arguments": [ "100" ]
+      }
     }
   ],
   "events": [

@@ -27,6 +27,11 @@
             "vname": "minParticipant",
             "type": "Uint128",
             "value": "3"
+        },
+	{
+            "vname": "aliveTime",
+            "type": "Uint32",
+            "value": "100"
         }
        ]
 }
