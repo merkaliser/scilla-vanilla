@@ -20,10 +20,10 @@ let blk_leq =
   match blk1 with
     | None => False
     | Some bl1 => 
-    let bc1 = builtin blt bl1 blk2 in 
-    let bc2 = builtin eq bl1 blk2 in 
-    orb bc1 bc2
-end
+      let bc1 = builtin blt bl1 blk2 in 
+      let bc2 = builtin eq bl1 blk2 in 
+      orb bc1 bc2
+ end
 
 let blk_geq =
   fun (blk1 : Option BNum) =>
@@ -31,10 +31,10 @@ let blk_geq =
   match blk1 with
     | None => False
     | Some bl1 => 
-    let bc1 = builtin blt blk2 bl1 in 
-    let bc2 = builtin eq bl1 blk2 in 
-    orb bc1 bc2
-end
+      let bc1 = builtin blt blk2 bl1 in 
+      let bc2 = builtin eq bl1 blk2 in 
+      orb bc1 bc2
+ end
 
 let min_int =
   fun (a : Uint128) => fun (b : Uint128) =>
@@ -58,30 +58,31 @@ let le_int =
 
 let le_int_opt =
   fun (a : Uint128) => fun (b : Option Uint128) =>
-match b with 
-    | None => None
+    match b with 
+    | None => False
     | Some b1 => 
-    let x = builtin lt a b1 in
-    match x with
-    | True => True
-    | False =>
-      builtin eq a b1 
-      end
+      let x = builtin lt a b1 in
+      match x with
+      | True => True
+      | False =>
+        builtin eq a b1 
+        end
     end
    
 let zero_opt =
   let z = Uint128 0 in
   Some {Uint128} z
 
-
 let sub_opt  =
   fun (bn1 : Option Uint128) =>
   fun (bn2 : Option Uint128) =>
+    let z = Uint128 0 in
     match bn1 with
-    | None => None
+    | None => 
+      z
     | Some b1 => 
     match bn2 with
-    | None => None
+    | None => z
     | Some b2 => 
      builtin sub b1 b2 
     end   
@@ -90,32 +91,35 @@ end
 let div_opt  =
   fun (bn1 : Option Uint128) =>
   fun (bn2 : Option Uint128) =>
+    let z = Uint128 0 in
     match bn1 with
-    | None => None
+    | None => z
     | Some b1 => 
-    match bn2 with
-    | None => None
-    | Some b2 => 
-     builtin div b1 b2 
-    end   
-end
+      match bn2 with
+      | None => z
+      | Some b2 => 
+        builtin div b1 b2 
+      end   
+  end
 
 let addNum =
   fun (bn1 : Option Uint128) =>
   fun (bn2 : Uint128) =>
+    let z = Uint128 0 in
     match bn1 with
-    | None => None
+    | None => z
     | Some b1 => 
-     builtin add b1 bn2 
+      builtin add b1 bn2 
     end   
 
 let divNum   =
   fun (bn1 : Option Uint128) =>
   fun (bn2 : Uint128) =>
+    let z = Uint128 0 in
     match bn1 with
-    | None => None
+    | None => z
     | Some b1 =>
-     builtin div b1 bn2 
+      builtin div b1 bn2 
    end
 
 let is_eq =
@@ -127,7 +131,7 @@ let is_eq =
     match bn2 with
     | None => False
     | Some b2 => 
-     builtin eq b1 b2 
+      builtin eq b1 b2 
      end
     end     
 
@@ -142,26 +146,27 @@ let in_time =
         match d with
       | False => False
       | True => 
-      match bn2 with
-      | None => False
-      | Some b2 => 
-        let bc1 = builtin blt bn b2 in 
-        let bc2 = builtin eq bn b2 in 
-        orb bc1 bc2
-end
-end
-end     
+        match bn2 with
+        | None => False
+        | Some b2 => 
+          let bc1 = builtin blt bn b2 in 
+          let bc2 = builtin eq bn b2 in 
+          orb bc1 bc2
+         end
+      end
+     end     
 
 
 
 let addOne =
 fun (a : Option Uint128) =>
+    let z = Uint128 0 in
     match a with
-    | None =>  None
+    | None =>  z
     | Some v => 
-    let _one = Uint128 1 in
-    builtin add v _one
-end
+      let _one = Uint128 1 in
+      builtin add v _one
+    end
 
 
 (*Constants*)
@@ -178,7 +183,6 @@ let mk_error_event =
 (* Error messages *)
 let insufficient_deposit_err_code = Int32 -1
 let commit_time_err_code  = Int32 -2
-let deadline_finish_err_code = Int32 -3
 let not_reveal_deadline_err_code = Int32 -4
 let not_committed_err_code = Int32 -5
 let reveal_time_err_code = Int32 -6
@@ -239,6 +243,7 @@ field random: Option Uint128 = None {Uint128}
 
 (*is paused until it is funded*)
 field paused : Uint32 = _one1
+
 
 (*deposit of bounty by consumer/founder and set/reset compaign*)
 transition setCompaign ( deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
@@ -533,7 +538,7 @@ match isConsumer with
       event e 
       end
   | False =>
-    e = mk_error_event reveal_deadline_not_ended_err_code;
+    e = mk_error_event deadline_err_code;
     event e 
     end
 | False =>
@@ -549,7 +554,3 @@ transition shaCommit(_s : Uint128)
  e = { _eventname : "shaCommit"; commitment : commit  };
  event e
  end
-
-
-
-
