@@ -154,7 +154,7 @@ let in_time =
 
 let checkAlive=
   fun (bn1 : Option BNum) =>
-  fun (bn2 : Option Uint128) =>
+  fun (bn2 : Option Uint32) =>
   fun (bn : BNum) =>
     match bn1 with
       | None => False
