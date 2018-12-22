@@ -4,6 +4,8 @@ It contains RANDAO Contract implementation in Scilla.
 References taken:<br>
 https://github.com/randao/randao/blob/master/contracts/Randao.sol
 
+Updated version of:
+https://github.com/merkaliser/scilla-vanilla/tree/5d19d87e0286d57c87ef4872642cfdb0717fc6cc/randao
 
 ## Randao in Scilla
 First of all, we need to create a RANDAO contract in the blockchain,
