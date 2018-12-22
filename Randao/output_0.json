@@ -1,0 +1,111 @@
+{
+  "gas_remaining": "5836",
+  "message": null,
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "100" },
+    { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
+    {
+      "vname": "_aliveTime",
+      "type": "Option (Uint32)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint32" ],
+        "arguments": [ "100" ]
+      }
+    },
+    {
+      "vname": "_bnum",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "20" ]
+      }
+    },
+    {
+      "vname": "_commitDeadline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "15" ]
+      }
+    },
+    {
+      "vname": "_commitBalkline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "5" ]
+      }
+    },
+    { "vname": "_deposit", "type": "Uint128", "value": "5" },
+    { "vname": "_bounty", "type": "Uint128", "value": "100" },
+    {
+      "vname": "random",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
+    },
+    {
+      "vname": "rewardNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
+    },
+    {
+      "vname": "revealsNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
+    },
+    {
+      "vname": "commitNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
+    },
+    { "vname": "paused", "type": "Uint32", "value": "0" },
+    {
+      "vname": "participant",
+      "type": "Map (Uint32) (Map (ByStr20) (Map (ByStr32) (Uint128)))",
+      "value": []
+    },
+    {
+      "vname": "revealed",
+      "type": "Map (Uint32) (Map (ByStr20) (Uint32))",
+      "value": []
+    },
+    {
+      "vname": "rewarded",
+      "type": "Map (Uint32) (Map (ByStr20) (Uint32))",
+      "value": []
+    }
+  ],
+  "events": [
+    {
+      "_eventname": "Compaign Created",
+      "params": [
+        { "vname": "deposit", "type": "Uint128", "value": "5" },
+        { "vname": "bounty", "type": "Uint128", "value": "100" },
+        { "vname": "commitBalkline", "type": "BNum", "value": "5" },
+        { "vname": "commitDeadline", "type": "BNum", "value": "15" },
+        { "vname": "bnum", "type": "BNum", "value": "20" },
+        { "vname": "minParticipant", "type": "Uint128", "value": "3" }
+      ]
+    }
+  ]
+}

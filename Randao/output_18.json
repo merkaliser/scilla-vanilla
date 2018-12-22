@@ -1,0 +1,158 @@
+{
+  "gas_remaining": "6449",
+  "message": {
+    "_tag": "Main",
+    "_amount": "5",
+    "_accepted": "false",
+    "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+    "params": [
+      {
+        "vname": "status",
+        "type": "String",
+        "value":
+          "Failed compaign and refunded deposit as minParticipants < total commits"
+      }
+    ]
+  },
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "105" },
+    { "vname": "rewardNum", "type": "Uint128", "value": "1" },
+    {
+      "vname": "random",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
+    },
+    {
+      "vname": "revealsNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "0" ]
+      }
+    },
+    {
+      "vname": "commitNum",
+      "type": "Option (Uint128)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint128" ],
+        "arguments": [ "2" ]
+      }
+    },
+    { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
+    {
+      "vname": "_bnum",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "20" ]
+      }
+    },
+    {
+      "vname": "_commitDeadline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "15" ]
+      }
+    },
+    {
+      "vname": "_commitBalkline",
+      "type": "Option (BNum)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "BNum" ],
+        "arguments": [ "5" ]
+      }
+    },
+    { "vname": "_deposit", "type": "Uint128", "value": "5" },
+    { "vname": "paused", "type": "Uint32", "value": "0" },
+    {
+      "vname": "participant",
+      "type": "Map (Uint32) (Map (ByStr20) (Map (ByStr32) (Uint128)))",
+      "value": [
+        {
+          "key": "1",
+          "val": [
+            {
+              "key": "0x8d8a16e43272e09cae1cb5878a15e6443952a9ff",
+              "val": [
+                {
+                  "key":
+                    "0x1316634517196279dafb71644435936d69d0fcaa1e11d5c41f7e3376385da3ce",
+                  "val": "21154"
+                }
+              ]
+            },
+            {
+              "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+              "val": [
+                {
+                  "key":
+                    "0x1928417eb686f7cb81393731b1bc0683526e86677a47da01d86a636003004bcc",
+                  "val": "0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vname": "revealed",
+      "type": "Map (Uint32) (Map (ByStr20) (Uint32))",
+      "value": [
+        {
+          "key": "1",
+          "val": [
+            {
+              "key": "0x8d8a16e43272e09cae1cb5878a15e6443952a9ff",
+              "val": "0"
+            },
+            {
+              "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+              "val": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vname": "rewarded",
+      "type": "Map (Uint32) (Map (ByStr20) (Uint32))",
+      "value": [
+        {
+          "key": "1",
+          "val": [
+            {
+              "key": "0x8d8a16e43272e09cae1cb5878a15e6443952a9ff",
+              "val": "0"
+            },
+            {
+              "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+              "val": "0"
+            }
+          ]
+        }
+      ]
+    },
+    { "vname": "_bounty", "type": "Uint128", "value": "67" },
+    {
+      "vname": "_aliveTime",
+      "type": "Option (Uint32)",
+      "value": {
+        "constructor": "Some",
+        "argtypes": [ "Uint32" ],
+        "arguments": [ "100" ]
+      }
+    }
+  ],
+  "events": []
+}
