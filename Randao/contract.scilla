@@ -94,14 +94,22 @@ let in_time =
   fun (bn1 : Option BNum) =>
   fun (bn2 : Option BNum) =>
   fun (bn : BNum) =>
-        let d = builtin blt bn1 bn in
+    match bn1 with
+      | None => False
+      | Some b1 => 
+        let d = builtin blt b1 bn in
         match d with
       | False => False
       | True => 
-          let bc1 = builtin blt bn bn2 in 
-          let bc2 = builtin eq bn bn2 in 
+        match bn2 with
+        | None => False
+        | Some b2 => 
+          let bc1 = builtin blt bn b2 in 
+          let bc2 = builtin eq bn b2 in 
           orb bc1 bc2
-       end     
+         end
+      end
+     end     
 
 let addOneOpt =
 fun (a : Option Uint128) =>
@@ -109,7 +117,7 @@ fun (a : Option Uint128) =>
    | None => False
    | Some a1 => 
      let _one = Uint128 1 in
-     builtin add a _one
+     builtin add a1 _one
 end
 
 (*Constants*)
@@ -160,7 +168,7 @@ field _bnum: Map Uint32 BNum  = Emp Uint32 BNum
 field _minParticipant : Map Uint32 Uint128 = Emp Uint32 Uint128
 
 (*address, commitment (i.e. sha256 hash of secret), secret *)
-field participant :Map Uint32(Map ByStr20( Map ByStr32 Uint128 )) = Emp Uint32(Map ByStr20(Map ByStr32  Uint128 ))
+field participant :Map Uint32(Map ByStr20( Pair ByStr32 Uint128 )) = Emp Uint32(Map ByStr20(Pair ByStr32  Uint128 ))
 (*secret is initialized to zero in mapping*)
 
 (*mapping for if address has revealed secret in reveal phase and is eligible for bounty*)
@@ -211,16 +219,16 @@ event e
 end
 
 (*commit sha256 hash (of secret) in commit phase*)
-transition commit (compaignId : Uint32, _hs : ByStr32 )
+transition commit (compaignID : Uint32, _hs : ByStr32 )
 (*if bounty is funded isPaused is false (0) *)
-p <- paused[compaignId];
-cn<- commitNum[compaignId];
+p <- paused[compaignID];
+cn<- commitNum[compaignID];
 isPaused = eq_one p;
-d <- _deposit[compaignId];
+d <- _deposit[compaignID];
 isEqualDeposit= eq_opt_128 d _amount;
 blk <- & BLOCKNUMBER;
-cb<-_commitBalkline[compaignId];
-cd<-_commitDeadline[compaignId];
+cb<-_commitBalkline[compaignID];
+cd<-_commitDeadline[compaignID];
 inTime = in_time cb cd blk;
 match isPaused with 
   | False =>
@@ -228,18 +236,19 @@ match isPaused with
      | True =>
         match inTime with
         | True =>
-           p<-exists participant[one_32][_sender];
+           p<-exists participant[compaignID][_sender];
 	   match p with
 	      | True =>
      		 e = mk_error_event sender_already_committed_err_code;
   		 event e 
  	      | False =>
-  	         accept;	    
- 	         participant[one_32][_sender][_hs]:=zero_128;
-                 revealed[one_32][_sender]:=zero_32;
-	         rewarded[one_32][_sender]:=zero_32;
+  	         accept;
+	         p = Pair {(ByStr32) (Uint128)} _hs zero_128;
+ 	         participant[compaignID][_sender]:=p;
+                 revealed[compaignID][_sender]:=zero_32;
+	         rewarded[compaignID][_sender]:=zero_32;
                  newCommitNum=addOneOpt cn;
-                 commitNum[compaignId]:=newCommitNum;
+                 commitNum[compaignID]:=newCommitNum;
 	         e = { _eventname : "LogCommit"; from : _sender ; commitment : _hs  };
 	         event e
 	         end
