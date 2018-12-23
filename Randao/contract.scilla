@@ -103,13 +103,6 @@ let in_time =
           orb bc1 bc2
        end     
 
-let checkAlive=
-  fun (bn1 : BNum) =>
-  fun (bn2 : Uint32) =>
-  fun (bn : BNum) =>
-      let bc1 = builtin badd bn1 bn2 in 
-      builtin blt bc1 bn
-        
 let addOneOpt =
 fun (a : Option Uint128) =>
   match a with
@@ -179,7 +172,7 @@ field rewarded: Map Uint32 (Map ByStr20 Uint32) = Emp Uint32 (Map ByStr20 Uint32
 
 (*balance of Consumer in zil*)
 
-field _consumer : Map Uint32 (Map ByStr20 Uint128) = Emp Uint32 (Map ByStr20 Uint128)
+field _consumer : Map Uint32 (Pair ByStr20 Uint128) = Emp Uint32 (Pair ByStr20 Uint128)
 
 field commitNum : Map Uint32 Uint128 = Emp Uint32 Uint128
 (*equal to zero at initialisation*)
@@ -390,7 +383,10 @@ match isEnd with
 	     distributionShare = div_opt bnty revealno;
              distributionAmount = builtin add fine distributionShare;
 	       founderAmt = builtin sub bnty distributionShare;
-	       _consumer[compaignId][] := founderAmt;
+	     c<-_consumer[compaignId];
+ 	     match c with
+	       | Pair a b => 
+		_consumer[compaignId][a]:= founderAmt;
 	       totalReward = builtin add distributionAmount deposit;
  	       senderAmt = totalReward;
                rewarded[compaignId][_sender] := one_32; 
@@ -399,6 +395,7 @@ match isEnd with
                msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
 	       msgs = one_msg msg;
 	       send msgs     
+		end	
   	 |True =>
   	    e = mk_error_event failure_err_code;
             event e 
