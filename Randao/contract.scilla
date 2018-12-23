@@ -142,7 +142,7 @@ let deadline_err_code = Int32 -7
 let failure_err_code = Int32 -8
 let failure_wrong_secret = Int32 -9
 let bounty_unequal_err_code = Int32 -10
-let not_founder_err_code = Int32 -11
+let not_consumer_err_code = Int32 -11
 let bounty_not_funded_err_code = Int32 -12
 let sender_already_committed_err_code = Int32 -13
 
@@ -299,9 +299,9 @@ match isMinParticipants with
     match inTime with
       | True =>
         commit= builtin sha256hash _s;
-        val1 <- participant[compaignID][_sender][commit];
+        val1 <- participant[compaignID][_sender];
             match val1 with
- 	      | Some v6 =>
+ 	      | Pair a b =>
 	        rn<-revealsNum;
                 newRevealNum=addOneOpt rn;
                 revealsNum:=newRevealNum;
@@ -311,46 +311,54 @@ match isMinParticipants with
  	          | Some previousRandom =>
 	            newRandom=builtin add previousRandom _s;
                     random[compaignID]:=newRandom;	
-	            participant[compaignID][_sender][commit] := _s;
+		    p = Pair {(ByStr32) (Uint128)} a _s;    
+	            participant[compaignID][_sender] := p;
 	            revealed[compaignID][_sender]:=one_32;
                     e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
 	            event e 
 	         | None =>
-                   newRandomNumOpt = Some {Uint128} _s;
-                   random:=newRandomNumOpt;	
-	           participant[compaignID][_sender][commit] := _s;
-	           revealed[compaignID][_sender]:=one_32;
-                   e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
-	           event e 
-  	           end
-	    | None =>
-  	      e = mk_error_event failure_wrong_secret;
-	      event e
-	      end
+                    random:=_s;	
+		    p = Pair {(ByStr32) (Uint128)} a _s;    
+	            participant[compaignID][_sender] := p;
+	            revealed[compaignID][_sender]:=one_32;
+                    e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
+	            event e 
+  	          end
+	       end
       | False => 
         e = mk_error_event reveal_time_err_code;
        event e 
        end
+
    | False => 
      hash <- exists participant [compaignID][_sender];
      match hash with
        | True =>
-         depo<-_deposit;
-         msg = { _tag : "Main"; _recipient : _sender; _amount : depo; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
-         msgs = one_msg msg;
-         send msgs
-       | False =>
-	 isConsumer= builtin eq founder _sender;
-         match isConsumer with
-           | True =>
-              bounty<-_consumer[compaignID][_sender];
-                   msg = { _tag : "Main"; _recipient : _sender; _amount : bounty; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
-                   msgs = one_msg msg;
-                   send msgs
-           | False =>
-  	      e = mk_error_event failure_err_code;
+         depo<-_deposit[compaignID];
+ 	 match depo with
+           | Some d =>
+             msg = { _tag : "Main"; _recipient : _sender; _amount : d; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
+            msgs = one_msg msg;
+            send msgs
+  	   | None =>
+ 	      e = mk_error_event failure_err_code;
   	      event e 
-  	    end
+             end
+       | False =>
+          bounty<-_consumer[compaignID];
+	  match bounty with
+ 	     | Pair a b =>
+		isConsumer= builtin eq _sender a;
+		match isConsumer with
+	           | True =>
+                      msg = { _tag : "Main"; _recipient : _sender; _amount : bounty; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
+                      msgs = one_msg msg;
+                      send msgs
+       		   | False =>
+   		      e = mk_error_event not_consumer_err_code;
+  	      	      event e 
+		   end
+	      end
        end      
     end
 end
