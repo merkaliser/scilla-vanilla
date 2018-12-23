@@ -68,8 +68,24 @@ let le_int_opt =
         builtin eq a b1 
         end
     end
-   
 
+let eq_one =
+  fun (a : Option Uint32) => 
+    match a with 
+    | None => False
+    | Some a1 => 
+      let _one = Uint32 1 in
+      builtin eq a1 _one 
+    end
+
+let eq_opt_128 =
+  fun (a : Option Uint32) =>  fun (b : Uint128) =>
+    match a with 
+    | None => False
+    | Some a1 => 
+      builtin eq a1 _one 
+    end
+   
 let in_time =
   fun (bn1 : Option BNum) =>
   fun (bn2 : Option BNum) =>
@@ -200,13 +216,17 @@ transition commit (compaignId : Uint32, _hs : ByStr32 )
 (*if bounty is funded isPaused is false (0) *)
 p <- paused[compaignId];
 cn<- commitNum[compaignId];
-isPaused = builtin eq p one_32;
+isPaused = eq_one p;
 d <- _deposit[compaignId];
-isEqualDeposit= builtin eq _amount d;
+isEqualDeposit= eq_opt_128 d _amount;
 blk <- & BLOCKNUMBER;
 cb<-_commitBalkline[compaignId];
 cd<-_commitDeadline[compaignId];
 inTime = in_time cb cd blk;
+
+
+
+
 match isPaused with 
   | False =>
      match isEqualDeposit with
@@ -438,3 +458,4 @@ match isConsumer with
    event e 
    end
 end
+
