@@ -268,37 +268,30 @@ end
 
 
 (*returns commitment, sha256 hash of _sender*)
-transition getCommitment (compaignId : Uint32)
-valMap <- participant[compaignId][_sender];
+transition getCommitment (compaignID : Uint32)
+valMap <- participant[compaignID][_sender];
 match valMap with
-  | Some v =>
-    val=builtin to_list v;
-    match val with 
-      | Cons h t => 
-         match h with
-           | Pair a b => 
-              e = { _eventname : "Commitment"; commitment : a  };
-              event e
-              end
-      | Nil =>
-   	 e = mk_error_event not_committed_err_code;
- 	 event e 
-	 end
+  | Some h =>
+     match h with
+     | Pair a b => 
+       e = { _eventname : "Commitment"; commitment : a  };
+       event e
+       end
   | None=>
-    e = mk_error_event not_committed_err_code;
-    event e 
-    end
+     e = mk_error_event not_committed_err_code;
+     event e 
+     end
 end
 
 
 (*reveal secret in reveal phase of commitment*)
-transition reveal(compaignId:Uint32, _s : Uint128)
-cn<-commitNum[compaignId];
-cd<-_commitDeadline[compaignId];
-bn<-_bnum[compaignId];
+transition reveal(compaignID:Uint32, _s : Uint128)
+cn<-commitNum[compaignID];
+cd<-_commitDeadline[compaignID];
+bn<-_bnum[compaignID];
 blk <- & BLOCKNUMBER;
 (*inTime if true signifies that blk lies in commitDeadline and _bnum i.e. in phase2*)
-mp<-_minParticipant[compaignId];
+mp<-_minParticipant[compaignID];
 isMinParticipants = le_int_opt mp cn;
 inTime = in_time cd bn blk;
 match isMinParticipants with
@@ -306,27 +299,27 @@ match isMinParticipants with
     match inTime with
       | True =>
         commit= builtin sha256hash _s;
-        val1 <- participant[compaignId][_sender][commit];
+        val1 <- participant[compaignID][_sender][commit];
             match val1 with
  	      | Some v6 =>
 	        rn<-revealsNum;
                 newRevealNum=addOneOpt rn;
                 revealsNum:=newRevealNum;
                 (*generate random no.*)
-	        prRandom<-random[compaignId];
+	        prRandom<-random[compaignID];
                 match prRandom with 
  	          | Some previousRandom =>
 	            newRandom=builtin add previousRandom _s;
-                    random[compaignId]:=newRandom;	
-	            participant[compaignId][_sender][commit] := _s;
-	            revealed[compaignId][_sender]:=one_32;
+                    random[compaignID]:=newRandom;	
+	            participant[compaignID][_sender][commit] := _s;
+	            revealed[compaignID][_sender]:=one_32;
                     e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
 	            event e 
 	         | None =>
                    newRandomNumOpt = Some {Uint128} _s;
                    random:=newRandomNumOpt;	
-	           participant[compaignId][_sender][commit] := _s;
-	           revealed[compaignId][_sender]:=one_32;
+	           participant[compaignID][_sender][commit] := _s;
+	           revealed[compaignID][_sender]:=one_32;
                    e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
 	           event e 
   	           end
@@ -339,7 +332,7 @@ match isMinParticipants with
        event e 
        end
    | False => 
-     hash <- exists participant [compaignId][_sender];
+     hash <- exists participant [compaignID][_sender];
      match hash with
        | True =>
          depo<-_deposit;
@@ -350,7 +343,7 @@ match isMinParticipants with
 	 isConsumer= builtin eq founder _sender;
          match isConsumer with
            | True =>
-              bounty<-_consumer[compaignId][_sender];
+              bounty<-_consumer[compaignID][_sender];
                    msg = { _tag : "Main"; _recipient : _sender; _amount : bounty; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
                    msgs = one_msg msg;
                    send msgs
