@@ -157,7 +157,6 @@ field _deposit : Map Uint32 Uint128 = Emp Uint32 Uint128
 field _commitBalkline: Map Uint32 BNum  = Emp Uint32 BNum
 field _commitDeadline:  Map Uint32 BNum  = Emp Uint32 BNum
 field _bnum: Map Uint32 BNum  = Emp Uint32 BNum
-field _aliveTime: Map Uint32 Uint32  = Emp Uint32 Uint32
 field _minParticipant : Map Uint32 Uint128 = Emp Uint32 Uint128
 
 (*address, commitment (i.e. sha256 hash of secret), secret *)
@@ -200,7 +199,8 @@ commitNum[compaignId]:=zero_128;
 revealsNum[compaignId]:=zero_128;
 rewardNum[compaignId]:=zero_128;
 random[compaignId]:=zero_128;
-_consumer[compaignId][_sender] := _amount;
+p = Pair {(ByStr20) (Uint128)} _sender _amount;
+_consumer[compaignId] := p;
 _deposit[compaignId] := deposit;
 _commitBalkline[compaignId] := commitBalkline; 
 _commitDeadline[compaignId] := commitDeadline;
@@ -386,7 +386,8 @@ match isEnd with
 	     c<-_consumer[compaignId];
  	     match c with
 	       | Pair a b => 
-		_consumer[compaignId][a]:= founderAmt;
+		p = Pair {(ByStr20) (Uint128)} a founderAmt;
+		_consumer[compaignId]:= p;
 	       totalReward = builtin add distributionAmount deposit;
  	       senderAmt = totalReward;
                rewarded[compaignId][_sender] := one_32; 

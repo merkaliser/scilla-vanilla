@@ -29,9 +29,9 @@
             "value": "3"
         },
 	{
-            "vname": "aliveTime",
+            "vname": "compaignId",
             "type": "Uint32",
-            "value": "100"
+            "value": "1"
         }
        ]
 }

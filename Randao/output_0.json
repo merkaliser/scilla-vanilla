@@ -1,84 +1,33 @@
 {
-  "gas_remaining": "5836",
+  "gas_remaining": "6248",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "100" },
-    { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
     {
-      "vname": "_aliveTime",
-      "type": "Option (Uint32)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint32" ],
-        "arguments": [ "100" ]
-      }
-    },
-    {
-      "vname": "_bnum",
-      "type": "Option (BNum)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "BNum" ],
-        "arguments": [ "20" ]
-      }
-    },
-    {
-      "vname": "_commitDeadline",
-      "type": "Option (BNum)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "BNum" ],
-        "arguments": [ "15" ]
-      }
+      "vname": "_deposit",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "5" } ]
     },
     {
       "vname": "_commitBalkline",
-      "type": "Option (BNum)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "BNum" ],
-        "arguments": [ "5" ]
-      }
-    },
-    { "vname": "_deposit", "type": "Uint128", "value": "5" },
-    { "vname": "_bounty", "type": "Uint128", "value": "100" },
-    {
-      "vname": "random",
-      "type": "Option (Uint128)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
-      }
+      "type": "Map (Uint32) (BNum)",
+      "value": [ { "key": "1", "val": "5" } ]
     },
     {
-      "vname": "rewardNum",
-      "type": "Option (Uint128)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
-      }
+      "vname": "_commitDeadline",
+      "type": "Map (Uint32) (BNum)",
+      "value": [ { "key": "1", "val": "15" } ]
     },
     {
-      "vname": "revealsNum",
-      "type": "Option (Uint128)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
-      }
+      "vname": "_bnum",
+      "type": "Map (Uint32) (BNum)",
+      "value": [ { "key": "1", "val": "20" } ]
     },
     {
-      "vname": "commitNum",
-      "type": "Option (Uint128)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
-      }
+      "vname": "_minParticipant",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "3" } ]
     },
-    { "vname": "paused", "type": "Uint32", "value": "0" },
     {
       "vname": "participant",
       "type": "Map (Uint32) (Map (ByStr20) (Map (ByStr32) (Uint128)))",
@@ -93,6 +42,47 @@
       "vname": "rewarded",
       "type": "Map (Uint32) (Map (ByStr20) (Uint32))",
       "value": []
+    },
+    {
+      "vname": "_consumer",
+      "type": "Map (Uint32) (Pair (ByStr20) (Uint128))",
+      "value": [
+        {
+          "key": "1",
+          "val": {
+            "constructor": "Pair",
+            "argtypes": [ "ByStr20", "Uint128" ],
+            "arguments": [
+              "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "100"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "vname": "commitNum",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "0" } ]
+    },
+    {
+      "vname": "revealsNum",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "0" } ]
+    },
+    {
+      "vname": "rewardNum",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "0" } ]
+    },
+    {
+      "vname": "random",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "0" } ]
+    },
+    {
+      "vname": "paused",
+      "type": "Map (Uint32) (Uint32)",
+      "value": [ { "key": "1", "val": "0" } ]
     }
   ],
   "events": [
