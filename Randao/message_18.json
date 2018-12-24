@@ -7,5 +7,10 @@
             "vname": "_s",
             "type": "Uint128",
             "value": "32332"
+        },
+{
+            "vname": "compaignID",
+            "type": "Uint32",
+            "value": "1"
         }    ]
 }
