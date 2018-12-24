@@ -23,11 +23,9 @@ let blk_le_opt =
      builtin blt bl1 blk2 
      end
 
-   
-
 let le_int_opt =
-  fun (a : Option Uint128) => fun (b : Option Uint128) =>
-   match a with 
+ fun (a : Option Uint128) => fun (b : Option Uint128) =>
+ match a with 
     | None => False
     | Some a1 =>  
    match b with 
@@ -35,12 +33,12 @@ let le_int_opt =
     | Some b1 => 
       let x = builtin lt a1 b1 in
       match x with
-      | True => True
-      | False =>
-        builtin eq a1 b1 
-        end
-    end
-    end
+       | True => True
+       | False =>
+         builtin eq a1 b1 
+      end
+   end
+ end
 
 let eq_one_32 =
   fun (a : Option Uint32) => 
@@ -78,7 +76,7 @@ let in_time =
           orb bc1 bc2
          end
       end
-     end     
+      end     
 
 let addOneOpt =
 fun (a : Option Uint128) =>
@@ -89,7 +87,7 @@ fun (a : Option Uint128) =>
    | Some a1 => 
      let _one = Uint128 1 in
      builtin add a1 _one
-end
+  end
 
 let addOpt =
 fun (a : Option Uint128) =>
@@ -100,8 +98,7 @@ fun (b : Uint128) =>
      _zero
    | Some a1 => 
      builtin add a1 b
-end
-
+  end
 
 let calculate_fine =
   fun (cn : Option Uint128) =>
@@ -119,10 +116,9 @@ let calculate_fine =
            | None => _zero
            | Some deposit => 
   	     builtin mul diffRevealed deposit
-        end
-      end
-     end     
-
+          end
+       end
+    end     
 
 let calculate_share =
   fun (rn : Option Uint128) =>
@@ -132,8 +128,7 @@ let calculate_share =
       | None => _zero
       | Some rNum => 
          builtin div bounty rNum 
-     end     
-
+      end     
 
 (*Constants*)
 let zero_128   = Uint128 0
@@ -180,50 +175,46 @@ field _commitBalkline: Map Uint32 BNum  = Emp Uint32 BNum
 field _commitDeadline:  Map Uint32 BNum  = Emp Uint32 BNum
 field _bnum: Map Uint32 BNum  = Emp Uint32 BNum
 field _minParticipant : Map Uint32 Uint128 = Emp Uint32 Uint128
+field commitNum : Map Uint32 Uint128 = Emp Uint32 Uint128
+field revealsNum : Map Uint32 Uint128 = Emp Uint32 Uint128
 
-(*address, commitment (i.e. sha256 hash of secret), secret *)
+(*compaignID-> address-> [commitment (i.e. sha256 hash of secret), secret] *)
 field participant :Map Uint32(Map ByStr20( Pair ByStr32 Uint128 )) = Emp Uint32(Map ByStr20(Pair ByStr32  Uint128 ))
 (*secret is initialized to zero in mapping*)
 
-(*mapping for if address has revealed secret in reveal phase and is eligible for bounty*)
+(*mapping for compaignID if address has revealed secret in reveal phase and is eligible for bounty*)
 field revealed : Map Uint32(Map ByStr20 Uint32) = Emp Uint32 (Map ByStr20 Uint32) 
 
-(*mapping for if address has been rewarded*)
+(*mapping for compaignID if address has been rewarded*)
 field rewarded: Map Uint32 (Map ByStr20 Uint32) = Emp Uint32 (Map ByStr20 Uint32) 
 
 (*compaignID; address; balance of Consumer in zil*)
 field _consumer : Map Uint32 (Pair ByStr20 Uint128) = Emp Uint32 (Pair ByStr20 Uint128)
 
-field commitNum : Map Uint32 Uint128 = Emp Uint32 Uint128
-
-field revealsNum : Map Uint32 Uint128 = Emp Uint32 Uint128
-
 (*random number is generated after reveal phase is over, initialized to zero at compaign start*) 
 field random: Map Uint32 Uint128 = Emp Uint32 Uint128
 
 
-
 (*deposit of bounty by consumer and set compaign*)
-transition setCompaign ( compaignID: Uint32, deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
-blk <- & BLOCKNUMBER;
-accept;
-commitNum[compaignID]:=zero_128;
-revealsNum[compaignID]:=zero_128;
-random[compaignID]:=zero_128;
-p = Pair {(ByStr20) (Uint128)} _sender _amount;
-_consumer[compaignID] := p;
-_deposit[compaignID] := deposit;
-_commitBalkline[compaignID] := commitBalkline; 
-_commitDeadline[compaignID] := commitDeadline;
-_bnum[compaignID] := bnum;
-_minParticipant[compaignID] := minParticipant;
-e = { _eventname : "Compaign Created"; compaignID : compaignID; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant };
-event e
-end
+transition setCompaign ( compaignID : Uint32, deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
+ blk <- & BLOCKNUMBER;
+ accept;
+ commitNum[compaignID]:=zero_128;
+ revealsNum[compaignID]:=zero_128;
+ random[compaignID]:=zero_128;
+ p = Pair {(ByStr20) (Uint128)} _sender _amount;
+ _consumer[compaignID] := p;
+ _deposit[compaignID] := deposit;
+ _commitBalkline[compaignID] := commitBalkline; 
+ _commitDeadline[compaignID] := commitDeadline;
+ _bnum[compaignID] := bnum;
+ _minParticipant[compaignID] := minParticipant;
+ e = { _eventname : "Compaign Created"; compaignID : compaignID; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant }; 
+ event e
+ end
 
-(*commit sha256 hash (of secret) in commit phase*)
+(*commit sha256 hash (of secret) in commit phase for particular compaignID*)
 transition commit (compaignID : Uint32, _hs : ByStr32 )
-(*if bounty is funded isPaused is false (0) *)
  cn<- commitNum[compaignID];
  d <- _deposit[compaignID];
  isEqualDeposit= eq_opt_128 d _amount;
@@ -259,37 +250,35 @@ transition commit (compaignID : Uint32, _hs : ByStr32 )
       e = mk_error_event insufficient_deposit_err_code;
       event e 
       end
-end
+ end
 
-
-(*returns commitment, sha256 hash of _sender*)
+(*returns commitment for compaignID, sha256 hash of _sender*)
 transition getCommitment (compaignID : Uint32)
-valMap <- participant[compaignID][_sender];
-match valMap with
-  | Some h =>
-     match h with
-     | Pair a b => 
-       e = { _eventname : "Commitment"; commitment : a  };
-       event e
-       end
-  | None=>
-     e = mk_error_event not_committed_err_code;
-     event e 
-     end
-end
-
+ valMap <- participant[compaignID][_sender];
+ match valMap with
+   | Some h =>
+      match h with
+      | Pair a b => 
+        e = { _eventname : "Commitment"; commitment : a  };
+        event e
+        end
+   | None=>
+      e = mk_error_event not_committed_err_code;
+      event e 
+      end
+ end
 
 (*reveal secret in reveal phase of commitment*)
 transition reveal(compaignID : Uint32, _s : Uint128)
-cn<-commitNum[compaignID];
-cd<-_commitDeadline[compaignID];
-bn<-_bnum[compaignID];
-blk <- & BLOCKNUMBER;
-(*inTime if true signifies that blk lies in commitDeadline and _bnum i.e. in phase2*)
-mp<-_minParticipant[compaignID];
-isMinParticipants = le_int_opt mp cn;
-inTime = in_time cd bn blk;
-match isMinParticipants with
+ cn<-commitNum[compaignID];
+ cd<-_commitDeadline[compaignID];
+ bn<-_bnum[compaignID];
+ blk <- & BLOCKNUMBER;
+ mp<-_minParticipant[compaignID];
+ isMinParticipants = le_int_opt mp cn;
+ (*inTime if true signifies that blk lies in commitDeadline and _bnum i.e. in phase2*)
+ inTime = in_time cd bn blk;
+ match isMinParticipants with
   | True =>
     match inTime with
       | True =>
@@ -337,7 +326,7 @@ match isMinParticipants with
         e = mk_error_event reveal_time_err_code;
        event e 
        end
-
+   (*if minimum participants didnot commit, refunding back _deposit and bounty to participant and consumer respectively*)
    | False => 
      hashPair <- exists participant [compaignID][_sender];
      match hashPair with
@@ -375,120 +364,119 @@ match isMinParticipants with
           end
        end      
     end
-end
+ end
 
 
 (*to get the reward after reveal phase is over*)
 transition getMyBounty(compaignID: Uint32)
-blk <- & BLOCKNUMBER;
-bn <- _bnum[compaignID];
-isEnd = blk_le_opt bn blk;
-deposit <- _deposit[compaignID];
-revealno <- revealsNum[compaignID];
-commitno <- commitNum[compaignID];
-consumerMap <- _consumer[compaignID];
-match consumerMap with
-| Some h =>
-match h with
-  | Pair address bounty => 
-    match isEnd with
-     | True =>
-       isRevealed<-revealed[compaignID][_sender];
-       match isRevealed with
-    	 | Some rv =>
-   	   hasRevealed=builtin eq rv one_32;
-    	   match hasRevealed with
-    	  | True =>
-    	    isRewarded<-rewarded[compaignID][_sender];
-   	    match isRewarded with
-              | Some rv1 =>
-       		 hasRewarded=builtin eq rv1 one_32;
-      		 match hasRewarded with
-          	   | False =>
-             	      fine = calculate_fine commitno revealno deposit;
-           	      bountyShare = calculate_share revealno bounty;
-		      distributionAmount = builtin add fine bountyShare;
-	  	      founderAmt = builtin sub bounty bountyShare;
-	 	      p = Pair {(ByStr20) (Uint128)} address founderAmt;
-		      _consumer[compaignID]:= p;
-		      totalReward = addOpt deposit distributionAmount;
-        	      rewarded[compaignID][_sender] := one_32; 
-        	      msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; compaignID : compaignID;  status : "success" };
-		      msgs = one_msg msg;
-		      send msgs     	
-  	 	 | True =>
-  	            e = mk_error_event failure_err_code;
-            	    event e 
-            	  end 
-    	    | None=>
-        	e = mk_error_event failure_err_code;
-       		event e 
-        	end 
-    	| False=>
-          e = mk_error_event not_reveal_deadline_err_code;
-          event e 
-      	  end 
-     | None=>
-       e = mk_error_event not_committed_err_code;
-       event e 
-      end 
-  | False =>
-    e = mk_error_event not_reveal_deadline_err_code;
-    event e 
-    end 
-  end
-| None=>
-   e = mk_error_event failure_err_code;
-   event e 
+ blk <- & BLOCKNUMBER;
+ bn <- _bnum[compaignID];
+ isEnd = blk_le_opt bn blk;
+ deposit <- _deposit[compaignID];
+ revealno <- revealsNum[compaignID];
+ commitno <- commitNum[compaignID];
+ consumerMap <- _consumer[compaignID];
+ match consumerMap with
+   | Some h =>
+     match h with
+      | Pair address bounty => 
+        match isEnd with
+          | True =>
+             isRevealed<-revealed[compaignID][_sender];
+       	     match isRevealed with
+    	       | Some rv =>
+   	          hasRevealed=builtin eq rv one_32;
+    	          match hasRevealed with
+    	 	   | True =>
+    	    	     isRewarded<-rewarded[compaignID][_sender];
+   	   	     match isRewarded with
+                      | Some rv1 =>
+       		         hasRewarded=builtin eq rv1 one_32;
+      		         match hasRewarded with
+          	   	  | False =>
+             	      	    fine = calculate_fine commitno revealno deposit;
+           	     	    bountyShare = calculate_share revealno bounty;
+		   	    distributionAmount = builtin add fine bountyShare;
+	  	   	    founderAmt = builtin sub bounty bountyShare;
+	 	   	    p = Pair {(ByStr20) (Uint128)} address founderAmt;
+		   	    _consumer[compaignID]:= p;
+		   	    totalReward = addOpt deposit distributionAmount;
+        	   	    rewarded[compaignID][_sender] := one_32; 
+        	    	    msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; compaignID : compaignID;  status : "success" };
+		    	    msgs = one_msg msg;
+		    	    send msgs     	
+  	 		 | True =>
+  	            	    e = mk_error_event failure_err_code;
+            	   	    event e 
+           	     	 end 
+    	   	     | None=>
+        		e = mk_error_event failure_err_code;
+       			event e 
+        	      end 
+    		| False=>
+          	  e = mk_error_event not_reveal_deadline_err_code;
+          	  event e 
+      	  	end 
+     	    | None=>
+       	      e = mk_error_event not_committed_err_code;
+       	      event e 
+      	    end 
+  	| False =>
+   	   e = mk_error_event not_reveal_deadline_err_code;
+    	   event e 
+    	end 
+      end
+  | None=>
+     e = mk_error_event failure_err_code;
+     event e 
    end 
-end
+ end
 
 
-(*random no. generated by contract*)
+(*random no. generated for compaign*)
 transition getRandom (compaignID: Uint32)
-blk <- & BLOCKNUMBER;
-bn<-_bnum[compaignID];
-mp<-_minParticipant[compaignID];
-isEnd = blk_le_opt bn blk;
-r<-revealsNum[compaignID];
-rn<-random[compaignID];
-consumerMap <- _consumer[compaignID];
-match consumerMap with
-| Some h =>
-match h with
-  | Pair address bounty => 
-   isConsumer=builtin eq address _sender;
-   match isConsumer with
-     | True =>
-       match isEnd with
+ blk <- & BLOCKNUMBER;
+ bn<-_bnum[compaignID];
+ mp<-_minParticipant[compaignID];
+ isEnd = blk_le_opt bn blk;
+ r<-revealsNum[compaignID];
+ rn<-random[compaignID];
+ consumerMap <- _consumer[compaignID];
+ match consumerMap with
+  | Some h =>
+    match h with
+     | Pair address bounty => 
+       isConsumer=builtin eq address _sender;
+       match isConsumer with
          | True =>
-           isSettled= le_int_opt mp r;
-   	   match isSettled with
-  	     | True =>
- 	       match rn with 
- 	        | Some random =>
- 	           e = { _eventname : "RandomNumber" ;  compaignID : compaignID; number : random  };
- 	           event e
- 	        | None =>
- 	           e = mk_error_event failure_err_code;
- 	           event e 
- 	           end
-   	    | False =>
-    	       e = mk_error_event failure_err_code;
+           match isEnd with
+             | True =>
+               isSettled= le_int_opt mp r;
+               match isSettled with
+  	         | True =>
+ 	           match rn with 
+ 	            | Some random =>
+ 	              e = { _eventname : "RandomNumber" ;  compaignID : compaignID; number : random  };
+ 	              event e
+ 	            | None =>
+ 	               e = mk_error_event failure_err_code;
+ 	               event e 
+ 	            end
+   	        | False =>
+    	           e = mk_error_event failure_err_code;
+   	           event e 
+     	         end
+            | False =>
+    	       e = mk_error_event deadline_err_code;
    	       event e 
-     	      end
-        | False =>
-    	   e = mk_error_event deadline_err_code;
-   	   event e 
-  	   end
-     | False =>
-       e = mk_error_event not_consumer_err_code;
-       event e 
-       end
-     end
-| None =>
-   e = mk_error_event not_consumer_err_code;
-   event e 
+  	     end
+         | False =>
+           e = mk_error_event not_consumer_err_code;
+           event e 
+         end
+      end
+  | None =>
+     e = mk_error_event not_consumer_err_code;
+     event e 
    end
-end
-
+ end
