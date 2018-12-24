@@ -153,7 +153,8 @@ let failure_err_code = Int32 -8
 let failure_wrong_secret = Int32 -9
 let bounty_unequal_err_code = Int32 -10
 let not_consumer_err_code = Int32 -11
-let sender_already_committed_err_code = Int32 -12
+let compaignID_not_unique_err_code = Int32 -12
+let sender_already_committed_err_code = Int32 -13
 
 
 (***************************************************)
@@ -183,35 +184,44 @@ field participant :Map Uint32(Map ByStr20( Pair ByStr32 Uint128 )) = Emp Uint32(
 (*secret is initialized to zero in mapping*)
 
 (*mapping for compaignID if address has revealed secret in reveal phase and is eligible for bounty*)
+(*compaignID-> address-> [True(1)/False(0)] *)
 field revealed : Map Uint32(Map ByStr20 Uint32) = Emp Uint32 (Map ByStr20 Uint32) 
 
 (*mapping for compaignID if address has been rewarded*)
+(*compaignID-> address-> [True(1)/False(0)] *)
 field rewarded: Map Uint32 (Map ByStr20 Uint32) = Emp Uint32 (Map ByStr20 Uint32) 
 
-(*compaignID; address; balance of Consumer in zil*)
+(*compaignID -> [address <=> balance of Consumer in zil]*)
 field _consumer : Map Uint32 (Pair ByStr20 Uint128) = Emp Uint32 (Pair ByStr20 Uint128)
 
 (*random number is generated after reveal phase is over, initialized to zero at compaign start*) 
+(*compaignID -> randomNumber*)
 field random: Map Uint32 Uint128 = Emp Uint32 Uint128
 
 
 (*deposit of bounty by consumer and set compaign*)
 transition setCompaign ( compaignID : Uint32, deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
- blk <- & BLOCKNUMBER;
- accept;
- commitNum[compaignID]:=zero_128;
- revealsNum[compaignID]:=zero_128;
- random[compaignID]:=zero_128;
- p = Pair {(ByStr20) (Uint128)} _sender _amount;
- _consumer[compaignID] := p;
- _deposit[compaignID] := deposit;
- _commitBalkline[compaignID] := commitBalkline; 
- _commitDeadline[compaignID] := commitDeadline;
- _bnum[compaignID] := bnum;
- _minParticipant[compaignID] := minParticipant;
- e = { _eventname : "Compaign Created"; compaignID : compaignID; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant }; 
- event e
- end
+ iscompaignID_unique= exists _consumer[compaignID];
+ match iscompaignID_unique with
+    | True =>
+ 	accept;
+ 	commitNum[compaignID]:=zero_128;
+ 	revealsNum[compaignID]:=zero_128;
+	random[compaignID]:=zero_128;
+	p = Pair {(ByStr20) (Uint128)} _sender _amount;
+ 	_consumer[compaignID] := p;
+ 	_deposit[compaignID] := deposit;
+ 	_commitBalkline[compaignID] := commitBalkline; 
+ 	_commitDeadline[compaignID] := commitDeadline;
+ 	_bnum[compaignID] := bnum;
+ 	_minParticipant[compaignID] := minParticipant;
+ 	e = { _eventname : "Compaign Created"; compaignID : compaignID; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant }; 
+ 	event e
+    | False =>
+       e = mk_error_event compaignID_not_unique_err_code;
+       event e 
+     end
+  end
 
 (*commit sha256 hash (of secret) in commit phase for particular compaignID*)
 transition commit (compaignID : Uint32, _hs : ByStr32 )
