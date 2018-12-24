@@ -3,7 +3,7 @@
 (*               Associated library                *)
 (***************************************************)
 
-import BoolUtils ListUtils 
+import BoolUtils 
 
 library Randao 
 
@@ -158,8 +158,7 @@ let failure_err_code = Int32 -8
 let failure_wrong_secret = Int32 -9
 let bounty_unequal_err_code = Int32 -10
 let not_consumer_err_code = Int32 -11
-let bounty_not_funded_err_code = Int32 -12
-let sender_already_committed_err_code = Int32 -13
+let sender_already_committed_err_code = Int32 -12
 
 
 (***************************************************)
@@ -202,16 +201,12 @@ field revealsNum : Map Uint32 Uint128 = Emp Uint32 Uint128
 (*random number is generated after reveal phase is over, initialized to zero at compaign start*) 
 field random: Map Uint32 Uint128 = Emp Uint32 Uint128
 
-(*is paused until it is funded*)
-field paused : Map Uint32 Uint32 = Emp Uint32 Uint32
-
 
 
 (*deposit of bounty by consumer and set compaign*)
 transition setCompaign ( compaignID: Uint32, deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
 blk <- & BLOCKNUMBER;
 accept;
-paused[compaignID]:=zero_32;
 commitNum[compaignID]:=zero_128;
 revealsNum[compaignID]:=zero_128;
 random[compaignID]:=zero_128;
@@ -229,18 +224,14 @@ end
 (*commit sha256 hash (of secret) in commit phase*)
 transition commit (compaignID : Uint32, _hs : ByStr32 )
 (*if bounty is funded isPaused is false (0) *)
-p <- paused[compaignID];
-cn<- commitNum[compaignID];
-isPaused = eq_one_32 p;
-d <- _deposit[compaignID];
-isEqualDeposit= eq_opt_128 d _amount;
-blk <- & BLOCKNUMBER;
-cb<-_commitBalkline[compaignID];
-cd<-_commitDeadline[compaignID];
-inTime = in_time cb cd blk;
-match isPaused with 
-  | False =>
-     match isEqualDeposit with
+ cn<- commitNum[compaignID];
+ d <- _deposit[compaignID];
+ isEqualDeposit= eq_opt_128 d _amount;
+ blk <- & BLOCKNUMBER;
+ cb<-_commitBalkline[compaignID];
+ cd<-_commitDeadline[compaignID];
+ inTime = in_time cb cd blk;
+ match isEqualDeposit with
      | True =>
         match inTime with
         | True =>
@@ -268,10 +259,6 @@ match isPaused with
       e = mk_error_event insufficient_deposit_err_code;
       event e 
       end
-  | True =>
-    e = mk_error_event bounty_not_funded_err_code;
-    event e 
-    end
 end
 
 
