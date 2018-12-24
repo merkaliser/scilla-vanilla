@@ -306,29 +306,36 @@ match isMinParticipants with
          | Some h =>
            match h with 
              | Pair a b =>
-	        rn<-revealsNum[compaignID];
-                newRevealNum=addOneOpt rn;
-                revealsNum[compaignID]:=newRevealNum;
-                (*generate random no.*)
-	        prRandom<-random[compaignID];
-                match prRandom with 
- 	          | Some previousRandom =>
-	            newRandom=builtin add previousRandom _s;
-                    random[compaignID]:=newRandom;	
-		    p = Pair {(ByStr32) (Uint128)} a _s;    
-	            participant[compaignID][_sender] := p;
-	            revealed[compaignID][_sender]:=one_32;
-                    e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
-	            event e 
-	         | None =>
-                    random:=_s;	
-		    p = Pair {(ByStr32) (Uint128)} a _s;    
-	            participant[compaignID][_sender] := p;
-	            revealed[compaignID][_sender]:=one_32;
-                    e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
-	            event e 
-  	          end
-	       end
+	        isEqualCommit=builtin eq commit a;
+  		match isEqualCommit with
+   		   | True =>
+	       	     rn<-revealsNum[compaignID];
+                     newRevealNum=addOneOpt rn;
+                     revealsNum[compaignID]:=newRevealNum;
+                     (*generate random no.*)
+	             prRandom<-random[compaignID];
+                     match prRandom with 
+ 	               | Some previousRandom =>
+	                  newRandom=builtin add previousRandom _s;
+                          random[compaignID]:=newRandom;	
+		  	  p = Pair {(ByStr32) (Uint128)} a _s;    
+	                  participant[compaignID][_sender] := p;
+	            	  revealed[compaignID][_sender]:=one_32;
+                          e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
+	            	  event e 
+	              | None =>
+                     	 random:=_s;	
+		     	 p = Pair {(ByStr32) (Uint128)} a _s;    
+	            	 participant[compaignID][_sender] := p;
+	            	 revealed[compaignID][_sender]:=one_32;
+                    	 e = { _eventname : "LogReveal"; from : _sender  ; secret : _s  };
+	            	 event e 
+  	          	 end
+   		  | False => 
+     		     e = mk_error_event failure_wrong_secret;
+   		     event e 
+    		     end
+	       	   end
   	| None=>
           e = mk_error_event not_committed_err_code;
           event e 

@@ -3,5 +3,10 @@
     "_amount": "0",
     "_sender" : "0x74D045132C83F0C6478930569ECCC963C89E2467",
     "params": [
+        {
+            "vname": "compaignID",
+            "type": "Uint32",
+            "value": "1"
+        }
            ]
 }

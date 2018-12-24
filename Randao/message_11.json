@@ -2,6 +2,11 @@
     "_tag": "getRandom",
     "_amount": "0",
     "_sender" : "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617",
-    "params": []
+    "params": [
+        {
+            "vname": "compaignID",
+            "type": "Uint32",
+            "value": "1"
+        }]
        }
 

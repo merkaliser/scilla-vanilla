@@ -7,6 +7,11 @@
             "vname": "_s",
             "type": "Uint128",
             "value": "770"
-        }    ]
+        } ,
+        {
+            "vname": "compaignID",
+            "type": "Uint32",
+            "value": "1"
+        }   ]
 }
 
