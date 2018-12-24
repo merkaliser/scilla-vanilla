@@ -378,68 +378,73 @@ end
 
 
 (*to get the reward after reveal phase is over*)
-transition getMyBounty(compaignId: Uint32)
+transition getMyBounty(compaignID: Uint32)
 blk <- & BLOCKNUMBER;
-bn <- _bnum[compaignId];
-isEnd = blk_leq bn blk;
-deposit <- _deposit[compaignId];
-revealno <- revealsNum[compaignId];
-commitno <- commitNum[compaignId];
-rewardno<-rewardNum[compaignId];
-bnty<-_consumer[compaignId][sdsd];
-match isEnd with
-  | True =>
-  isRevealed<-revealed[compaignId][_sender];
-  match isRevealed with
-    |Some rv =>
-    hasRevealed=builtin eq rv one_32;
-    match hasRevealed with
-      |True =>
-      isRewarded<-rewarded[compaignId][_sender];
-      match isRewarded with
-        |Some rv1 =>
-        hasRewarded=builtin eq rv1 one_32;
-        match hasRewarded with
-          |False =>
-	     diffRevealed = sub_opt commitno revealno;
-             fine = builtin mul diffRevealed deposit;
-	     distributionShare = div_opt bnty revealno;
-             distributionAmount = builtin add fine distributionShare;
-	       founderAmt = builtin sub bnty distributionShare;
-	     c<-_consumer[compaignId];
- 	     match c with
-	       | Pair a b => 
-		p = Pair {(ByStr20) (Uint128)} a founderAmt;
-		_consumer[compaignId]:= p;
-	       totalReward = builtin add distributionAmount deposit;
- 	       senderAmt = totalReward;
-               rewarded[compaignId][_sender] := one_32; 
-               newRewardNum= addOneOpt rewardno;
-               rewardNum[compaignId]:=newRewardNum;
-               msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
-	       msgs = one_msg msg;
-	       send msgs     
-		end	
-  	 |True =>
-  	    e = mk_error_event failure_err_code;
-            event e 
-            end 
-      |None=>
-        e = mk_error_event failure_err_code;
-        event e 
-        end 
-    |False=>
-      e = mk_error_event not_reveal_deadline_err_code;
-      event e 
+bn <- _bnum[compaignID];
+isEnd = blk_le_opt bn blk;
+deposit <- _deposit[compaignID];
+revealno <- revealsNum[compaignID];
+commitno <- commitNum[compaignID];
+rewardno<-rewardNum[compaignID];
+consumerMap <- _consumer[compaignID];
+match consumerMap with
+| Some h =>
+match h with
+  | Pair address bounty => 
+    match isEnd with
+     | True =>
+       isRevealed<-revealed[compaignID][_sender];
+       match isRevealed with
+    	 | Some rv =>
+   	   hasRevealed=builtin eq rv one_32;
+    	   match hasRevealed with
+    	  | True =>
+    	    isRewarded<-rewarded[compaignID][_sender];
+   	    match isRewarded with
+              | Some rv1 =>
+       		 hasRewarded=builtin eq rv1 one_32;
+      		 match hasRewarded with
+          	   | False =>
+	     	      diffRevealed = sub_opt commitno revealno;
+             	      fine = builtin mul diffRevealed deposit;
+	    	      distributionShare = div_opt bnty revealno;
+           	      distributionAmount = builtin add fine distributionShare;
+	  	      founderAmt = builtin sub bnty distributionShare;
+	 	      p = Pair {(ByStr20) (Uint128)} address founderAmt;
+		      _consumer[compaignId]:= p;
+		      totalReward = builtin add distributionAmount deposit;
+ 		      senderAmt = totalReward;
+        	      rewarded[compaignID][_sender] := one_32; 
+        	      newRewardNum= addOneOpt rewardno;
+        	      rewardNum[compaignID]:=newRewardNum;
+        	      msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; status : "success" };
+		      msgs = one_msg msg;
+		      send msgs     	
+  	 	 | True =>
+  	            e = mk_error_event failure_err_code;
+            	    event e 
+            	  end 
+    	    | None=>
+        	e = mk_error_event failure_err_code;
+       		event e 
+        	end 
+    	| False=>
+          e = mk_error_event not_reveal_deadline_err_code;
+          event e 
+      	  end 
+     | None=>
+       e = mk_error_event not_committed_err_code;
+       event e 
       end 
-  |None=>
-    e = mk_error_event not_committed_err_code;
+  | False =>
+    e = mk_error_event not_reveal_deadline_err_code;
     event e 
     end 
-|False =>
-  e = mk_error_event not_reveal_deadline_err_code;
-  event e 
-  end 
+  end
+| None=>
+   e = mk_error_event failure_err_code;
+   event e 
+   end 
 end
 
 
