@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6164",
+  "gas_remaining": "6236",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -167,17 +167,12 @@
       "vname": "random",
       "type": "Map (Uint32) (Uint128)",
       "value": [ { "key": "1", "val": "0" } ]
-    },
-    {
-      "vname": "paused",
-      "type": "Map (Uint32) (Uint32)",
-      "value": [ { "key": "1", "val": "0" } ]
     }
   ],
   "events": [
     {
       "_eventname": "RandaoError",
-      "params": [ { "vname": "err_code", "type": "Int32", "value": "-13" } ]
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-12" } ]
     }
   ]
 }
