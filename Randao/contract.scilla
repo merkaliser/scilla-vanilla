@@ -70,7 +70,7 @@ let eq_one =
     end
 
 let eq_opt_128 =
-  fun (a : Option Uint32) =>  fun (b : Uint128) =>
+  fun (a : Option Uint128) =>  fun (b : Uint128) =>
     match a with 
     | None => False
     | Some a1 => 
@@ -124,7 +124,7 @@ end
 let calculate_fine =
   fun (cn : Option Uint128) =>
   fun (rn : Option Uint128) =>
-  fun (dep : Uint128) =>
+  fun (dep : Option Uint128) =>
   let _zero = Uint128 0 in
     match cn with
       | None => _zero
@@ -348,7 +348,7 @@ match isMinParticipants with
                           e = { _eventname : "LogReveal"; compaignID : compaignID; from : _sender  ; secret : _s  };
 	            	  event e 
 	              | None =>
-                     	 random:=_s;	
+                     	 random[compaignID]:=_s;	
 		     	 p = Pair {(ByStr32) (Uint128)} a _s;    
 	            	 participant[compaignID][_sender] := p;
 	            	 revealed[compaignID][_sender]:=one_32;
@@ -480,7 +480,7 @@ transition getRandom (compaignID: Uint32)
 blk <- & BLOCKNUMBER;
 bn<-_bnum[compaignID];
 mp<-_minParticipant[compaignID];
-isEnd=blk_le_opt bn blk;
+isEnd = blk_le_opt bn blk;
 r<-revealsNum[compaignID];
 rn<-random[compaignID];
 consumerMap <- _consumer[compaignID];
