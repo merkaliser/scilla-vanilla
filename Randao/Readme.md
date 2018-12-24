@@ -73,7 +73,7 @@ Following test cases are explained in sequence of how transitions can be called.
 16. commit: try to `commit` before commit phase (`5` to `15`)has started. Expected: [Failure] `-2`.
 17. reveal: try to `reveal` before reveal phase (`15`) has started. Expected: [Failure] `-6`.
 18. reveal: try to `reveal` if commits in phase1 are less than required minimum participants. `_deposit` is refunded to participants of phase 1. Random no. generation fails. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`. `deposit` is tranferred.
-19. setCompaign : new Compaign started. Expected: [Success] `Compaign Created`.
+19. setCompaign : no 2 compaignIDs can be same . Expected: [Failure] `-12`.
 20. getRandom : non consumer cant get the random number. Expected: [Failure] `-11`.
 21. reveal : to get back the bounty of consumer/ founder in case if commits in phase1 are less than required minimum participants. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`. `bounty is transferred`.
 

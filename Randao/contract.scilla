@@ -201,9 +201,9 @@ field random: Map Uint32 Uint128 = Emp Uint32 Uint128
 
 (*deposit of bounty by consumer and set compaign*)
 transition setCompaign ( compaignID : Uint32, deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
- iscompaignID_unique= exists _consumer[compaignID];
+ iscompaignID_unique <- exists _consumer[compaignID];
  match iscompaignID_unique with
-    | True =>
+    | False =>
  	accept;
  	commitNum[compaignID]:=zero_128;
  	revealsNum[compaignID]:=zero_128;
@@ -217,7 +217,7 @@ transition setCompaign ( compaignID : Uint32, deposit : Uint128, commitBalkline 
  	_minParticipant[compaignID] := minParticipant;
  	e = { _eventname : "Compaign Created"; compaignID : compaignID; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant }; 
  	event e
-    | False =>
+    | True =>
        e = mk_error_event compaignID_not_unique_err_code;
        event e 
      end

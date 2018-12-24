@@ -31,7 +31,7 @@
 	{
             "vname": "compaignID",
             "type": "Uint32",
-            "value": "2"
+            "value": "1"
         }
        ]
 }
