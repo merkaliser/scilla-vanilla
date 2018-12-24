@@ -161,11 +161,6 @@
       "value": [ { "key": "1", "val": "0" } ]
     },
     {
-      "vname": "rewardNum",
-      "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "0" } ]
-    },
-    {
       "vname": "random",
       "type": "Map (Uint32) (Uint128)",
       "value": [ { "key": "1", "val": "0" } ]

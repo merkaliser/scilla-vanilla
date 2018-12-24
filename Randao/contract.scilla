@@ -417,7 +417,6 @@ isEnd = blk_le_opt bn blk;
 deposit <- _deposit[compaignID];
 revealno <- revealsNum[compaignID];
 commitno <- commitNum[compaignID];
-rewardno<-rewardNum[compaignID];
 consumerMap <- _consumer[compaignID];
 match consumerMap with
 | Some h =>
@@ -445,8 +444,6 @@ match h with
 		      _consumer[compaignID]:= p;
 		      totalReward = addOpt deposit distributionAmount;
         	      rewarded[compaignID][_sender] := one_32; 
-        	      newRewardNum= addOneOpt rewardno;
-        	      rewardNum[compaignID]:=newRewardNum;
         	      msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; compaignID : compaignID;  status : "success" };
 		      msgs = one_msg msg;
 		      send msgs     	

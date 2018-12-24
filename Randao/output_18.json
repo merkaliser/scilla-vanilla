@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6032",
+  "gas_remaining": "6053",
   "message": {
     "_tag": "Main",
     "_amount": "5",
@@ -174,11 +174,6 @@
     },
     {
       "vname": "revealsNum",
-      "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "0" } ]
-    },
-    {
-      "vname": "rewardNum",
       "type": "Map (Uint32) (Uint128)",
       "value": [ { "key": "1", "val": "0" } ]
     },
