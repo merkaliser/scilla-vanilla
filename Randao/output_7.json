@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "5957",
+  "gas_remaining": "6120",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -75,7 +75,7 @@
                 "argtypes": [ "ByStr32", "Uint128" ],
                 "arguments": [
                   "0xcc372bbece16b3487382c4fd8f4a77ca82cc86398dc8f79654c069df2f9b831d",
-                  "33454"
+                  "0"
                 ]
               }
             }
@@ -104,7 +104,7 @@
             },
             {
               "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
-              "val": "1"
+              "val": "0"
             }
           ]
         }
@@ -161,7 +161,7 @@
     {
       "vname": "revealsNum",
       "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "3" } ]
+      "value": [ { "key": "1", "val": "2" } ]
     },
     {
       "vname": "rewardNum",
@@ -171,7 +171,7 @@
     {
       "vname": "random",
       "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "86940" } ]
+      "value": [ { "key": "1", "val": "53486" } ]
     },
     {
       "vname": "paused",
@@ -181,15 +181,8 @@
   ],
   "events": [
     {
-      "_eventname": "LogReveal",
-      "params": [
-        {
-          "vname": "from",
-          "type": "ByStr20",
-          "value": "0x5c1f82f393c23a0301aa756e864d41671f5352e5"
-        },
-        { "vname": "secret", "type": "Uint128", "value": "33454" }
-      ]
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-9" } ]
     }
   ]
 }

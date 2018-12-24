@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6099",
+  "gas_remaining": "6071",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -183,6 +183,7 @@
     {
       "_eventname": "LogCommit",
       "params": [
+        { "vname": "compaignID", "type": "Uint32", "value": "1" },
         {
           "vname": "from",
           "type": "ByStr20",

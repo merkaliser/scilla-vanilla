@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6248",
+  "gas_remaining": "6238",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "100" },
@@ -70,11 +70,6 @@
       "value": [ { "key": "1", "val": "0" } ]
     },
     {
-      "vname": "rewardNum",
-      "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "0" } ]
-    },
-    {
       "vname": "random",
       "type": "Map (Uint32) (Uint128)",
       "value": [ { "key": "1", "val": "0" } ]
@@ -89,6 +84,7 @@
     {
       "_eventname": "Compaign Created",
       "params": [
+        { "vname": "compaignID", "type": "Uint32", "value": "1" },
         { "vname": "deposit", "type": "Uint128", "value": "5" },
         { "vname": "bounty", "type": "Uint128", "value": "100" },
         { "vname": "commitBalkline", "type": "BNum", "value": "5" },

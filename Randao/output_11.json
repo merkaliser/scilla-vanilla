@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6371",
+  "gas_remaining": "6343",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -183,6 +183,7 @@
     {
       "_eventname": "RandomNumber",
       "params": [
+        { "vname": "compaignID", "type": "Uint32", "value": "1" },
         { "vname": "number", "type": "Uint128", "value": "86940" }
       ]
     }

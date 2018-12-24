@@ -1,11 +1,12 @@
 {
-  "gas_remaining": "6054",
+  "gas_remaining": "6032",
   "message": {
     "_tag": "Main",
     "_amount": "5",
     "_accepted": "false",
     "_recipient": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
     "params": [
+      { "vname": "compaignID", "type": "Uint32", "value": "1" },
       {
         "vname": "status",
         "type": "String",
@@ -15,7 +16,7 @@
     ]
   },
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "72" },
+    { "vname": "_balance", "type": "Uint128", "value": "115" },
     {
       "vname": "_deposit",
       "type": "Map (Uint32) (Uint128)",
@@ -160,7 +161,7 @@
             "constructor": "Pair",
             "argtypes": [ "ByStr20", "Uint128" ],
             "arguments": [
-              "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "67"
+              "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "100"
             ]
           }
         }

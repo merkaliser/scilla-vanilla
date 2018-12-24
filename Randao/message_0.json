@@ -29,7 +29,7 @@
             "value": "3"
         },
 	{
-            "vname": "compaignId",
+            "vname": "compaignID",
             "type": "Uint32",
             "value": "1"
         }
