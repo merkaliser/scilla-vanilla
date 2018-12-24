@@ -29,6 +29,16 @@
       "value": [ { "key": "1", "val": "3" } ]
     },
     {
+      "vname": "commitNum",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "0" } ]
+    },
+    {
+      "vname": "revealsNum",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "0" } ]
+    },
+    {
       "vname": "participant",
       "type": "Map (Uint32) (Map (ByStr20) (Pair (ByStr32) (Uint128)))",
       "value": []
@@ -58,16 +68,6 @@
           }
         }
       ]
-    },
-    {
-      "vname": "commitNum",
-      "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "0" } ]
-    },
-    {
-      "vname": "revealsNum",
-      "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "0" } ]
     },
     {
       "vname": "random",

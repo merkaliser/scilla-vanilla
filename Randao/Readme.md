@@ -5,7 +5,8 @@ References taken:<br>
 https://github.com/randao/randao/blob/master/contracts/Randao.sol
 
 Past versions :
-https://github.com/merkaliser/scilla-vanilla/tree/5d19d87e0286d57c87ef4872642cfdb0717fc6cc/randao
+1. https://github.com/merkaliser/scilla-vanilla/tree/5d19d87e0286d57c87ef4872642cfdb0717fc6cc/randao
+2. https://github.com/merkaliser/scilla-vanilla/tree/d6147e5c51cf365379152a6d823fe87e4b5c0080/Randao
 
 ## Randao in Scilla
 First of all, we need to create a RANDAO contract in the blockchain,
@@ -14,9 +15,7 @@ Then the basic process of generating a random number can be divided into
 three phases:
 
 ##### Add Compaign
-Set/reset the compaign using `setCompaign`. Compaign can be reset if in any of 2 conditions is true:
-1. total reward no. = total reveal no. (no. of reveals in second phase are equal to no. of people rewarded in third phase).
-2. aliveTime is over for compaign. (timeline to collect reward is over).
+Set the compaign using `setCompaign`. Parallel Compaigns can run through. CompaignID should be unique number.
 
 ##### The first phase (commit phase): collecting valid sha3(s)
 Anyone who want to participate in the random number generation needs to
@@ -49,13 +48,13 @@ The contract is deployed by the one who wants to generate random number (founder
   * **bnum** : Deadline (BlockNumber) when phase 2 ends. After phase 2 ends, random no. is generated. In between commitDeadline and bnum is the phase 2.
   * **_amount** : zils provided by founder as reward (`_bounty`) to be distributed equally amongst participants when both phases are finished. This should be equal to contract _balances in that state. 
   * **minParticipant** : minimum no of participants that are required to take part in phase 1. If the no of participants that took part in phase 1 are less than this i.e. if it fails to collect enough sha3(s) within the time period, then deposits are returned in phase 2 by reveal function itself.
-  * **aliveTime** : time span, no. of blocks for which compaign will be alive. When current Blocknumber is greater than `aliveTime + commitBalkline`, compaign can be reset.
+  * **compaignID** : unique identification no. for running compaign.
 
 Following test cases are explained in sequence of how transitions can be called.
 
 ## Test cases
 
-0. setCompaign : deposit of bounty by consumer and set compaign by sending `_amount`. Expected: [Success] `Compaign`.
+0. setCompaign : Set compaign deposit of bounty by consumer by sending `_amount`. Expected: [Success] `Compaign`.
 1. commit: `commitment` (i.e. the sha256 hash of any number) is provided in between the commit phase (`5` to `15`) with correct `_deposit` (`_amount`). Expected: [Success]. Note, 3 successful commits are already present in that state.
 2. commit: `commitment` cannot be submitted twice by any address. Expected: [Failure] `-13`.
 3. commit: wrong `_amount` of zils i.e. required `deposit` is not sent. Expected: [Failure]`-1`.
