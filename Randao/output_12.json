@@ -1,8 +1,14 @@
 {
-  "gas_remaining": "6407",
-  "message": null,
+  "gas_remaining": "6065",
+  "message": {
+    "_tag": "Main",
+    "_amount": "43",
+    "_accepted": "false",
+    "_recipient": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
+    "params": [ { "vname": "status", "type": "String", "value": "success" } ]
+  },
   "states": [
-    { "vname": "_balance", "type": "Uint128", "value": "120" },
+    { "vname": "_balance", "type": "Uint128", "value": "77" },
     {
       "vname": "_deposit",
       "type": "Map (Uint32) (Uint128)",
@@ -119,7 +125,7 @@
           "val": [
             {
               "key": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
-              "val": "0"
+              "val": "1"
             },
             {
               "key": "0xaf332ea57ac9e106e30d79d476f0449804142543",
@@ -147,7 +153,7 @@
             "constructor": "Pair",
             "argtypes": [ "ByStr20", "Uint128" ],
             "arguments": [
-              "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "100"
+              "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "67"
             ]
           }
         }
@@ -166,7 +172,7 @@
     {
       "vname": "rewardNum",
       "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "0" } ]
+      "value": [ { "key": "1", "val": "1" } ]
     },
     {
       "vname": "random",
@@ -179,10 +185,5 @@
       "value": [ { "key": "1", "val": "0" } ]
     }
   ],
-  "events": [
-    {
-      "_eventname": "RandaoError",
-      "params": [ { "vname": "err_code", "type": "Int32", "value": "-5" } ]
-    }
-  ]
+  "events": []
 }

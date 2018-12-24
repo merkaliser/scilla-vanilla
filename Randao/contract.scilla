@@ -120,6 +120,52 @@ fun (a : Option Uint128) =>
      builtin add a1 _one
 end
 
+let addOpt =
+fun (a : Option Uint128) =>
+fun (b : Uint128) =>
+  match a with
+   | None => 
+     let _zero = Uint128 0 in
+     _zero
+   | Some a1 => 
+     builtin add a1 b
+end
+
+
+let calculate_fine =
+  fun (cn : Option Uint128) =>
+  fun (rn : Option Uint128) =>
+  fun (dep : Uint128) =>
+  let _zero = Uint128 0 in
+    match cn with
+      | None => _zero
+      | Some cNum => 
+        match rn with
+        | None => _zero
+        | Some rNum => 
+          let diffRevealed = builtin sub cNum rNum in 
+          match dep with
+           | None => _zero
+           | Some deposit => 
+  	     builtin mul diffRevealed deposit
+        end
+      end
+     end     
+
+
+let calculate_share =
+  fun (rn : Option Uint128) =>
+  fun (bounty : Uint128) =>
+  let _zero = Uint128 0 in
+    match rn with
+      | None => _zero
+      | Some rNum => 
+         builtin div bounty rNum 
+     end     
+
+
+
+
 (*Constants*)
 let zero_128   = Uint128 0
 let one_128   = Uint128 1
@@ -405,15 +451,13 @@ match h with
        		 hasRewarded=builtin eq rv1 one_32;
       		 match hasRewarded with
           	   | False =>
-	     	      diffRevealed = sub_opt commitno revealno;
-             	      fine = builtin mul diffRevealed deposit;
-	    	      distributionShare = div_opt bnty revealno;
-           	      distributionAmount = builtin add fine distributionShare;
-	  	      founderAmt = builtin sub bnty distributionShare;
+             	      fine = calculate_fine commitno revealno deposit;
+           	      bountyShare = calculate_share revealno bounty;
+		      distributionAmount = builtin add fine bountyShare;
+	  	      founderAmt = builtin sub bounty bountyShare;
 	 	      p = Pair {(ByStr20) (Uint128)} address founderAmt;
-		      _consumer[compaignId]:= p;
-		      totalReward = builtin add distributionAmount deposit;
- 		      senderAmt = totalReward;
+		      _consumer[compaignID]:= p;
+		      totalReward = addOpt deposit distributionAmount;
         	      rewarded[compaignID][_sender] := one_32; 
         	      newRewardNum= addOneOpt rewardno;
         	      rewardNum[compaignID]:=newRewardNum;
