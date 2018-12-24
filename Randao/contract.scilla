@@ -245,22 +245,22 @@ field paused : Map Uint32 Uint32 = Emp Uint32 Uint32
 
 
 (*deposit of bounty by consumer and set compaign*)
-transition setCompaign ( compaignId: Uint32, deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
+transition setCompaign ( compaignID: Uint32, deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
 blk <- & BLOCKNUMBER;
 accept;
-paused[compaignId]:=zero_32;
-commitNum[compaignId]:=zero_128;
-revealsNum[compaignId]:=zero_128;
-rewardNum[compaignId]:=zero_128;
-random[compaignId]:=zero_128;
+paused[compaignID]:=zero_32;
+commitNum[compaignID]:=zero_128;
+revealsNum[compaignID]:=zero_128;
+rewardNum[compaignID]:=zero_128;
+random[compaignID]:=zero_128;
 p = Pair {(ByStr20) (Uint128)} _sender _amount;
-_consumer[compaignId] := p;
-_deposit[compaignId] := deposit;
-_commitBalkline[compaignId] := commitBalkline; 
-_commitDeadline[compaignId] := commitDeadline;
-_bnum[compaignId] := bnum;
-_minParticipant[compaignId] := minParticipant;
-e = { _eventname : "Compaign Created"; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant };
+_consumer[compaignID] := p;
+_deposit[compaignID] := deposit;
+_commitBalkline[compaignID] := commitBalkline; 
+_commitDeadline[compaignID] := commitDeadline;
+_bnum[compaignID] := bnum;
+_minParticipant[compaignID] := minParticipant;
+e = { _eventname : "Compaign Created"; compaignID : compaignID; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant };
 event e
 end
 
@@ -390,8 +390,8 @@ match isMinParticipants with
        end
 
    | False => 
-     hash <- exists participant [compaignID][_sender];
-     match hash with
+     hashPair <- exists participant [compaignID][_sender];
+     match hashPair with
        | True =>
          depo<-_deposit[compaignID];
  	 match depo with
@@ -404,10 +404,12 @@ match isMinParticipants with
   	      event e 
              end
        | False =>
-          bounty<-_consumer[compaignID];
-	  match bounty with
- 	     | Pair a b =>
-		isConsumer= builtin eq _sender a;
+	 consumerMap <- _consumer[compaignID];
+	 match consumerMap with
+	   | Some h =>
+	     match h with
+  	     | Pair address bounty => 
+		isConsumer= builtin eq _sender address;
 		match isConsumer with
 	           | True =>
                       msg = { _tag : "Main"; _recipient : _sender; _amount : bounty; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
@@ -418,6 +420,10 @@ match isMinParticipants with
   	      	      event e 
 		   end
 	      end
+        | None =>
+ 	   e = mk_error_event failure_err_code;
+  	   event e 
+          end
        end      
     end
 end

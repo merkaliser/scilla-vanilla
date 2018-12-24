@@ -55,7 +55,7 @@ Following test cases are explained in sequence of how transitions can be called.
 
 ## Test cases
 
-0. setCompaign : deposit of bounty by consumer/founder and set/reset compaign by sending `_amount`. Expected: [Success] `Compaign`.
+0. setCompaign : deposit of bounty by consumer and set compaign by sending `_amount`. Expected: [Success] `Compaign`.
 1. commit: `commitment` (i.e. the sha256 hash of any number) is provided in between the commit phase (`5` to `15`) with correct `_deposit` (`_amount`). Expected: [Success]. Note, 3 successful commits are already present in that state.
 2. commit: `commitment` cannot be submitted twice by any address. Expected: [Failure] `-13`.
 3. commit: wrong `_amount` of zils i.e. required `deposit` is not sent. Expected: [Failure]`-1`.
@@ -66,7 +66,7 @@ Following test cases are explained in sequence of how transitions can be called.
 8. reveal: if the secret submitted doesnot match with the sha256 `commitment`. Expected: [Failure] `-9`.
 9. reveal: Reveal the secret (number) at `20` (as 20 bnum is included in 16 to 20 range) whose `commitment` was submitted in commit phase. Expected: [Success].
 10. reveal: try to reveal the secret after the reveal phase is over. Expected: [Failure] `-6`.
-11. getRandom: After the reveal phase is over (after `20`), one can get the random number generated. Expected: [Success]`63164`.
+11. getRandom: After the reveal phase is over (after `20`), consumer can get the random number generated. Expected: [Success]`63164`.
 12. getMyBounty: After the reveal phase is over (after `20`), one can get his share of bounty. Expected: [Success] `successful`.`43` => `33` (bounty divide share) + `5` (deposit) + `5` (fine as 1 commit didnot successfully reveal).
 13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `-4`.
 14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure] `-5`. 
@@ -74,7 +74,7 @@ Following test cases are explained in sequence of how transitions can be called.
 16. commit: try to `commit` before commit phase (`5` to `15`)has started. Expected: [Failure] `-2`.
 17. reveal: try to `reveal` before reveal phase (`15`) has started. Expected: [Failure] `-6`.
 18. reveal: try to `reveal` if commits in phase1 are less than required minimum participants. `_deposit` is refunded to participants of phase 1. Random no. generation fails. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`. `deposit` is tranferred.
-19. setCompaign : when deposit of bounty by consumer/founder and reset compaign by sending `_amount`. Expected: [Success] `Compaign Created`.
-20. setCompaign : when `aliveTime` of compaign ends as set in compaign. In this current Blocknumber is greater than `aliveTime + commitBalkline`. Expected: [Success] `Compaign Created`.
+19. setCompaign : new Compaign started. Expected: [Success] `Compaign Created`.
+20. getRandom : non consumer cant get the random number. Expected: [Failure] `-11`.
 21. reveal : to get back the bounty of consumer/ founder in case if commits in phase1 are less than required minimum participants. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`. `bounty is transferred`.
 
