@@ -114,7 +114,9 @@ let in_time =
 let addOneOpt =
 fun (a : Option Uint128) =>
   match a with
-   | None => False
+   | None => 
+     let _zero = Uint128 0 in
+     _zero
    | Some a1 => 
      let _one = Uint128 1 in
      builtin add a1 _one
@@ -285,7 +287,7 @@ end
 
 
 (*reveal secret in reveal phase of commitment*)
-transition reveal(compaignID:Uint32, _s : Uint128)
+transition reveal(compaignID : Uint32, _s : Uint128)
 cn<-commitNum[compaignID];
 cd<-_commitDeadline[compaignID];
 bn<-_bnum[compaignID];
@@ -300,11 +302,13 @@ match isMinParticipants with
       | True =>
         commit= builtin sha256hash _s;
         val1 <- participant[compaignID][_sender];
-            match val1 with
- 	      | Pair a b =>
-	        rn<-revealsNum;
+        match val1 with
+         | Some h =>
+           match h with 
+             | Pair a b =>
+	        rn<-revealsNum[compaignID];
                 newRevealNum=addOneOpt rn;
-                revealsNum:=newRevealNum;
+                revealsNum[compaignID]:=newRevealNum;
                 (*generate random no.*)
 	        prRandom<-random[compaignID];
                 match prRandom with 
@@ -325,6 +329,10 @@ match isMinParticipants with
 	            event e 
   	          end
 	       end
+  	| None=>
+          e = mk_error_event not_committed_err_code;
+          event e 
+          end
       | False => 
         e = mk_error_event reveal_time_err_code;
        event e 
