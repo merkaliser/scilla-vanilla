@@ -23,24 +23,6 @@ let blk_le_opt =
      builtin blt bl1 blk2 
      end
 
-let min_int =
-  fun (a : Uint128) => fun (b : Uint128) =>
-  let alt = builtin lt a b in
-  match alt with
-  | True =>
-    a
-  | False =>
-    b
-  end
-
-let le_int =
-  fun (a : Uint128) => fun (b : Uint128) =>
-    let x = builtin lt a b in
-    match x with
-    | True => True
-    | False =>
-      builtin eq a b 
-      end
    
 
 let le_int_opt =
@@ -60,7 +42,7 @@ let le_int_opt =
     end
     end
 
-let eq_one =
+let eq_one_32 =
   fun (a : Option Uint32) => 
     match a with 
     | None => False
@@ -249,7 +231,7 @@ transition commit (compaignID : Uint32, _hs : ByStr32 )
 (*if bounty is funded isPaused is false (0) *)
 p <- paused[compaignID];
 cn<- commitNum[compaignID];
-isPaused = eq_one p;
+isPaused = eq_one_32 p;
 d <- _deposit[compaignID];
 isEqualDeposit= eq_opt_128 d _amount;
 blk <- & BLOCKNUMBER;
