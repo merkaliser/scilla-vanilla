@@ -7,5 +7,10 @@
             "vname": "_hs",
             "type": "ByStr32",
             "value": "0x8ab3bf6e8bfac3771707cd4a013bdeef828f62ff73a9290720d0f4112902bf9b"
+        },
+        {
+            "vname": "compaignID",
+            "type": "Uint32",
+            "value": "1"
         }    ]
 }

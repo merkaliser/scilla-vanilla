@@ -4,8 +4,9 @@ It contains RANDAO Contract implementation in Scilla.
 References taken:<br>
 https://github.com/randao/randao/blob/master/contracts/Randao.sol
 
-Updated version of:
-https://github.com/merkaliser/scilla-vanilla/tree/5d19d87e0286d57c87ef4872642cfdb0717fc6cc/randao
+Past versions :
+1. https://github.com/merkaliser/scilla-vanilla/tree/5d19d87e0286d57c87ef4872642cfdb0717fc6cc/randao
+2. https://github.com/merkaliser/scilla-vanilla/tree/d6147e5c51cf365379152a6d823fe87e4b5c0080/Randao
 
 ## Randao in Scilla
 First of all, we need to create a RANDAO contract in the blockchain,
@@ -14,9 +15,7 @@ Then the basic process of generating a random number can be divided into
 three phases:
 
 ##### Add Compaign
-Set/reset the compaign using `setCompaign`. Compaign can be reset if in any of 2 conditions is true:
-1. total reward no. = total reveal no. (no. of reveals in second phase are equal to no. of people rewarded in third phase).
-2. aliveTime is over for compaign. (timeline to collect reward is over).
+Set the compaign using `setCompaign`. Parallel Compaigns can run through. CompaignID should be unique number.
 
 ##### The first phase (commit phase): collecting valid sha3(s)
 Anyone who want to participate in the random number generation needs to
@@ -39,6 +38,7 @@ In case of failure of condition of minimum participants, `reveal` can be used by
 1. After phase 2 is complete, random number is generated that can be sent to all other contracts that requested the random number before. `getRandom` returns Random number.
 2. Contract will send back the deposit to the participants who successfully took part in both phases, and the profit (fine + consumer's bounty) is divided into equal parts and sent to all participants as an additional bonus. `getMyBounty` provides bounty.
 3. Participants failing to reveal the secret number s cannot get refund their deposits and this amount is used as a fine.
+4. Random no is calculated by dist(sha256hash (dist(sha256hash(dist(0,h1)),h2)),h3) and so on.....
 
 ## Rationale
 
@@ -49,13 +49,13 @@ The contract is deployed by the one who wants to generate random number (founder
   * **bnum** : Deadline (BlockNumber) when phase 2 ends. After phase 2 ends, random no. is generated. In between commitDeadline and bnum is the phase 2.
   * **_amount** : zils provided by founder as reward (`_bounty`) to be distributed equally amongst participants when both phases are finished. This should be equal to contract _balances in that state. 
   * **minParticipant** : minimum no of participants that are required to take part in phase 1. If the no of participants that took part in phase 1 are less than this i.e. if it fails to collect enough sha3(s) within the time period, then deposits are returned in phase 2 by reveal function itself.
-  * **aliveTime** : time span, no. of blocks for which compaign will be alive. When current Blocknumber is greater than `aliveTime + commitBalkline`, compaign can be reset.
+  * **compaignID** : unique identification no. for running compaign.
 
 Following test cases are explained in sequence of how transitions can be called.
 
 ## Test cases
 
-0. setCompaign : deposit of bounty by consumer/founder and set/reset compaign by sending `_amount`. Expected: [Success] `Compaign`.
+0. setCompaign : Set compaign deposit of bounty by consumer by sending `_amount`. Expected: [Success] `Compaign`.
 1. commit: `commitment` (i.e. the sha256 hash of any number) is provided in between the commit phase (`5` to `15`) with correct `_deposit` (`_amount`). Expected: [Success]. Note, 3 successful commits are already present in that state.
 2. commit: `commitment` cannot be submitted twice by any address. Expected: [Failure] `-13`.
 3. commit: wrong `_amount` of zils i.e. required `deposit` is not sent. Expected: [Failure]`-1`.
@@ -66,7 +66,7 @@ Following test cases are explained in sequence of how transitions can be called.
 8. reveal: if the secret submitted doesnot match with the sha256 `commitment`. Expected: [Failure] `-9`.
 9. reveal: Reveal the secret (number) at `20` (as 20 bnum is included in 16 to 20 range) whose `commitment` was submitted in commit phase. Expected: [Success].
 10. reveal: try to reveal the secret after the reveal phase is over. Expected: [Failure] `-6`.
-11. getRandom: After the reveal phase is over (after `20`), one can get the random number generated. Expected: [Success]`63164`.
+11. getRandom: After the reveal phase is over (after `20`), consumer can get the random number generated. Expected: [Success]`31581345179634135967651132776678317366390452936495181389759623311064980503249`.
 12. getMyBounty: After the reveal phase is over (after `20`), one can get his share of bounty. Expected: [Success] `successful`.`43` => `33` (bounty divide share) + `5` (deposit) + `5` (fine as 1 commit didnot successfully reveal).
 13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `-4`.
 14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure] `-5`. 
@@ -74,7 +74,7 @@ Following test cases are explained in sequence of how transitions can be called.
 16. commit: try to `commit` before commit phase (`5` to `15`)has started. Expected: [Failure] `-2`.
 17. reveal: try to `reveal` before reveal phase (`15`) has started. Expected: [Failure] `-6`.
 18. reveal: try to `reveal` if commits in phase1 are less than required minimum participants. `_deposit` is refunded to participants of phase 1. Random no. generation fails. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`. `deposit` is tranferred.
-19. setCompaign : when deposit of bounty by consumer/founder and reset compaign by sending `_amount`. Expected: [Success] `Compaign Created`.
-20. setCompaign : when `aliveTime` of compaign ends as set in compaign. In this current Blocknumber is greater than `aliveTime + commitBalkline`. Expected: [Success] `Compaign Created`.
+19. setCompaign : no 2 compaignIDs can be same . Expected: [Failure] `-12`.
+20. getRandom : non consumer cant get the random number. Expected: [Failure] `-11`.
 21. reveal : to get back the bounty of consumer/ founder in case if commits in phase1 are less than required minimum participants. Expected:  `Failed compaign and refunded deposit as minParticipants < total commits`. `bounty is transferred`.
 

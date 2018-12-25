@@ -1,89 +1,80 @@
- [
-    { "vname": "_balance", "type": "Uint128", "value": "110" },
-    { "vname": "rewardNum", "type": "Uint128", "value": "0" },
+[
+    { "vname": "_balance", "type": "Uint128", "value": "120" },
     {
-      "vname": "random",
-      "type": "Option (Uint128)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
-      }
-    },
-    {
-      "vname": "revealsNum",
-      "type": "Option (Uint128)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "0" ]
-      }
-    },
-    {
-      "vname": "commitNum",
-      "type": "Option (Uint128)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint128" ],
-        "arguments": [ "2" ]
-      }
-    },
-    { "vname": "_minParticipant", "type": "Uint128", "value": "3" },
-    {
-      "vname": "_bnum",
-      "type": "Option (BNum)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "BNum" ],
-        "arguments": [ "20" ]
-      }
-    },
-    {
-      "vname": "_commitDeadline",
-      "type": "Option (BNum)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "BNum" ],
-        "arguments": [ "15" ]
-      }
+      "vname": "_deposit",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "5" } ]
     },
     {
       "vname": "_commitBalkline",
-      "type": "Option (BNum)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "BNum" ],
-        "arguments": [ "5" ]
-      }
+      "type": "Map (Uint32) (BNum)",
+      "value": [ { "key": "1", "val": "5" } ]
     },
-    { "vname": "_deposit", "type": "Uint128", "value": "5" },
-    { "vname": "paused", "type": "Uint32", "value": "0" },
+    {
+      "vname": "_commitDeadline",
+      "type": "Map (Uint32) (BNum)",
+      "value": [ { "key": "1", "val": "15" } ]
+    },
+    {
+      "vname": "_bnum",
+      "type": "Map (Uint32) (BNum)",
+      "value": [ { "key": "1", "val": "20" } ]
+    },
+    {
+      "vname": "_minParticipant",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "5" } ]
+    },
     {
       "vname": "participant",
-      "type": "Map (Uint32) (Map (ByStr20) (Map (ByStr32) (Uint128)))",
+      "type": "Map (Uint32) (Map (ByStr20) (Pair (ByStr32) (Uint128)))",
       "value": [
         {
           "key": "1",
           "val": [
             {
-              "key": "0x8d8a16e43272e09cae1cb5878a15e6443952a9ff",
-              "val": [
-                {
-                  "key":
-                    "0x1316634517196279dafb71644435936d69d0fcaa1e11d5c41f7e3376385da3ce",
-                  "val": "21154"
-                }
-              ]
+              "key": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
+              "val": {
+                "constructor": "Pair",
+                "argtypes": [ "ByStr32", "Uint128" ],
+                "arguments": [
+                  "0x1316634517196279dafb71644435936d69d0fcaa1e11d5c41f7e3376385da3ce",
+                  "0"
+                ]
+              }
             },
             {
-              "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
-              "val": [
-                {
-                  "key":
-                    "0x1928417eb686f7cb81393731b1bc0683526e86677a47da01d86a636003004bcc",
-                  "val": "0"
-                }
-              ]
+              "key": "0xaf332ea57ac9e106e30d79d476f0449804142543",
+              "val": {
+                "constructor": "Pair",
+                "argtypes": [ "ByStr32", "Uint128" ],
+                "arguments": [
+                  "0x1928417eb686f7cb81393731b1bc0683526e86677a47da01d86a636003004bcc",
+                  "0"
+                ]
+              }
+            },
+            {
+              "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
+              "val": {
+                "constructor": "Pair",
+                "argtypes": [ "ByStr32", "Uint128" ],
+                "arguments": [
+                  "0x8e752b727746da1d2c1e9c68f243260f16d34f2775c86bb24b160c7610b574a7",
+                  "0"
+                ]
+              }
+            },
+            {
+              "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
+              "val": {
+                "constructor": "Pair",
+                "argtypes": [ "ByStr32", "Uint128" ],
+                "arguments": [
+                  "0xcc372bbece16b3487382c4fd8f4a77ca82cc86398dc8f79654c069df2f9b831d",
+                  "0"
+                ]
+              }
             }
           ]
         }
@@ -97,11 +88,19 @@
           "key": "1",
           "val": [
             {
-              "key": "0x8d8a16e43272e09cae1cb5878a15e6443952a9ff",
+              "key": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
               "val": "0"
             },
             {
-              "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+              "key": "0xaf332ea57ac9e106e30d79d476f0449804142543",
+              "val": "1"
+            },
+            {
+              "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
+              "val": "0"
+            },
+            {
+              "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
               "val": "0"
             }
           ]
@@ -116,24 +115,54 @@
           "key": "1",
           "val": [
             {
-              "key": "0x8d8a16e43272e09cae1cb5878a15e6443952a9ff",
+              "key": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
               "val": "0"
             },
             {
-              "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+              "key": "0xaf332ea57ac9e106e30d79d476f0449804142543",
+              "val": "0"
+            },
+            {
+              "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
+              "val": "0"
+            },
+            {
+              "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
               "val": "0"
             }
           ]
         }
       ]
     },
-        { "vname": "_bounty", "type": "Uint128", "value": "67" },
- {
-      "vname": "_aliveTime",
-      "type": "Option (Uint32)",
-      "value": {
-        "constructor": "Some",
-        "argtypes": [ "Uint32" ],
-        "arguments": [ "100" ]
-      }
-    }  ]
+    {
+      "vname": "_consumer",
+      "type": "Map (Uint32) (Pair (ByStr20) (Uint128))",
+      "value": [
+        {
+          "key": "1",
+          "val": {
+            "constructor": "Pair",
+            "argtypes": [ "ByStr20", "Uint128" ],
+            "arguments": [
+              "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "100"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "vname": "commitNum",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "4" } ]
+    },
+    {
+      "vname": "revealsNum",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "0" } ]
+    },
+    {
+      "vname": "random",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "0" } ]
+    }
+  ]

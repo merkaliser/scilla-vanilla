@@ -1,11 +1,16 @@
 {
     "_tag": "reveal",
     "_amount": "0",
-    "_sender" : "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+    "_sender" : "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
     "params": [
         {
             "vname": "_s",
             "type": "Uint128",
             "value": "32332"
+        },
+{
+            "vname": "compaignID",
+            "type": "Uint32",
+            "value": "1"
         }    ]
 }
