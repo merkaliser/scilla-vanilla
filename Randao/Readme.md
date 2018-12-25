@@ -38,6 +38,7 @@ In case of failure of condition of minimum participants, `reveal` can be used by
 1. After phase 2 is complete, random number is generated that can be sent to all other contracts that requested the random number before. `getRandom` returns Random number.
 2. Contract will send back the deposit to the participants who successfully took part in both phases, and the profit (fine + consumer's bounty) is divided into equal parts and sent to all participants as an additional bonus. `getMyBounty` provides bounty.
 3. Participants failing to reveal the secret number s cannot get refund their deposits and this amount is used as a fine.
+4. Random no is calculated by dist(sha256hash (dist(sha256hash(dist(0,h1)),h2)),h3) and so on.....
 
 ## Rationale
 
@@ -65,7 +66,7 @@ Following test cases are explained in sequence of how transitions can be called.
 8. reveal: if the secret submitted doesnot match with the sha256 `commitment`. Expected: [Failure] `-9`.
 9. reveal: Reveal the secret (number) at `20` (as 20 bnum is included in 16 to 20 range) whose `commitment` was submitted in commit phase. Expected: [Success].
 10. reveal: try to reveal the secret after the reveal phase is over. Expected: [Failure] `-6`.
-11. getRandom: After the reveal phase is over (after `20`), consumer can get the random number generated. Expected: [Success]`63164`.
+11. getRandom: After the reveal phase is over (after `20`), consumer can get the random number generated. Expected: [Success]`31581345179634135967651132776678317366390452936495181389759623311064980503249`.
 12. getMyBounty: After the reveal phase is over (after `20`), one can get his share of bounty. Expected: [Success] `successful`.`43` => `33` (bounty divide share) + `5` (deposit) + `5` (fine as 1 commit didnot successfully reveal).
 13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `-4`.
 14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure] `-5`. 
