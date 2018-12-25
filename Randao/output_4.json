@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6609",
+  "gas_remaining": "6627",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -175,9 +175,9 @@
       "params": [
         {
           "vname": "commitment",
-          "type": "ByStr32",
+          "type": "Uint256",
           "value":
-            "0x8e752b727746da1d2c1e9c68f243260f16d34f2775c86bb24b160c7610b574a7"
+            "51963172940044166565186087234975693518382054667426374225407638091149061803455"
         }
       ]
     }

@@ -196,7 +196,7 @@ field _consumer : Map Uint32 (Pair ByStr20 Uint128) = Emp Uint32 (Pair ByStr20 U
 
 (*random number is generated after reveal phase is over, initialized to zero at compaign start*) 
 (*compaignID -> randomNumber*)
-field random: Map Uint32 Uint128 = Emp Uint32 Uint128
+field random: Map Uint32 Uint256 = Emp Uint32 Uint256
 
 
 (*deposit of bounty by consumer and set compaign*)
@@ -207,7 +207,6 @@ transition setCompaign ( compaignID : Uint32, deposit : Uint128, commitBalkline 
  	accept;
  	commitNum[compaignID]:=zero_128;
  	revealsNum[compaignID]:=zero_128;
-	random[compaignID]:=zero_128;
 	p = Pair {(ByStr20) (Uint128)} _sender _amount;
  	_consumer[compaignID] := p;
  	_deposit[compaignID] := deposit;
@@ -308,7 +307,8 @@ transition reveal(compaignID : Uint32, _s : Uint128)
 	             prRandom<-random[compaignID];
                      match prRandom with 
  	               | Some previousRandom =>
-	                  newRandom=builtin add previousRandom _s;
+			  previousRandomHash = builtin sha256hash previousRandom;
+	                  newRandom=builtin dist previousRandomHash commit;
                           random[compaignID]:=newRandom;	
 		  	  p = Pair {(ByStr32) (Uint128)} a _s;    
 	                  participant[compaignID][_sender] := p;
@@ -316,6 +316,7 @@ transition reveal(compaignID : Uint32, _s : Uint128)
                           e = { _eventname : "LogReveal"; compaignID : compaignID; from : _sender  ; secret : _s  };
 	            	  event e 
 	              | None =>
+			 secret_256 = 
                      	 random[compaignID]:=_s;	
 		     	 p = Pair {(ByStr32) (Uint128)} a _s;    
 	            	 participant[compaignID][_sender] := p;
