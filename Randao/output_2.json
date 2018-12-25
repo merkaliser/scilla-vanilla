@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6236",
+  "gas_remaining": "6232",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -172,7 +172,7 @@
   "events": [
     {
       "_eventname": "RandaoError",
-      "params": [ { "vname": "err_code", "type": "Int32", "value": "-12" } ]
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-13" } ]
     }
   ]
 }

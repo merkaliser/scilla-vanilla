@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6167",
+  "gas_remaining": "6147",
   "message": {
     "_tag": "Main",
     "_amount": "43",
@@ -84,7 +84,7 @@
                 "argtypes": [ "ByStr32", "Uint128" ],
                 "arguments": [
                   "0xcc372bbece16b3487382c4fd8f4a77ca82cc86398dc8f79654c069df2f9b831d",
-                  "33454"
+                  "42010"
                 ]
               }
             }
@@ -174,8 +174,14 @@
     },
     {
       "vname": "random",
-      "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "86940" } ]
+      "type": "Map (Uint32) (Uint256)",
+      "value": [
+        {
+          "key": "1",
+          "val":
+            "31581345179634135967651132776678317366390452936495181389759623311064980503249"
+        }
+      ]
     }
   ],
   "events": []

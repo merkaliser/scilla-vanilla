@@ -131,10 +131,11 @@ let calculate_share =
       end     
 
 (*Constants*)
-let zero_128   = Uint128 0
-let one_128   = Uint128 1
-let zero_32   = Uint32 0
-let one_32   = Uint32 1
+let zero_128 = Uint128 0
+let one_128 = Uint128 1
+let zero_32 = Uint32 0
+let one_32 = Uint32 1
+let zero_256 = Uint256 0 
 
 (* Error events *)
 let mk_error_event =
@@ -209,6 +210,7 @@ transition setCompaign ( compaignID : Uint32, deposit : Uint128, commitBalkline 
  	revealsNum[compaignID]:=zero_128;
 	p = Pair {(ByStr20) (Uint128)} _sender _amount;
  	_consumer[compaignID] := p;
+	random[compaignID]:= zero_256;
  	_deposit[compaignID] := deposit;
  	_commitBalkline[compaignID] := commitBalkline; 
  	_commitDeadline[compaignID] := commitDeadline;
@@ -316,14 +318,10 @@ transition reveal(compaignID : Uint32, _s : Uint128)
                           e = { _eventname : "LogReveal"; compaignID : compaignID; from : _sender  ; secret : _s  };
 	            	  event e 
 	              | None =>
-			 secret_256 = 
-                     	 random[compaignID]:=_s;	
-		     	 p = Pair {(ByStr32) (Uint128)} a _s;    
-	            	 participant[compaignID][_sender] := p;
-	            	 revealed[compaignID][_sender]:=one_32;
-                    	 e = { _eventname : "LogReveal";  compaignID : compaignID; from : _sender  ; secret : _s  };
-	            	 event e 
-  	          	 end
+			(*Random no. initialized to zero_256 at setCompaign*)
+                    	 e = mk_error_event failure_err_code;
+	     	         event e 
+  	          	end
    		  | False => 
      		     e = mk_error_event failure_wrong_secret;
    		     event e 

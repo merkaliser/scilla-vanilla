@@ -1,5 +1,5 @@
 {
-  "gas_remaining": "6285",
+  "gas_remaining": "6267",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "100" },
@@ -71,7 +71,7 @@
     },
     {
       "vname": "random",
-      "type": "Map (Uint32) (Uint128)",
+      "type": "Map (Uint32) (Uint256)",
       "value": [ { "key": "1", "val": "0" } ]
     }
   ],
