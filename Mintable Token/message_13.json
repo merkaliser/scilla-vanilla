@@ -1,0 +1,17 @@
+{
+    "_tag" : "burnFrom",
+    "_amount" : "0",
+    "_sender" : "0xfc951123d89d0148e8f65c5842afe081dc1646d1",
+    "params" : [
+        {
+            "vname": "from",
+            "type": "ByStr20",
+            "value": "0x1B5928D9E0F0667D106267F61DE4C6E8312B3AEF"
+        },
+        {
+            "vname": "value",
+            "type": "Uint128",
+            "value": "3000"
+        }
+    ]
+}

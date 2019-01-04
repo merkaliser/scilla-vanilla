@@ -1,0 +1,18 @@
+{
+    "_tag" : "Transfer",
+    "_amount" : "0",
+    "_sender" : "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
+    "params" : [
+        {
+            "vname": "to",
+            "type": "ByStr20",
+            "value": "0x23271327E72F96AAB882F614B467EBB5ED3003D9"
+        },
+        {
+            "vname": "tokens",
+            "type": "Uint128",
+            "value": "100"
+        }
+
+    ]
+}
