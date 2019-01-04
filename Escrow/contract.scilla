@@ -52,33 +52,29 @@ field all_deposits : Map ByStr20 Uint128 =
   let m = Emp ByStr20 Uint128 in
     builtin put m payee deposits
 
-field _primary: ByStr20=primary
-
+(*may be initialized here by removing from immutable variable*)
+field _primary: ByStr20 = primary
 
 transition primary()
    p <- _primary;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; primary : p };
-   msgs = one_msg msg;
-   send msgs
-end
+   e = { _eventname : "Primary";  from : _sender ; primary : p   };
+   event e
+ end
 
   
 transition transferPrimary(recipient : ByStr20)
    p <- _primary;
-   msg1="sucess";
-   msg2="not primary";
-  isPrimary=builtin eq _sender p;
+   notPrimary = "not primary";
+   isPrimary=builtin eq _sender p;
    match isPrimary with
-  | True =>
-    _primary:=recipient;
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; _transfer :msg1};
-    msgs = one_msg msg;
-    send msgs
-  | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; _transfer :msg2 };
-    msgs = one_msg msg;
-    send msgs
-  end
+    | True =>
+      _primary:=recipient;
+       e = { _eventname : "Transfer Primary";  from : _sender ; recipient : recipient   };
+       event e
+    | False =>
+       e = { _eventname : "Error";  from : _sender ; code : notPrimary  };
+      event e
+     end
 end
   
 
@@ -87,21 +83,20 @@ transition depositsOf (payee : ByStr20)
   val = builtin get dep payee;
   match val with
   | Some v =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; deposits : v };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "DepositsOf";  from : _sender ; payee : payee ; deposits : v  };
+    event e
   | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; deposits : Uint128 0 };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "DepositsOf";  from : _sender ; payee : payee ; deposits : _zero  };
+    event e
   end
 end
-
 
 
 transition deposit (payee : ByStr20)
   deposits=_amount;
   bl <- all_deposits;
+  noBal="no balance";
+  inSuffBal= "inSufficient balance";
   bal = builtin get bl _sender;
   match bal with
   | Some b =>
@@ -117,24 +112,23 @@ transition deposit (payee : ByStr20)
         new_to_bal = builtin add x deposits;
         new_balances2 = builtin put new_balances payee new_to_bal;
         all_deposits := new_balances2
-      | None =>
+        e = { _eventname : "Deposit";  from : _sender ; payee : payee };
+        event e 
+     | None =>
         new_balances3 = builtin put new_balances payee deposits;
         all_deposits := new_balances3
-      end;
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : deposits };
-      msgs = one_msg msg;
-      send msgs
+        e = { _eventname : "Deposit";  from : _sender ; payee : payee };
+        event e
+     end
     | False =>
       (* balance not sufficient. *)
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
-      msgs = one_msg msg;
-      send msgs
+    e = { _eventname : "Error";  from : _sender ; code : inSuffBal  };
+    event e
     end
   | None =>
     (* no balance record, can't transfer *)
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "Error";  from : _sender ; code : noBal  };
+    event e
   end
 end
 
@@ -143,63 +137,51 @@ end
 transition withdraw (payee : ByStr20)
   deposits=_amount;
   p <- _primary;
-     msg2="not primary";
-    isPrimary=builtin eq _sender p;
-   match isPrimary with
-  | True =>
-  bl <- all_deposits;
-  bal = builtin get bl payee;
-  match bal with
-  | Some b =>
-    can_do = le_int deposits b;
-    match can_do with
-    | True =>
-      (* subtract deposit from payee  and add it to  _sender*)
-      new_sender_bal = builtin sub b deposits;
-      new_balances = builtin put bl payee new_sender_bal;
-      to_bal = builtin get new_balances _sender;
-      match to_bal with
+  noBal="no balance";
+  notPrimary="not primary";
+  inSuffBal= "inSufficient balance";
+  isPrimary=builtin eq _sender p;
+  match isPrimary with
+   | True =>
+    bl <- all_deposits;
+    bal = builtin get bl payee;
+    match bal with
+     | Some b =>
+      can_do = le_int deposits b;
+      match can_do with
+       | True =>
+         (* subtract deposit from payee  and add it to  _sender*)
+         new_sender_bal = builtin sub b deposits;
+         new_balances = builtin put bl payee new_sender_bal;
+         to_bal = builtin get new_balances _sender;
+         match to_bal with
       | Some x =>
         new_to_bal = builtin add x deposits;
         new_balances2 = builtin put new_balances _sender new_to_bal;
         all_deposits := new_balances2
+        e = { _eventname : "Withdraw";  from : _sender ; payee : payee };
+        event e
       | None =>
         new_balances3 = builtin put new_balances _sender deposits;
         all_deposits := new_balances3
-      end;
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : deposits };
-      msgs = one_msg msg;
-      send msgs
+        e = { _eventname : "Withdraw";  from : _sender ; payee : payee };
+        event e
+      end
     | False =>
       (* balance not sufficient. *)
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
-      msgs = one_msg msg;
-      send msgs
-    end
+      e = { _eventname : "Error";  from : _sender ; code : inSuffBal  };
+      event e
+     end
   | None =>
     (* no balance record, can't transfer *)
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; transferred : Uint128 0 };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "Error";  from : _sender ; code : noBal  };
+    event e
   end
   | False =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; _transfer : msg2 };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "Error"; from : _sender ; code : notPrimary  };
+    event e
   end
-  
 end
-
-
-
-
-
-
-
-
-
-
-
 
 
 
