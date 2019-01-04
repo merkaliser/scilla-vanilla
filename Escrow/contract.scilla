@@ -44,14 +44,11 @@ let le_int =
 
 contract Escrow
 (primary: ByStr20,
- payee : ByStr20,
- deposits : Uint128)
+ payee : ByStr20)
 
 (* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
 field all_deposits : Map ByStr20 Uint128 =
-  let m = Emp ByStr20 Uint128 in
-    builtin put m payee deposits
-
+   Emp ByStr20 Uint128 
 (*may be initialized here by removing from immutable variable*)
 field _primary: ByStr20 = primary
 
@@ -60,7 +57,6 @@ transition primary()
    e = { _eventname : "Primary";  from : _sender ; primary : p   };
    event e
  end
-
   
 transition transferPrimary(recipient : ByStr20)
    p <- _primary;
@@ -68,7 +64,7 @@ transition transferPrimary(recipient : ByStr20)
    isPrimary=builtin eq _sender p;
    match isPrimary with
     | True =>
-      _primary:=recipient;
+      _primary := recipient;
        e = { _eventname : "Transfer Primary";  from : _sender ; recipient : recipient   };
        event e
     | False =>
@@ -77,10 +73,8 @@ transition transferPrimary(recipient : ByStr20)
      end
 end
   
-
 transition depositsOf (payee : ByStr20)
- dep <- all_deposits;
-  val = builtin get dep payee;
+  val = all_deposits[payee];
   match val with
   | Some v =>
     e = { _eventname : "DepositsOf";  from : _sender ; payee : payee ; deposits : v  };
@@ -93,20 +87,20 @@ end
 
 
 transition deposit (payee : ByStr20)
-  deposits=_amount;
-  bl <- all_deposits;
-  noBal="no balance";
-  inSuffBal= "inSufficient balance";
-  bal = builtin get bl _sender;
+ deposits=_amount;
+ bl <- all_deposits;
+ notPrimary="not primary";
+ bal <- all_deposits[_sender];
+ isPrimary=builtin eq _sender p;
+ match isPrimary with
+ | True =>
   match bal with
   | Some b =>
-    can_do = le_int deposits b;
-    match can_do with
-    | True =>
+      accept; 	
       (* subtract deposit from _sender and add it to payee *)
       new_sender_bal = builtin sub b deposits;
-      new_balances = builtin put bl _sender new_sender_bal;
-      to_bal = builtin get new_balances payee;
+      all_deposits[payee] := new_payee_bal
+      to_bal<- all_deposits[_sender];
       match to_bal with
       | Some x =>
         new_to_bal = builtin add x deposits;
@@ -114,69 +108,29 @@ transition deposit (payee : ByStr20)
         all_deposits := new_balances2
         e = { _eventname : "Deposit";  from : _sender ; payee : payee };
         event e 
-     | None =>
+      | None =>
         new_balances3 = builtin put new_balances payee deposits;
         all_deposits := new_balances3
         e = { _eventname : "Deposit";  from : _sender ; payee : payee };
         event e
-     end
-    | False =>
-      (* balance not sufficient. *)
-    e = { _eventname : "Error";  from : _sender ; code : inSuffBal  };
-    event e
-    end
+       end
   | None =>
-    (* no balance record, can't transfer *)
-    e = { _eventname : "Error";  from : _sender ; code : noBal  };
-    event e
-  end
-end
-
-
-
-transition withdraw (payee : ByStr20)
-  deposits=_amount;
-  p <- _primary;
-  noBal="no balance";
-  notPrimary="not primary";
-  inSuffBal= "inSufficient balance";
-  isPrimary=builtin eq _sender p;
-  match isPrimary with
-   | True =>
-    bl <- all_deposits;
-    bal = builtin get bl payee;
-    match bal with
-     | Some b =>
-      can_do = le_int deposits b;
-      match can_do with
-       | True =>
-         (* subtract deposit from payee  and add it to  _sender*)
-         new_sender_bal = builtin sub b deposits;
-         new_balances = builtin put bl payee new_sender_bal;
-         to_bal = builtin get new_balances _sender;
-         match to_bal with
+      all_deposits[payee] := new_payee_bal
+      to_bal<- all_deposits[_sender];
+      match to_bal with
       | Some x =>
         new_to_bal = builtin add x deposits;
-        new_balances2 = builtin put new_balances _sender new_to_bal;
+        new_balances2 = builtin put new_balances payee new_to_bal;
         all_deposits := new_balances2
-        e = { _eventname : "Withdraw";  from : _sender ; payee : payee };
-        event e
+        e = { _eventname : "Deposit";  from : _sender ; payee : payee };
+        event e 
       | None =>
-        new_balances3 = builtin put new_balances _sender deposits;
+        new_balances3 = builtin put new_balances payee deposits;
         all_deposits := new_balances3
-        e = { _eventname : "Withdraw";  from : _sender ; payee : payee };
+        e = { _eventname : "Deposit";  from : _sender ; payee : payee };
         event e
-      end
-    | False =>
-      (* balance not sufficient. *)
-      e = { _eventname : "Error";  from : _sender ; code : inSuffBal  };
-      event e
-     end
-  | None =>
-    (* no balance record, can't transfer *)
-    e = { _eventname : "Error";  from : _sender ; code : noBal  };
-    event e
-  end
+       end
+    end
   | False =>
     e = { _eventname : "Error"; from : _sender ; code : notPrimary  };
     event e
@@ -184,4 +138,20 @@ transition withdraw (payee : ByStr20)
 end
 
 
+transition withdraw ()
+  p <- _primary;
+  notPrimary="not primary";
+  isPrimary=builtin eq _sender p;
+  match isPrimary with
+   | True =>
+      p<-all_deposits [payee];
+      all_deposits [payee]:=_zero;
+      msg = { _tag : "Main"; _recipient : _sender; _amount : p; payee : payee };
+      msgs = one_msg msg;
+      send msgs
+   | False =>
+      e = { _eventname : "Error"; from : _sender ; code : notPrimary  };
+      event e
+    end
+end
 
