@@ -38,8 +38,8 @@ let le_int =
     end
     
 (*constants*)
-let _one=Int32 1
-let _zero=Int32 0
+let _one = Int32 1
+let _zero = Int32 0
 (***************************************************)
 (*             The contract definition             *)
 (***************************************************)
@@ -49,102 +49,48 @@ contract Pausable
  total_tokens : Uint128)
 
 (* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
-
-
-
 field bearer : Map String (Map ByStr20 Int32) = Emp String (Map ByStr20 Int32) 
   
-
 (*add the account from role and make account as true(0)*)
-
 transition add (role : String, account :ByStr20)
     bearer[role][account]:=_one;
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _one };
-    msgs = one_msg msg;
-    send msgs
- 
-end
-
-
-
-
+    e = { _eventname : "Role Added"; role : role; from : _sender  ; account : account };
+  	event e 
+   end
 
 (*renounces the account from role and make account as false(0)*)
-
 transition renounce (role : String, account :ByStr20)
     bearer[role][account]:=_zero;
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _zero };
-    msgs = one_msg msg;
-    send msgs
-end
-
-
+    e = { _eventname : "Role Renounced"; role : role; from : _sender  ; account : account };
+  	event e 
+ end
 
 (*removes the account from role*)
-
 transition remove (role : String, account :ByStr20)
-  b <- bearer;
-  _role=builtin get b role;
-  match _role with
-  | Some v =>
-    new_bearer = builtin remove v account ;
-    new_bearer_role = builtin put b role new_bearer;
-    bearer:=new_bearer_role;
-    
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _zero };
-    msgs = one_msg msg;
-    send msgs
-    
-  | None =>
-    new_bearer = let m = Emp ByStr20 Int32 in builtin remove m account ;
-    new_bearer_role = builtin put b role new_bearer;
-    bearer:=new_bearer_role;
-    
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _zero };
-    msgs = one_msg msg;
-    send msgs
+    delete bearer[role][account]; 
+    e = { _eventname : "Role Removed"; role : role; from : _sender  ; account : account };
+  	event e 
   end
-end
-
-
-
-
-
-
 
 (*checks the account for role*)
-
 transition has (role : String, account :ByStr20)
   b <- bearer;
-   t="true";
+  t="true";
   f="false";
-  _role=builtin get b role;
+  _role <- bearer [role][ account] ;
   match _role with
-  | Some v =>
-    new_bearer = builtin get v account ;
-    match new_bearer with
-          | Some v1 =>
-            istrue = builtin eq v1 _one ;
-            match istrue with
-           | True =>
-           msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; has : t };
-           msgs = one_msg msg;
-           send msgs
-           | False =>
-           msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; has : f };
-           msgs = one_msg msg;
-           send msgs
+    | Some v1 =>
+       istrue = builtin eq v1 _one ;
+       match istrue with
+         | True =>
+           e = { _eventname : "hasAccount"; role : role; account : account  ; has : t  };
+        	 event e 
+         | False =>
+           e = { _eventname : "hasAccount"; role : role; account : account  ; has : f  };
+        	 event e 
            end
     | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; has : f };
-    msgs = one_msg msg;
-    send msgs
+        e = { _eventname : "hasAccount"; role : role; account : account  ; has : f  };
+        event e 
     end
-  | None =>
-    
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; has : f };
-    msgs = one_msg msg;
-    send msgs
-  end
 end
-
