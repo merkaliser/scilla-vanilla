@@ -1,18 +1,6 @@
 {
-  "gas_remaining": "7038",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x1234567890123456789012345678906784567891",
-    "params": [
-      {
-        "vname": "authorized",
-        "type": "String",
-        "value": "authorized the operator for tranche"
-      }
-    ]
-  },
+  "gas_remaining": "7106",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     { "vname": "_totalSupply", "type": "Uint128", "value": "600" },
@@ -74,5 +62,17 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "AuthorizeOperatorTranche",
+      "params": [
+        {
+          "vname": "_operator",
+          "type": "ByStr20",
+          "value": "0x74d045132c83f0c6478930569eccc963c89e2467"
+        },
+        { "vname": "tranche", "type": "Uint32", "value": "1" }
+      ]
+    }
+  ]
 }

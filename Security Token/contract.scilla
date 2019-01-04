@@ -131,6 +131,7 @@ transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
 (* Transfers tokens from the sender to the _to address, keeping the _tranche the same*)
 transition sendTranche (_tranche : Uint32, _to : ByStr20, _data:String ,amount:Uint128)
 noTranche="no tranche for _sender";
+noBal="no toek balance by _sender";
 v <- tranches[_sender][_tranche];
 match v with
  | Some vx =>
@@ -182,6 +183,10 @@ match v with
         event e
 	end
     end
+  | None =>
+  e = { _eventname : "error"; code : noBal };
+  event e
+  end
   | None =>
   e = { _eventname : "error"; code : noTranche };
   event e
@@ -294,7 +299,7 @@ match v with
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;
+        event e
 	end
 
     | None =>
@@ -308,14 +313,14 @@ match v with
  	toBal=builtin add v3x _amount;
  	balances[_to] := toBal;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
-        event e;
+        event e
 	| None =>
         tranches[_from][_tranche] := fromBalTranche;
         balances[_from] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
-        event e;
+        event e
 	end
     end
   | None =>
@@ -362,14 +367,14 @@ match tr with
 isTrue=builtin eq v true;
 match isTrue with 
  | True =>
-   e = { _eventname : "isOperatorFor"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data ; status : t  };
+   e = { _eventname : "isOperatorFor"; owner: _owner ; amount : _amount ; status : t  };
    event e
  | False =>
-   e = { _eventname : "isOperatorFor"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data ; status : r };
+   e = { _eventname : "isOperatorFor"; owner: _owner ; amount : _amount ; status : r };
    event e
  end
 | None =>
-   e = { _eventname : "isOperatorFor"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data ; status : f  };
+   e = { _eventname : "isOperatorFor"; owner: _owner ; amount : _amount ; status : f  };
    event e
   end
 end
@@ -401,7 +406,8 @@ end
 
 (*for _tranche given _amount is burnt*)
 transition burn (_tranche : Uint32,  _data : String)
-unsuccess="burn unsuccessful";
+noBal="no balance";
+noTranche="no tranche for _sender";
 v <- tranches[_sender][_tranche];
 match v with
  | Some vx =>
@@ -418,11 +424,11 @@ match v with
    e = { _eventname : "Burnt"; owner: _sender ; tranche : _tranche ; amount : _amount ; data : _data };
    event e	
   | None =>
-    e = { _eventname : "Error";  tranche : _tranche ; amount : _amount ; code : unsuccess  };
+    e = { _eventname : "Error";  tranche : _tranche ; amount : _amount ; code : noBal  };
     event e
   end
 | None =>
-  e = { _eventname : "Error";  tranche : _tranche ; amount : _amount ; code : unsuccess  };
+  e = { _eventname : "Error";  tranche : _tranche ; amount : _amount ; code : noTranche  };
   event e
   end
 end

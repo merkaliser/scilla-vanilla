@@ -1,14 +1,6 @@
 {
-  "gas_remaining": "7177",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-    "params": [
-      { "vname": "unauthorized", "type": "Uint128", "value": "1" }
-    ]
-  },
+  "gas_remaining": "7214",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     { "vname": "_totalSupply", "type": "Uint128", "value": "600" },
@@ -55,5 +47,21 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "RevokeOperator",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        {
+          "vname": "operator",
+          "type": "ByStr20",
+          "value": "0x1234567890123456789012345678906784567891"
+        }
+      ]
+    }
+  ]
 }
