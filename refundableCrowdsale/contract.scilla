@@ -83,7 +83,7 @@ transition closed()
   | False =>
       
     bl<-all_deposits;
-    zilraised=builtin get bl _sender;
+    zilraised <- all_deposits[_sender];
     match isPrimary with 
     | True =>
       match zilraised with
@@ -118,7 +118,7 @@ transition refunding()
 
   isPrimary=builtin eq _sender payee;
   bl<-all_deposits;
-  zilraised=builtin get bl _sender;
+  zilraised <-all_deposits[_sender];
   match isPrimary with 
   | True =>
     match zilraised with
