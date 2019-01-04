@@ -169,20 +169,14 @@ match v with
  	toBal=builtin add v3x _amount;
  	balances[_to] := toBal;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
-	msgs = one_msg msg;
-	send msgs
+        event e
 	| None =>
         tranches[_sender][_tranche] := fromBalTranche;
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
-	msgs = one_msg msg;
-	send msgs
+        event e
 	end
     | None =>
     toBalTranche=_amount;
@@ -195,20 +189,14 @@ match v with
  	toBal=builtin add v3x _amount;
  	balances[_to] := toBal;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
-	msgs = one_msg msg;
-	send msgs
+        event e
 	| None =>
         tranches[_sender][_tranche] := fromBalTranche;
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;	
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
-	msgs = one_msg msg;
-	send msgs
+        event e
 	end
     end
   | None =>
@@ -330,10 +318,7 @@ match v with
  	toBal=builtin add v3x _amount;
  	balances[_to] := toBal;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	msgs = one_msg msg;
-	send msgs
+        event e
 	| None =>
         tranches[_sender][_tranche] := fromBalTranche;
         balances[_sender] := fromBal;
@@ -341,9 +326,6 @@ match v with
  	balances[_to] := _amount;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
         event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	msgs = one_msg msg;
-	send msgs
 	end
 
     | None =>
@@ -358,9 +340,6 @@ match v with
  	balances[_to] := toBal;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
         event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	msgs = one_msg msg;
-	send msgs
 	| None =>
         tranches[_from][_tranche] := fromBalTranche;
         balances[_from] := fromBal;
@@ -368,9 +347,6 @@ match v with
  	balances[_to] := _amount;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
         event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	msgs = one_msg msg;
-	send msgs
 	end
     end
   | None =>
@@ -486,10 +462,7 @@ match v with
    newSupply=builtin sub t _amount;
    _totalSupply:= newSupply;
    e = { _eventname : "Burnt"; owner: _sender ; tranche : _tranche ; amount : _amount ; data : _data };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success};
-   msgs = one_msg msg;
-   send msgs	
+   event e	
   | None =>
   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : unsuccess};
   msgs = one_msg msg;
@@ -521,10 +494,7 @@ match v with
    _totalSupply:= newSupply;
    accept;
    e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-   msgs = one_msg msg;
-   send msgs
+   event e
   | None =>
    fromBal=_amount;
    tranches[_owner][_tranche] := fromBalTranche;
@@ -534,10 +504,7 @@ match v with
    _totalSupply:= newSupply;
    accept;
    e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success};
-   msgs = one_msg msg;
-   send msgs
+   event e
    end
 | None =>
  v1<-balances[_owner];
@@ -552,10 +519,7 @@ match v with
    _totalSupply:= newSupply;
    accept;
    e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-   msgs = one_msg msg;
-   send msgs
+   event e
   | None =>
   fromBal= _amount;
    tranches[_owner][_tranche] := fromBalTranche;
@@ -565,10 +529,7 @@ match v with
    _totalSupply:= newSupply;
    accept;
    e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-   msgs = one_msg msg;
-   send msgs
+   event e
    end
 end
 end
