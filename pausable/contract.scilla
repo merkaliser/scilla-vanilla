@@ -58,27 +58,11 @@ field bearer : Map String (Map ByStr20 Int32) = Emp String (Map ByStr20 Int32)
 (*add the account from role and make account as true(0)*)
 
 transition add (role : String, account :ByStr20)
-  b <- bearer;
-  _role=builtin get b role;
-  match _role with
-  | Some v =>
-    new_bearer = builtin put v account _one;
-    new_bearer_role = builtin put b role new_bearer;
-    bearer:=new_bearer_role;
-    
+    bearer[role][account]:=_one;
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _one };
     msgs = one_msg msg;
     send msgs
-    
-  | None =>
-    new_bearer = let m = Emp ByStr20 Int32 in builtin put m account _one;
-    new_bearer_role = builtin put b role new_bearer;
-    bearer:=new_bearer_role;
-    
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _one };
-    msgs = one_msg msg;
-    send msgs
-  end
+ 
 end
 
 
@@ -88,27 +72,10 @@ end
 (*renounces the account from role and make account as false(0)*)
 
 transition renounce (role : String, account :ByStr20)
-  b <- bearer;
-  _role=builtin get b role;
-  match _role with
-  | Some v =>
-    new_bearer = builtin put v account _zero;
-    new_bearer_role = builtin put b role new_bearer;
-    bearer:=new_bearer_role;
-    
+    bearer[role][account]:=_zero;
     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _zero };
     msgs = one_msg msg;
     send msgs
-    
-  | None =>
-    new_bearer = let m = Emp ByStr20 Int32 in builtin put m account _zero;
-    new_bearer_role = builtin put b role new_bearer;
-    bearer:=new_bearer_role;
-    
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : _zero };
-    msgs = one_msg msg;
-    send msgs
-  end
 end
 
 
