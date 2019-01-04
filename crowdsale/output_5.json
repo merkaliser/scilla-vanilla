@@ -1,18 +1,6 @@
 {
-  "gas_remaining": "7079",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x12345678901234567890123456789012345678ab",
-    "params": [
-      {
-        "vname": "error",
-        "type": "String",
-        "value": "Not a multiple of rate"
-      }
-    ]
-  },
+  "gas_remaining": "7122",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
@@ -31,5 +19,21 @@
     },
     { "vname": "tokensRaised", "type": "Uint128", "value": "2" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Error",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x12345678901234567890123456789012345678ab"
+        },
+        {
+          "vname": "error",
+          "type": "String",
+          "value": "Not a multiple of rate"
+        }
+      ]
+    }
+  ]
 }
