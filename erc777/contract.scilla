@@ -63,7 +63,7 @@ field allowed : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uin
 field _totalSupply: Uint128 = totalSupply
  
 transition name()
-  e = { _eventname : "TokenName"; TokenName : name };
+  e = { _eventname : "TokenName"; tokenName : name };
   event e
 end
 
@@ -137,7 +137,7 @@ transition isOperatorFor ( operator : ByStr20, tokenHolder : ByStr20)
   has_operator <- exists allowed[operator][tokenHolder];
   match has_operator with
    | True =>
-      e = { _eventname : "IsOperatorFor"; from : _sender ; operator : operator; tokenHolder : tokenHolder, status: is_op};
+      e = { _eventname : "IsOperatorFor"; from : _sender ; operator : operator; tokenHolder : tokenHolder; status: is_op};
       event e
    | False =>
       e = { _eventname : "IsOperatorFor"; from : _sender ; operator : operator; tokenHolder : tokenHolder; status: is_no_op};
@@ -198,7 +198,7 @@ transition operatorSend (from : ByStr20, to : ByStr20, amount : Uint128 , userDa
 balFrom <- balances[from];
 balTo <- balances[to];
 al <- allowed;
-allowed_from = allowed [_sender][from];
+allowed_from <- allowed [_sender][from];
 isMultiple1= builtin div amount  granularity;
 isMultiple2= builtin mul isMultiple1  granularity;
 notgranular="Not granular";
@@ -324,14 +324,14 @@ isMultiple=builtin eq isMultiple2 amount ;
   | True =>
   isSender=builtin eq from _sender ;
   match isSender with
-  | True =>
+   | True =>
     e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
     event e
- | False =>  
-  (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
-  match allowed_from with
-  | Some m =>
-     match bal with
+   | False =>  
+    (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
+    match allowed_from with
+     | Some m =>
+      match bal with
       | Some m1 =>
       (* We can only transfer the minimum of available or authorized tokens *)
       t = min_int m m1;
@@ -352,14 +352,10 @@ isMultiple=builtin eq isMultiple2 amount ;
         e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
         event e
       end
-    | None =>
+     | None =>
       e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
       event e
       end
-   | None =>
-     e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
-     event e
-    end
     | None =>
     e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
     event e
@@ -369,5 +365,5 @@ isMultiple=builtin eq isMultiple2 amount ;
   e = { _eventname : "Error"; from : _sender ; code : notgranular  };
   event e
 end
-
+end
 
