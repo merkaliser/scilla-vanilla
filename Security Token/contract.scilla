@@ -74,7 +74,7 @@ transition name()
 end
 
 transition symbol()
- e = { _eventname : "Name"; symbol : symbol };
+ e = { _eventname : "Symbol"; symbol : symbol };
  event e
 end
 
