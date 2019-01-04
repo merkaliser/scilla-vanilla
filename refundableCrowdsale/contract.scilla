@@ -165,7 +165,7 @@ match isState with
     match val1 with 
     | False =>
       number_of_token = builtin mul _rate dep; 
-      payee_tok_bal=builtin get s payee;
+      payee_tok_bal <- token[payee];
       match payee_tok_bal with
       | Some x =>
         can_do=le_int number_of_token x;
@@ -173,28 +173,28 @@ match isState with
         | True =>
           p = number_of_token;
           payee_tok_bal1=builtin sub x p;
-          payee_tok_bal1_new=builtin put s payee payee_tok_bal1;
-          token:=payee_tok_bal1_new;
-          tk=builtin get s _sender;
+          
+          token[payee]:= payee_tok_bal1;
+          tk <- token[_sender];
           match tk with 
           | Some x =>
             new_to_tk_bal=builtin add x number_of_token;
-            new_tk_bal=builtin put s _sender new_to_tk_bal;
             
-            token := new_tk_bal
+            
+            token[_sender] := new_to_tk_bal
           | None =>
-            new_tk_bal1=builtin put s _sender number_of_token;
-            token := new_tk_bal1;
-          to_bal = builtin get bl payee;
+            
+            token[_sender] := number_of_token;
+          to_bal <- all_deposits[payee];
           match to_bal with
           | Some x =>
             new_to_bal = builtin add x dep;
-            new_balances2 = builtin put bl payee new_to_bal;
-            all_deposits := new_balances2
+            
+            all_deposits[payee] := new_to_bal
             
           | None =>
-            new_balances3 = builtin put bl payee dep;
-            all_deposits := new_balances3
+            
+            all_deposits[payee]:= dep
           end;
           
           e = { _eventname : "purchasedSuccessfully"; _recipient : _sender; _amount : Uint128 0; message : "tokens purchased successfully" };        
@@ -249,19 +249,19 @@ transition beneficiaryWithdraw()
         bene_zil_bal := beneficiary_zil_bal;
         bene_zil_return <- bene_zil_bal;
         beneficiary_tok_bal_new=builtin mul zero x;
-        tok_new_bal=builtin put s _sender beneficiary_tok_bal_new;
-        token := tok_new_bal;
-        payee_tok_bal = builtin get s payee;
+        
+        token[_sender] := beneficiary_tok_bal_new;
+        payee_tok_bal <- token[payee];
         match payee_tok_bal with
         | Some p =>
           payee_tok_bal1=builtin add p x;
-          payee_tok_bal_new=builtin put s payee payee_tok_bal1;
-          token := payee_tok_bal_new;
-          bene_zil_bal1= builtin get bl _sender
+          
+          token[payee] := payee_tok_bal1;
+          bene_zil_bal1 <- all_deposits[_sender]
              
         | None =>  
           payee_tok_bal_new=builtin put s payee x;
-          token := payee_tok_bal_new;
+          token[payee] := x;
         msg = { _tag : "Main"; _recipient : _sender; _amount : bene_zil_return ; message : "refunded" };
         msgs = one_msg msg;
         send msgs  
@@ -296,7 +296,7 @@ transition withdrawPrimary (withdrawalamount : Uint128)
     | True =>
           
       bl <- all_deposits;
-      bal = builtin get bl _sender;
+      bal <- all_deposits[_sender];
       match bal with
       | Some b =>
         can_do = le_int withdrawalamount b;
@@ -304,8 +304,8 @@ transition withdrawPrimary (withdrawalamount : Uint128)
         | True =>
           (* subtract withdrawalamount from pprimary  and add it to  _sender*)
           new_sender_bal = builtin sub b withdrawalamount;
-          new_balances = builtin put bl _sender new_sender_bal;
-          all_deposits := new_balances;
+          
+          all_deposits[_sender] := new_Sender_bal;
           
           
           e = { _eventname : "withdrawPrimary"; _recipient : _sender; _amount : withdrawalamount ; transferred : withdrawalamount };
