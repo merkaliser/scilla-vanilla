@@ -37,8 +37,7 @@ field owner_balance : Map ByStr20 Uint128 =
 transition buyTokens (beneficiary: ByStr20) 
 s <- sale;
 ob <- owner_balance;
-success="success";
-failure="failure";
+failure="zero _amount";
 notMultiple="Not a multiple of rate";
 failure1 = "wallet cant be beneficiary";
 zilAmount = builtin div _amount _rate ;
@@ -66,31 +65,25 @@ val = builtin eq beneficiary _wallet;
             newBal=builtin add v _amount;
             (*wallet balance updated*)
             owner_balance [_wallet]:= newBal ;
-            msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
-            msgs = one_msg msg;
-            send msgs
+             e = { _eventname : "BuyTokens"; from : _sender; beneficiary : beneficiary; amount : _amount };
+ 	           event e 
             |None =>
             (*wallet balance updated*)
              owner_balance [_wallet]:= _amount ;
-             msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
-             msgs = one_msg msg;
-             send msgs
-             end
+             e = { _eventname : "BuyTokens"; from : _sender; beneficiary : beneficiary; amount : _amount };
+ 	           event e 
+            end
          | False =>
-         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : notMultiple };
-         msgs = one_msg msg;
-         send msgs
-         end
-       
+         e = { _eventname : "Error"; from : _sender;  error : notMultiple  };
+ 	       event e 
+        end
      | False =>
-         msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : failure };
-         msgs = one_msg msg;
-         send msgs
-         end
+        e = { _eventname : "Error"; from : _sender;  error : failure  };
+      	event e 
+       end
   | True =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : failure1 };
-    msgs = one_msg msg;
-    send msgs
+  e = { _eventname : "Error"; from : _sender;  error : failure1  };
+ 	event e 
   end
   end
 
