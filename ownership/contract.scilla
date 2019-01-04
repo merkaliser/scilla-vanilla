@@ -25,11 +25,10 @@ field _owner : ByStr20 = owner
 field noOwner : ByStr20 = owner
 
 (*owner address*)
-
 transition owner ()
-    owner1<-_owner;
-    e = { _eventname : "Owner"; from : _sender  ; owner : owner1 };
-	  event e 
+ owner1<-_owner;
+ e = { _eventname : "Owner"; from : _sender  ; owner : owner1 };
+ event e 
 end
 
 (*  true if _sender is the owner of the contract.*)
@@ -41,10 +40,10 @@ f="false";
 match isOwner with
 |True=>
     e = { _eventname : "isOwner"; from : _sender  ; is_owner : t };
-	  event e 
+    event e 
 |False=>
     e = { _eventname : "isOwner"; from : _sender  ; is_owner : f };
-	  event e 
+    event e 
 end
 end
 
@@ -53,14 +52,14 @@ end
 transition transferOwnership (newOwner : ByStr20)
 owner1<-_owner;
 isowner=builtin eq _sender owner1;
-err = "not an owner";
+noOwnerErr = "not an owner";
 match isowner with
 |True=>
      _owner:=newOwner;
      e = { _eventname : "Transfer Ownership"; from : _sender  ; to : owner1};
 	   event e 
 |False=>
-     e = { _eventname : "Error"; from : _sender; code: err  };
+     e = { _eventname : "Error"; from : _sender; code: noOwnerErr };
 	   event e 
 end
 end 
@@ -68,7 +67,7 @@ end
 transition renounceOwnership ()
 owner1<-_owner;
 _noOwner<-noOwner;
-msg2 = "not an owner";
+noOwnerErr = "not an owner";
 isOwner = builtin eq _sender owner1;
 match isOwner with
 |True=>
@@ -76,10 +75,8 @@ match isOwner with
      e = { _eventname : "Renounce Ownership"; from : _sender  ; to : _noOwner};
 	   event e 
 |False=>
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : err};
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : noOwnerErr};
     msgs = one_msg msg;
     send msgs
 end
 end 
-
-
