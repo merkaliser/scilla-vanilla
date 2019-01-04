@@ -301,7 +301,6 @@ match v with
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
         event e
 	end
-
     | None =>
     toBalTranche=_amount;
      v3 <- balances[_to] ;
