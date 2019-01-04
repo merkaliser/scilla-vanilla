@@ -34,7 +34,6 @@ field owner_balance : Map ByStr20 Uint128 =
     builtin put m _wallet _zero
 
 
-
 transition buyTokens (beneficiary: ByStr20) 
 s <- sale;
 ob <- owner_balance;
@@ -42,15 +41,12 @@ success="success";
 failure="failure";
 notMultiple="Not a multiple of rate";
 failure1 = "wallet cant be beneficiary";
-
 zilAmount = builtin div _amount _rate ;
-_new_tokensRaised <-tokensRaised;
- 
+tr <-tokensRaised;
 isMultiple1= builtin div _amount  _rate;
 isMultiple2= builtin mul isMultiple1  _rate;
 isMultiple=builtin eq isMultiple2 _amount ;
 val = builtin eq beneficiary _wallet;
-  
   match val with
   | False =>
       val1 = builtin eq zilAmount _zero;
@@ -58,26 +54,24 @@ val = builtin eq beneficiary _wallet;
      | False =>
           match isMultiple with
         | True =>
+        accept;
         new_sale = builtin put s beneficiary zilAmount;
-        new_tokensRaised1 = builtin add _new_tokensRaised zilAmount;
-        tokensRaised:=new_tokensRaised1;
-        sale:=new_sale;
-        
+        new_tokensRaised = builtin add tr zilAmount;
+        tokensRaised:=new_tokensRaised;
+        sale[beneficiary]:=zilAmount;
         (*wallet balance*)
-        old_owner_bal = builtin get ob _wallet;
-          match old_owner_bal with
+        old_owner_bal <- owner_balance [_wallet];
+        match old_owner_bal with
             | Some v =>
             newBal=builtin add v _amount;
             (*wallet balance updated*)
-            new_owner_bal = builtin put ob _wallet newBal ;
-            owner_balance:=new_owner_bal;
+            owner_balance [_wallet]:= newBal ;
             msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
             msgs = one_msg msg;
             send msgs
             |None =>
             (*wallet balance updated*)
-             new_owner_bal = builtin put ob _wallet _amount ;
-             owner_balance:=new_owner_bal;
+             owner_balance [_wallet]:= _amount ;
              msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : success };
              msgs = one_msg msg;
              send msgs
@@ -100,28 +94,20 @@ val = builtin eq beneficiary _wallet;
   end
   end
 
-
 transition wallet()
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; wallet : _wallet};
-    msgs = one_msg msg;
-    send msgs
+  e = { _eventname : "Wallet"; wallet : _wallet; from : _sender  };
+ 	event e 
 end
-
 
 (* @return the number of token units a buyer gets per zil.*)
 transition rate()
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; rate : _rate};
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "Rate"; rate : _rate; from : _sender  };
+ 	  event e 
 end
-
 
   (*@return the amount of tokens raised.*)
 transition tokensRaised ()
     t<-tokensRaised;
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; tokens : t};
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "TokensRaised"; tokens : t; from : _sender  };
+ 	  event e 
 end
-
-
