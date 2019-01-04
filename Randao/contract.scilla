@@ -163,7 +163,7 @@ let sender_already_committed_err_code = Int32 -13
 (***************************************************)
 
 contract Randao 
-( founder : ByStr20 )
+()
 
 (*_deposit is _amount of zil required to send to take part in commit phase*)
 (*commitBalkline is the Bnum when the commit phase starts*)
@@ -406,8 +406,8 @@ transition getMyBounty(compaignID: Uint32)
              	      	    fine = calculate_fine commitno revealno deposit;
            	     	    bountyShare = calculate_share revealno bounty;
 		   	    distributionAmount = builtin add fine bountyShare;
-	  	   	    founderAmt = builtin sub bounty bountyShare;
-	 	   	    p = Pair {(ByStr20) (Uint128)} address founderAmt;
+	  	   	    userAmt = builtin sub bounty bountyShare;
+	 	   	    p = Pair {(ByStr20) (Uint128)} address userAmt;
 		   	    _consumer[compaignID]:= p;
 		   	    totalReward = addOpt deposit distributionAmount;
         	   	    rewarded[compaignID][_sender] := one_32; 
