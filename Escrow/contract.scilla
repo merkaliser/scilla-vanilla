@@ -36,7 +36,9 @@ let le_int =
       | False => False
       end
     end
-    
+ 
+(*constant*)
+let _zero = Uint128 0   
 
 (***************************************************)
 (*             The contract definition             *)
@@ -74,7 +76,7 @@ transition transferPrimary(recipient : ByStr20)
 end
   
 transition depositsOf (payee : ByStr20)
-  val = all_deposits[payee];
+  val <- all_deposits[payee];
   match val with
   | Some v =>
     e = { _eventname : "DepositsOf";  from : _sender ; payee : payee ; deposits : v  };
@@ -88,46 +90,42 @@ end
 
 transition deposit (payee : ByStr20)
  deposits=_amount;
- bl <- all_deposits;
+ p <- _primary;
  notPrimary="not primary";
  bal <- all_deposits[_sender];
+ to_bal <- all_deposits[payee];
  isPrimary=builtin eq _sender p;
  match isPrimary with
  | True =>
+  accept;
   match bal with
   | Some b =>
-      accept; 	
       (* subtract deposit from _sender and add it to payee *)
       new_sender_bal = builtin sub b deposits;
-      all_deposits[payee] := new_payee_bal
-      to_bal<- all_deposits[_sender];
+      all_deposits[payee] := new_sender_bal;
       match to_bal with
       | Some x =>
         new_to_bal = builtin add x deposits;
-        new_balances2 = builtin put new_balances payee new_to_bal;
-        all_deposits := new_balances2
-        e = { _eventname : "Deposit";  from : _sender ; payee : payee };
+        all_deposits[payee] := new_to_bal;
+        e = { _eventname : "Deposit";  from : _sender ; payee : payee ; amount: _amount};
         event e 
       | None =>
-        new_balances3 = builtin put new_balances payee deposits;
-        all_deposits := new_balances3
-        e = { _eventname : "Deposit";  from : _sender ; payee : payee };
+        all_deposits[payee] := deposits;
+        e = { _eventname : "Deposit";  from : _sender ; payee : payee ; amount: _amount};
         event e
        end
   | None =>
-      all_deposits[payee] := new_payee_bal
+      all_deposits[payee] := deposits;
       to_bal<- all_deposits[_sender];
       match to_bal with
       | Some x =>
         new_to_bal = builtin add x deposits;
-        new_balances2 = builtin put new_balances payee new_to_bal;
-        all_deposits := new_balances2
-        e = { _eventname : "Deposit";  from : _sender ; payee : payee };
+        all_deposits[payee] := new_to_bal;
+        e = { _eventname : "Deposit";  from : _sender ; payee : payee ; amount: _amount};
         event e 
       | None =>
-        new_balances3 = builtin put new_balances payee deposits;
-        all_deposits := new_balances3
-        e = { _eventname : "Deposit";  from : _sender ; payee : payee };
+        all_deposits[payee] := deposits;
+        e = { _eventname : "Deposit";  from : _sender ; payee : payee ; amount: _amount};
         event e
        end
     end
@@ -138,17 +136,24 @@ transition deposit (payee : ByStr20)
 end
 
 
-transition withdraw ()
+transition withdraw (payee : ByStr20)
   p <- _primary;
+  noBal="no deposit done to payeee account";
   notPrimary="not primary";
   isPrimary=builtin eq _sender p;
   match isPrimary with
    | True =>
-      p<-all_deposits [payee];
-      all_deposits [payee]:=_zero;
-      msg = { _tag : "Main"; _recipient : _sender; _amount : p; payee : payee };
-      msgs = one_msg msg;
-      send msgs
+      payeeBal <- all_deposits [payee];
+      match payeeBal with
+       | Some b =>
+        all_deposits [payee]:=_zero;
+        msg = { _tag : "Main"; _recipient : _sender; _amount : b; payee : payee };
+        msgs = one_msg msg;
+        send msgs
+     | None =>
+        e = { _eventname : "Error"; from : _sender ; code : noBal  };
+        event e
+       end
    | False =>
       e = { _eventname : "Error"; from : _sender ; code : notPrimary  };
       event e
