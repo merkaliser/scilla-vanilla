@@ -40,8 +40,8 @@ let le_int =
       end
     end
     
-
-
+(*constant*)
+let _zero = Uint128 0
 
 (***************************************************)
 (*             The contract definition             *)
@@ -83,13 +83,13 @@ transition totalSupply ()
  end
 
 transition balanceOf (tokenOwner : ByStr20)
-   val <- balances[tokenOwner];
+  val <- balances[tokenOwner];
   match val with
   | Some v =>
-    e = { _eventname : "BalanceOf"; owner : _owner; balance : v };
+    e = { _eventname : "BalanceOf"; tokenOwner : tokenOwner; balance : v };
     event e
   | None =>
-    e = { _eventname : "BalanceOf"; owner : _owner; balance : _zero };
+    e = { _eventname : "BalanceOf"; tokenOwner : tokenOwner; balance : _zero };
     event e
   end
 end
@@ -170,16 +170,16 @@ isMultiple=builtin eq isMultiple2 amount ;
            end
     | False =>
       (* balance not sufficient. *)
-       	e = { _eventname : "Error"; from : _sender ; to : to ; userData : _userData ; amount : amount ; code : inSuffBal  };
+       	e = { _eventname : "Send Error"; from : _sender ; to : to ; userData : _userData ; amount : amount ; code : inSuffBal  };
         event e
     end
   | None =>
     (* no balance record, can't transfer *)
-     e = { _eventname : "Error"; from : _sender ; to : to ; userData : _userData ; amount : amount ; code : noBal  };
+     e = { _eventname : "Send Error"; from : _sender ; to : to ; userData : _userData ; amount : amount ; code : noBal  };
      event e
    end
    | False =>
-     e = { _eventname : "Error"; from : _sender ; to : to ; userData : _userData ; amount : amount ; code : notGranular  };
+     e = { _eventname : "Send Error"; from : _sender ; to : to ; userData : _userData ; amount : amount ; code : notGranular  };
      event e
    end
 end
@@ -192,22 +192,21 @@ al <- allowed;
 allowed_from <- allowed [_sender][from];
 isMultiple1= builtin div amount  granularity;
 isMultiple2= builtin mul isMultiple1  granularity;
+isSender1=builtin eq to _sender ;
+isSender=builtin eq from _sender ;
 notgranular="Not granular";
 m_disallowed = "Transfer not allowed";
 isMultiple=builtin eq isMultiple2 amount ;
 match isMultiple with
   | True =>
-  m_disallowed = "Transfer not allowed";
-  isSender=builtin eq from _sender ;
   match isSender with
    | True=>
-     e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+     e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
      event e
    | False=>  
-     isSender1=builtin eq to _sender ;
      match isSender1 with
       | True=>
-        e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+        e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
         event e
       | False=>  
         (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
@@ -229,7 +228,7 @@ match isMultiple with
                 to_bal_new = builtin add tb amount;
                 balances[to] := to_bal_new;
                 new_allowed = builtin sub alFrom amount;
-                allowed[_sender] := new_allowed;
+                allowed[_sender][from] := new_allowed;
                 e = { _eventname : "OperatorSent"; from : _sender ; to : to ; amount : amount ; userData : userData ; operatorData : operatorData };
                 event e
               | None =>
@@ -242,21 +241,21 @@ match isMultiple with
               end
               (* reduce "allowed" by "amount" *)
             | False =>
-               e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+               e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
               event e
             end
          | None =>
-           e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+           e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
            event e
           end
      | None =>
-        e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+        e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
         event e
         end
      end
    end
   | False =>
-     e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : notgranular  };
+     e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : notgranular  };
      event e
      end
 end
@@ -286,16 +285,16 @@ isMultiple=builtin eq isMultiple2 amount ;
       event e	
     | False =>
       (* balance not sufficient. *)
-      e = { _eventname : "Error"; from : _sender  ; code : insuffBal  };
+      e = { _eventname : "Burn Error"; from : _sender  ; code : insuffBal  };
       event e
      end
   | None =>
     (* no balance record, can't transfer *)
-    e = { _eventname : "Error"; from : _sender ; code : noBal  };
+    e = { _eventname : "Burn Error"; from : _sender ; code : noBal  };
     event e
    end
 | False =>
-    e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : notgranular  };
+    e = { _eventname : "Burn Error"; from : _sender ; code : notgranular  };
     event e
 end
 end
@@ -314,7 +313,7 @@ match  isMultiple with
    isSender=builtin eq from _sender ;
    match isSender with
    | True =>
-    e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
+    e = { _eventname : "Operator Burn Error"; from : _sender ; code : m_disallowed  };
     event e
    | False =>  
     (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
@@ -338,20 +337,20 @@ match  isMultiple with
         e = { _eventname : "Operator Burnt"; sender: _sender; from : from ; amount : amount ; userData : userData ; operatorData : operatorData };
         event e
       | False =>
-        e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
+        e = { _eventname : "Operator Burn Error"; from : _sender ; code : m_disallowed  };
         event e
       end
      | None =>
-      e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
+      e = { _eventname : "Operator Burn Error"; from : _sender ; code : m_disallowed  };
       event e
       end
     | None =>
-    e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
+    e = { _eventname : "Operator Burn Error"; from : _sender ; code : m_disallowed  };
     event e
     end
   end
 | False =>
-  e = { _eventname : "Error"; from : _sender ; code : notgranular  };
+  e = { _eventname : "Operator Burn Error"; from : _sender ; code : notgranular  };
   event e
 end
 end
