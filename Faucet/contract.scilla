@@ -221,19 +221,19 @@ transition TotalSupply ()
 end
 
 transition Transfer (to : ByStr20, tokens : Uint128)
-  insuffBal="Insufficient balance"'
+  insuffBal="Insufficient balance";
   noBal="no Balance";
-  bal <- balances[_sender];
-  match bal with
+  balFrom <- balances[_sender];
+  toBal <- balances[to];
+  match balFrom with
   | Some b =>
     can_do = le_int tokens b;
     match can_do with
     | True =>
       (* subtract tokens from _sender and add it to to *)
       new_sender_bal = builtin sub b tokens;
-      new_balances[_sender] := new_sender_bal;
-      to_bal = builtin get new_balances to;
-      match to_bal with
+      balances[_sender] := new_sender_bal;
+      match toBal with
       | Some x =>
         new_to_bal = builtin add x tokens;
         balances[to] := new_to_bal;

@@ -1,14 +1,6 @@
 {
-  "gas_remaining": "7449",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a",
-    "params": [
-      { "vname": "total_tokens", "type": "Uint128", "value": "500" }
-    ]
-  },
+  "gas_remaining": "7490",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
@@ -33,5 +25,17 @@
       "value": []
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "MaxAllowance",
+      "params": [
+        {
+          "vname": "sender",
+          "type": "ByStr20",
+          "value": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a"
+        },
+        { "vname": "total_tokens", "type": "Uint128", "value": "500" }
+      ]
+    }
+  ]
 }
