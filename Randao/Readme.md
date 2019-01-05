@@ -21,7 +21,7 @@ Set the compaign using `setCompaign`. Parallel Compaigns can run through. Compai
 Anyone who want to participate in the random number generation needs to
 send a transaction to the contract with required deposit as pledge in a specified
 time period, accompanied by the result of sha3(s), s is the secret number respective picked by
-participant. `commit` is used with sha256 hash of any number as parameter. It acnnot be equal to equivalent to secret 0.
+participant. `commit` is used with sha256 hash of any number as parameter. It cannot be equal to equivalent to secret 0.
 
 ##### The second phase (reveal phase): collecting valid s
 After the first phase, anyone who submitted sha3(s) successfully needs
