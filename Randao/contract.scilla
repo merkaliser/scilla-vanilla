@@ -285,6 +285,7 @@ transition reveal(compaignID : Uint32, _s : Uint128)
  cd<-_commitDeadline[compaignID];
  bn<-_bnum[compaignID];
  blk <- & BLOCKNUMBER;
+ s_256_opt=builtin to_uint256 _s;
  mp<-_minParticipant[compaignID];
  isMinParticipants = le_int_opt mp cn;
  (*inTime if true signifies that blk lies in commitDeadline and _bnum i.e. in phase2*)
@@ -309,14 +310,21 @@ transition reveal(compaignID : Uint32, _s : Uint128)
 	             prRandom<-random[compaignID];
                      match prRandom with 
  	               | Some previousRandom =>
-			  previousRandomHash = builtin sha256hash previousRandom;
-	                  newRandom=builtin dist previousRandomHash commit;
-                          random[compaignID]:=newRandom;	
-		  	  p = Pair {(ByStr32) (Uint128)} a _s;    
-	                  participant[compaignID][_sender] := p;
-	            	  revealed[compaignID][_sender]:=one_32;
-                          e = { _eventname : "LogReveal"; compaignID : compaignID; from : _sender  ; secret : _s  };
-	            	  event e 
+			  match s_256_opt with
+                          | Some s_256 =>
+			   previousRandomHash = builtin sha256hash previousRandom;
+	                   newRandomNoFromHash=builtin dist previousRandomHash commit;
+			   newRandom= builtin div newRandomNoFromHash s_256;
+                           random[compaignID]:=newRandom;	
+		  	   p = Pair {(ByStr32) (Uint128)} a _s;    
+	                   participant[compaignID][_sender] := p;
+	            	   revealed[compaignID][_sender]:=one_32;
+                           e = { _eventname : "LogReveal"; compaignID : compaignID; from : _sender  ; secret : _s  };
+	     	           event e 
+	                 | None =>
+                    	   e = mk_error_event failure_err_code;
+	     	           event e 
+  	          	  end 
 	              | None =>
 			(*Random no. initialized to zero_256 at setCompaign*)
                     	 e = mk_error_event failure_err_code;
