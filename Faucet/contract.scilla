@@ -129,17 +129,17 @@ match paused with
             event e     
            end           
        |False =>
-          e = { _eventname : "Error"; account : _sender  ; amount : amount ; code: notallowed  };
+          e = { _eventname : "GetTokenError"; account : _sender  ; amount : amount ; code: notallowed  };
           event e     
         end
         
      end
  | None =>
-    e = { _eventname : "Error"; account : _sender  ; amount : amount ; code: failure  };
+    e = { _eventname : "GetTokenError"; account : _sender  ; amount : amount ; code: failure  };
     event e     
    end
 | False =>       
-    e = { _eventname : "Error"; account : _sender  ; amount : amount ; code: failure  };
+    e = { _eventname : "GetTokenError"; account : _sender  ; amount : amount ; code: failure  };
     event e     
 end
 end
@@ -150,34 +150,34 @@ transition setMaxAllowance(_maxAllowanceInclusive : Uint128)
  match isOwner with
     | True =>
         maxAllowanceInclusive := _maxAllowanceInclusive;
-        e = { _eventname : "MaxAllowance"; account : _sender  ; maxAllowanceInclusive : _maxAllowanceInclusive  };
+        e = { _eventname : "SetMaxAllowance"; account : _sender  ; maxAllowanceInclusive : _maxAllowanceInclusive  };
         event e     
     | False =>
-        e = { _eventname : "Error"; account : _sender  ; amount : amount ; code: notallowed  };
+        e = { _eventname : "AllowanceError"; sender : _sender ; code: notallowed  };
         event e     
       end
  end
   
+(*reclaims all the tokens of owner and set to zero*)
 transition reclaimTokens()
 true="true";
 false="false";
+bal <- balances[owner];
 isOwner= builtin eq _sender owner;
 match isOwner with
   | True =>
-  bl <- balances;
-  bal = builtin get bl owner;
-  match bal with
+    match bal with
     | Some b =>
       balances[owner] := _zero;
-      e = { _eventname : "ReclaimTokens"; account : _sender  ; transferred : true  };
+      e = { _eventname : "ReclaimTokens"; sender : _sender  ; transferred : true  };
       event e     
     | None =>
     (* no balance record, can't transfer *)
-      e = { _eventname : "ReclaimTokens"; account : _sender  ; transferred : false  };
+      e = { _eventname : "ReclaimTokens"; sender : _sender  ; transferred : false  };
       event e     
     end  
   | False =>
-     e = { _eventname : "Error"; account : _sender  ; amount : amount ; code: notallowed  };
+     e = { _eventname : "ReclaimError"; account : _sender ; code: notallowed  };
      event e     
   end
 end
@@ -187,10 +187,10 @@ isOwner= builtin eq _sender owner;
 match isOwner with
     | True =>
        isPaused := _isPaused;
-       e = { _eventname : "Paused"; account : _sender };
+       e = { _eventname : "Paused"; sender : _sender };
        event e     
     | False =>
-      e = { _eventname : "Error"; account : _sender  ; amount : amount ; code: notallowed  };
+      e = { _eventname : "PauseError"; sender : _sender ; code: notallowed  };
       event e     
      end
 end
@@ -246,12 +246,12 @@ transition Transfer (to : ByStr20, tokens : Uint128)
       end
     | False =>
       (* balance not sufficient. *)
-      e = { _eventname : "Error"; from : _sender ; to : to ; tokens : tokens; code: insuffBal };
+      e = { _eventname : "TransferError"; from : _sender ; to : to ; tokens : tokens; code: insuffBal };
       event e     
     end
   | None =>
     (* no balance record, can't transfer *)
-    e = { _eventname : "Error"; from : _sender ; to : to ; tokens : tokens; code: noBal};
+    e = { _eventname : "TransferError"; from : _sender ; to : to ; tokens : tokens; code: noBal};
     event e     
   end
 end
@@ -293,15 +293,15 @@ transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
           event e     
         end
       | False =>
-         e = { _eventname : "Error"; from : from ; to : to ; tokens : tokens; code: m_disallowed};
+         e = { _eventname : "TransferFromError"; from : from ; to : to ; tokens : tokens; code: m_disallowed};
          event e     
       end
     | _ =>
-      e = { _eventname : "Error"; from : from ; to : to ; tokens : tokens; code: m_disallowed};
+      e = { _eventname : "TransferFromError"; from : from ; to : to ; tokens : tokens; code: m_disallowed};
       event e     
     end
   | None =>
-    e = { _eventname : "Error"; from : from ; to : to ; tokens : tokens; code: m_disallowed};
+    e = { _eventname : "TransferFromError"; from : from ; to : to ; tokens : tokens; code: m_disallowed};
     event e     
   end
 end
