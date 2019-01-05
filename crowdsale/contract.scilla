@@ -37,70 +37,70 @@ field owner_balance : Map ByStr20 Uint128 =
 transition buyTokens (beneficiary: ByStr20) 
 s <- sale;
 ob <- owner_balance;
-failure="zero _amount";
+zeroAmtError="zero _amount";
 notMultiple="Not a multiple of rate";
-failure1 = "wallet cant be beneficiary";
+walletErr = "wallet cant be beneficiary";
 zilAmount = builtin div _amount _rate ;
 tr <-tokensRaised;
+(*isMultiple = if ((amt/rate)*rate == amt)*)
 isMultiple1= builtin div _amount  _rate;
 isMultiple2= builtin mul isMultiple1  _rate;
 isMultiple=builtin eq isMultiple2 _amount ;
-val = builtin eq beneficiary _wallet;
-  match val with
+isWallet = builtin eq beneficiary _wallet;
+isZilZero = builtin eq zilAmount _zero;
+  match isWallet with
   | False =>
-      val1 = builtin eq zilAmount _zero;
-      match val1 with
+      match isZilZero with
      | False =>
-          match isMultiple with
+       match isMultiple with
         | True =>
         accept;
-        new_sale = builtin put s beneficiary zilAmount;
         new_tokensRaised = builtin add tr zilAmount;
-        tokensRaised:=new_tokensRaised;
-        sale[beneficiary]:=zilAmount;
+        tokensRaised := new_tokensRaised;
+        sale[beneficiary] := zilAmount;
         (*wallet balance*)
         old_owner_bal <- owner_balance [_wallet];
         match old_owner_bal with
             | Some v =>
-            newBal=builtin add v _amount;
-            (*wallet balance updated*)
-            owner_balance [_wallet]:= newBal ;
-             e = { _eventname : "BuyTokens"; from : _sender; beneficiary : beneficiary; amount : _amount };
- 	           event e 
-            |None =>
-            (*wallet balance updated*)
-             owner_balance [_wallet]:= _amount ;
-             e = { _eventname : "BuyTokens"; from : _sender; beneficiary : beneficiary; amount : _amount };
- 	           event e 
+              newBal=builtin add v _amount;
+              (*wallet balance updated*)
+              owner_balance [_wallet]:= newBal ;
+              e = { _eventname : "BuyTokens"; from : _sender; beneficiary : beneficiary; amount : _amount };
+ 	      event e 
+            | None =>
+              (*wallet balance updated*)
+              owner_balance [_wallet] := _amount ;
+              e = { _eventname : "BuyTokens"; from : _sender; beneficiary : beneficiary; amount : _amount };
+ 	      event e 
             end
          | False =>
-         e = { _eventname : "Error"; from : _sender;  error : notMultiple  };
- 	       event e 
-        end
-     | False =>
-        e = { _eventname : "Error"; from : _sender;  error : failure  };
+           e = { _eventname : "Error"; from : _sender;  error : notMultiple  };
+ 	   event e 
+          end
+     | True =>
+        e = { _eventname : "Error"; from : _sender;  error : zeroAmtError  };
       	event e 
        end
   | True =>
-  e = { _eventname : "Error"; from : _sender;  error : failure1  };
- 	event e 
+    e = { _eventname : "Error"; from : _sender;  error : walletErr  };
+    event e 
   end
   end
 
 transition wallet()
-  e = { _eventname : "Wallet"; wallet : _wallet; from : _sender  };
- 	event e 
+ e = { _eventname : "Wallet"; wallet : _wallet; from : _sender  };
+ event e 
 end
 
 (* @return the number of token units a buyer gets per zil.*)
 transition rate()
-    e = { _eventname : "Rate"; rate : _rate; from : _sender  };
- 	  event e 
+ e = { _eventname : "Rate"; rate : _rate; from : _sender  };
+ event e 
 end
 
   (*@return the amount of tokens raised.*)
 transition tokensRaised ()
-    t<-tokensRaised;
-    e = { _eventname : "TokensRaised"; tokens : t; from : _sender  };
- 	  event e 
+ t<-tokensRaised;
+ e = { _eventname : "TokensRaised"; tokens : t; from : _sender  };
+ event e 
 end
