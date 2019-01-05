@@ -130,6 +130,10 @@ let calculate_share =
          builtin div bounty rNum 
       end     
 
+let sha256_zero =
+  let _zero = Uint128 0
+  in builtin sha256hash _zero
+      
 (*Constants*)
 let zero_128 = Uint128 0
 let one_128 = Uint128 1
@@ -156,6 +160,7 @@ let bounty_unequal_err_code = Int32 -10
 let not_consumer_err_code = Int32 -11
 let compaignID_not_unique_err_code = Int32 -12
 let sender_already_committed_err_code = Int32 -13
+let secret_zero_err_code = Int32 -14
 
 
 (***************************************************)
@@ -233,7 +238,11 @@ transition commit (compaignID : Uint32, _hs : ByStr32 )
  cb<-_commitBalkline[compaignID];
  cd<-_commitDeadline[compaignID];
  inTime = in_time cb cd blk;
- match isEqualDeposit with
+ (*zero secret hash cant be committed*)
+ isZeroHash = builtin eq _hs sha256_zero;
+ match isZeroHash with
+  | False =>
+    match isEqualDeposit with
      | True =>
         match inTime with
         | True =>
@@ -261,6 +270,10 @@ transition commit (compaignID : Uint32, _hs : ByStr32 )
       e = mk_error_event insufficient_deposit_err_code;
       event e 
       end
+  | True =>
+    e = mk_error_event secret_zero_err_code;
+    event e 
+    end
  end
 
 (*returns commitment for compaignID, sha256 hash of _sender*)
