@@ -195,7 +195,7 @@ isMultiple2= builtin mul isMultiple1  granularity;
 isSender1=builtin eq to _sender ;
 isSender=builtin eq from _sender ;
 notgranular="Not granular";
-m_disallowed = "Transfer not allowed";
+m_disallowed = "sender not allowed";
 isMultiple=builtin eq isMultiple2 amount ;
 match isMultiple with
   | True =>
@@ -216,7 +216,6 @@ match isMultiple with
             | Some b =>
             (* We can only transfer the minimum of available or authorized tokens *)
             t = min_int alFrom b;
-            (* We can only transfer the minimum of available or authorized tokens *)
             can_do = le_int amount t;
             match can_do with
             | True =>
@@ -241,11 +240,11 @@ match isMultiple with
               end
               (* reduce "allowed" by "amount" *)
             | False =>
-               e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+               e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : "Token amount is more"  };
               event e
             end
          | None =>
-           e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+           e = { _eventname : "Operator Error"; from : _sender ; amount : amount  ; code : "from account has no balance"  };
            event e
           end
      | None =>
@@ -301,8 +300,8 @@ end
 
 transition operatorBurn (from : ByStr20, amount : Uint128 , userData : String , operatorData : String)
 allowed_from <-allowed [_sender][from];
-bal <- balances[from];
-ts<-_totalSupply;
+balFrom <- balances[from];
+ts <-_totalSupply;
 isMultiple1= builtin div amount  granularity;
 isMultiple2= builtin mul isMultiple1  granularity;
 notgranular="Not granular";
@@ -319,7 +318,7 @@ match  isMultiple with
     (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
     match allowed_from with
      | Some m =>
-      match bal with
+      match balFrom with
       | Some m1 =>
       (* We can only transfer the minimum of available or authorized tokens *)
       t = min_int m m1;
@@ -337,11 +336,11 @@ match  isMultiple with
         e = { _eventname : "Operator Burnt"; sender: _sender; from : from ; amount : amount ; userData : userData ; operatorData : operatorData };
         event e
       | False =>
-        e = { _eventname : "Operator Burn Error"; from : _sender ; code : m_disallowed  };
+        e = { _eventname : "Operator Burn Error"; from : _sender ; code : "Token amount is more"  };
         event e
       end
      | None =>
-      e = { _eventname : "Operator Burn Error"; from : _sender ; code : m_disallowed  };
+      e = { _eventname : "Operator Burn Error"; from : _sender ; code : "from has no balance"  };
       event e
       end
     | None =>
