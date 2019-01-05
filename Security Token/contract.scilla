@@ -104,10 +104,10 @@ transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
   val <- tranches [_owner][_tranche];
   match val with
   | Some v => 
-    e = { _eventname : "BalanceOf"; owner : _owner; tranche : _tranche; balance : v };
+    e = { _eventname : "BalanceOfTranche"; owner : _owner; tranche : _tranche; balance : v };
     event e
   | None =>
-    e = { _eventname : "BalanceOf"; owner : _owner; tranche : _tranche; balance : _zero };
+    e = { _eventname : "BalanceOfTranche"; owner : _owner; tranche : _tranche; balance : _zero  };
     event e
     end
   end
@@ -247,15 +247,15 @@ match v with
     event e
     end
   | None =>
-  e = { _eventname : "Error"; code: noBal};
+  e = { _eventname : "OperatorError"; code: noBal};
   event e
   end
 | False =>
-e = { _eventname : "Error"; code: noOp };
+e = { _eventname : "OperatorError"; code: noOp };
 event e
 end
 | None =>
-e = { _eventname : "Error"; code: noOp };
+e = { _eventname : "OperatorError"; code: noOp };
 event e
 end
 end
@@ -291,14 +291,14 @@ match v with
         tranches[_to][_tranche] := toBalTranche;
  	toBal=builtin add v3x _amount;
  	balances[_to] := toBal;
-      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
         event e
 	| None =>
         tranches[_sender][_tranche] := fromBalTranche;
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
-      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
         event e
 	end
     | None =>
@@ -311,31 +311,31 @@ match v with
         tranches[_to][_tranche] := toBalTranche;
  	toBal=builtin add v3x _amount;
  	balances[_to] := toBal;
-      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
         event e
 	| None =>
         tranches[_from][_tranche] := fromBalTranche;
         balances[_from] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
-      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
         event e
 	end
     end
   | None =>
-  e = { _eventname : "Error"; code: noBal};
+  e = { _eventname : "OperatorError"; code: noBal};
   event e
   end
 | None =>	
-e = { _eventname : "Error"; code: noBal };
+e = { _eventname : "OperatorError"; code: noBal };
 event e
 end
 | False =>
-e = { _eventname : "Error"; code: noOp };
+e = { _eventname : "OperatorError"; code: noOp };
 event e
 end
 | None =>
-e = { _eventname : "Error"; code: noOp };
+e = { _eventname : "OperatorError"; code: noOp };
 event e
 end
 end
@@ -423,11 +423,11 @@ match v with
    e = { _eventname : "Burnt"; owner: _sender ; tranche : _tranche ; amount : _amount ; data : _data };
    event e	
   | None =>
-    e = { _eventname : "Error";  tranche : _tranche ; amount : _amount ; code : noBal  };
+    e = { _eventname : "BurnError";  tranche : _tranche ; amount : _amount ; code : noBal  };
     event e
   end
 | None =>
-  e = { _eventname : "Error";  tranche : _tranche ; amount : _amount ; code : noTranche  };
+  e = { _eventname : "BurnError";  tranche : _tranche ; amount : _amount ; code : noTranche  };
   event e
   end
 end
