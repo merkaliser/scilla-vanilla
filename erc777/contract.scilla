@@ -55,7 +55,6 @@ contract ERC777Token
  granularity: Uint128)
 
 (* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
-
 field balances : Map ByStr20 Uint128 =
   let m = Emp ByStr20 Uint128 in
     builtin put m owner totalSupply
@@ -83,7 +82,6 @@ transition totalSupply ()
  event e
  end
 
-
 transition balanceOf (tokenOwner : ByStr20)
    val <- balances[tokenOwner];
   match val with
@@ -95,7 +93,6 @@ transition balanceOf (tokenOwner : ByStr20)
     event e
   end
 end
-
 
 transition authorizeOperator (operator : ByStr20)
   noauth="not an operator";
@@ -110,8 +107,6 @@ transition authorizeOperator (operator : ByStr20)
        event e
     end
  end
-
-
 
 transition revokeOperator (operator : ByStr20)
     auth="revoked";
@@ -129,7 +124,6 @@ transition revokeOperator (operator : ByStr20)
       end
 end
 
-
 transition isOperatorFor ( operator : ByStr20, tokenHolder : ByStr20)
   is_op="Operator found";
   is_no_op="Operator found failed";
@@ -143,7 +137,6 @@ transition isOperatorFor ( operator : ByStr20, tokenHolder : ByStr20)
       event e
     end
  end
-
 
 transition Send (to : ByStr20 , amount : Uint128 , _userData : String)
 isMultiple1= builtin div amount  granularity;
@@ -192,7 +185,6 @@ isMultiple=builtin eq isMultiple2 amount ;
 end
 
 
-
 transition operatorSend (from : ByStr20, to : ByStr20, amount : Uint128 , userData : String , operatorData : String)
 balFrom <- balances[from];
 balTo <- balances[to];
@@ -217,58 +209,57 @@ match isMultiple with
       | True=>
         e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
         event e
- | False=>  
-  (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
-  match allowed_from with
-    |Some alFrom=>
-      match balFrom with
-      | Some b =>
-      (* We can only transfer the minimum of available or authorized tokens *)
-      t = min_int alFrom b;
-      (* We can only transfer the minimum of available or authorized tokens *)
-      can_do = le_int amount t;
-      match can_do with
-      | True =>
-        (* tokens is what we should subtract from "from" and add to "to" *)
-        new_from_bal = builtin sub b amount;
-        balances[from] := new_from_bal;
-        match balTo with
-        | Some tb =>
-          to_bal_new = builtin add tb amount;
-          balances[to] := to_bal_new;
-          new_allowed = builtin sub alFrom amount;
-          allowed[_sender] := new_allowed;
-          e = { _eventname : "OperatorSent"; from : _sender ; to : to ; amount : amount ; userData : userData ; operatorData : operatorData };
-          event e
-        | None =>
-          (* "to" has no balance. So just set it to amount *)
-        balances[to] := amount;
-        new_allowed = builtin sub alFrom amount;
-        allowed [_sender][from]:= new_allowed;
-        e = { _eventname : "OperatorSent"; from : _sender ; to : to ; amount : amount ; userData : userData ; operatorData : operatorData };
+      | False=>  
+        (* Check if _sender has been authorized where _sender here is an operator who can transfer from "_from" to "to" *)
+        match allowed_from with
+          |Some alFrom=>
+            match balFrom with
+            | Some b =>
+            (* We can only transfer the minimum of available or authorized tokens *)
+            t = min_int alFrom b;
+            (* We can only transfer the minimum of available or authorized tokens *)
+            can_do = le_int amount t;
+            match can_do with
+            | True =>
+              (* tokens is what we should subtract from "from" and add to "to" *)
+              new_from_bal = builtin sub b amount;
+              balances[from] := new_from_bal;
+              match balTo with
+              | Some tb =>
+                to_bal_new = builtin add tb amount;
+                balances[to] := to_bal_new;
+                new_allowed = builtin sub alFrom amount;
+                allowed[_sender] := new_allowed;
+                e = { _eventname : "OperatorSent"; from : _sender ; to : to ; amount : amount ; userData : userData ; operatorData : operatorData };
+                event e
+              | None =>
+                (* "to" has no balance. So just set it to amount *)
+              balances[to] := amount;
+              new_allowed = builtin sub alFrom amount;
+              allowed [_sender][from]:= new_allowed;
+              e = { _eventname : "OperatorSent"; from : _sender ; to : to ; amount : amount ; userData : userData ; operatorData : operatorData };
+              event e
+              end
+              (* reduce "allowed" by "amount" *)
+            | False =>
+               e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+              event e
+            end
+         | None =>
+           e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+           event e
+          end
+     | None =>
+        e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
         event e
         end
-        (* reduce "allowed" by "amount" *)
-      | False =>
-         e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
-        event e
-      end
-  | None =>
-     e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
+     end
+   end
+  | False =>
+     e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : notgranular  };
      event e
-   end
-  | None =>
-    e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : m_disallowed  };
-    event e
-   end
+     end
 end
-end
-| False =>
-  e = { _eventname : "Error"; from : _sender ; amount : amount  ; code : notgranular  };
-  event e
-end
-end
-
 
 transition Burn (amount : Uint128 , data : String)
 isMultiple1= builtin div amount granularity;
@@ -309,7 +300,6 @@ isMultiple=builtin eq isMultiple2 amount ;
 end
 end
 
-
 transition operatorBurn (from : ByStr20, amount : Uint128 , userData : String , operatorData : String)
 allowed_from <-allowed [_sender][from];
 bal <- balances[from];
@@ -319,10 +309,10 @@ isMultiple2= builtin mul isMultiple1  granularity;
 notgranular="Not granular";
 m_disallowed = "Transfer not allowed";
 isMultiple=builtin eq isMultiple2 amount ;
- match  isMultiple with
-  | True =>
-  isSender=builtin eq from _sender ;
-  match isSender with
+match  isMultiple with
+ | True =>
+   isSender=builtin eq from _sender ;
+   match isSender with
    | True =>
     e = { _eventname : "Error"; from : _sender ; code : m_disallowed  };
     event e
@@ -365,4 +355,3 @@ isMultiple=builtin eq isMultiple2 amount ;
   event e
 end
 end
-
