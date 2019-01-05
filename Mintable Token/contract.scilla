@@ -65,9 +65,7 @@ transition mint(contractOwner:ByStr20, tokens : Uint128 )
     totalTokens :=tokens ;
     e = { _eventname : "minted"; _recipient : _sender; _amount : Uint128 0; status : "successfully minted" };
     event e 
-  | False =>
-    
-      
+  | False =>      
     e = { _eventname : "failed to mint"; _recipient : _sender; _amount : Uint128 0; status : "cannot update token supply because sender isnot owner" };
     event e 
   end
@@ -80,21 +78,15 @@ transition burn(value : Uint128)
     can_do=le_int value b;
     match can_do with
     | True=>
-      new_balance=builtin sub b value;
-      
-      balances[_sender] := new_balance;
-      
-      
+      new_balance=builtin sub b value;      
+      balances[_sender] := new_balance;      
       e = { _eventname : "burn"; _recipient : _sender; _amount : Uint128 0; status : "burned" };
-      event e
-      
-    | False =>
-      
+      event e      
+    | False =>      
       e = { _eventname : "notBurned"; _recipient : _sender; _amount : Uint128 0; status : "not burned" };
       event e
     end
-  | None=>
-    
+  | None=>    
     e = { _eventname : "burnFailed"; _recipient : _sender; _amount : Uint128 0; status : "Insufficient balance to burn" };
     event e  
   end
@@ -104,25 +96,21 @@ transition balanceOf (tokenOwner : ByStr20)
   
   val <- balances[tokenOwner];
   match val with
-  | Some v =>
-    
+  | Some v =>    
     e = { _eventname : "balanceOf"; _recipient : _sender; _amount : Uint128 0; balance : v };
     event e
-  | None =>
-    
+  | None =>    
     e = { _eventname : "balanceOfFailed"; _recipient : _sender; _amount : Uint128 0; message : "No balance found" };
     event e
   end
 end
 
-transition TotalSupply ()
-  
+transition TotalSupply ()  
   e = { _eventname : "totalTokenSupply"; _recipient : _sender; _amount : Uint128 0; totaltokens : total_tokens };
   event e
 end
 
-transition Transfer (to : ByStr20, tokens : Uint128)
-  
+transition Transfer (to : ByStr20, tokens : Uint128)  
   bal <- balances[_sender];
   match bal with
   | Some b =>
@@ -130,38 +118,31 @@ transition Transfer (to : ByStr20, tokens : Uint128)
     match can_do with
     | True =>
       (* subtract tokens from _sender and add it to to *)
-      new_sender_bal = builtin sub b tokens;
-      
+      new_sender_bal = builtin sub b tokens;      
       balances[_sender] := new_sender_bal ; 
       to_bal <- balances[to];
       match to_bal with
       | Some x =>
-        new_to_bal = builtin add x tokens;
-        
+        new_to_bal = builtin add x tokens;        
         balances[to] := new_to_bal
-      | None =>
-        
+      | None =>        
         balances[to] := tokens
-      end;
-      
+      end;      
       e = { _eventname : "transfer"; _recipient : _sender; _amount : Uint128 0; transferred : tokens };
       event e
     | False =>
-      (* balance not sufficient. *)
-      
+      (* balance not sufficient. *)      
       e = { _eventname : "transferFailed"; _recipient : _sender; _amount : Uint128 0; message : "Insufficient balance" };
       event e
     end
   | None =>
-    (* no balance record, can't transfer *)
-    
+    (* no balance record, can't transfer *)    
     e = { _eventname : "transferFailed"; _recipient : _sender; _amount : Uint128 0; message : "No balance found" };
     event e
   end
 end
 
-transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
-  
+transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)  
   bal <- balances[from];
   (* Check if _sender has been authorized by "from" *)
   allowed_from <- allowed[from];
@@ -178,14 +159,12 @@ transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
       match can_do with
       | True =>
         (* tokens is what we should subtract from "from" and add to "to" *)
-        new_from_bal = builtin sub a tokens;
-        
+        new_from_bal = builtin sub a tokens;        
         balances[from] := new_from_bal;
         to_bal <- balances[to];
         match to_bal with
         | Some tb =>
-          to_bal_new = builtin add tb tokens;
-          
+          to_bal_new = builtin add tb tokens;          
           balances[to] := to_bal_new;
           send no_msg
         | None =>
@@ -197,18 +176,15 @@ transition TransferFrom (from : ByStr20, to : ByStr20, tokens : Uint128)
         (* reduce "allowed" by "tokens" *)
         new_allowed = builtin sub b tokens;
         allowed[from][_sender] := new_allowed
-      | False =>
-        
+      | False =>        
         e = { _eventname : "transferFromFailed"; _recipient : _sender; _amount : Uint128 0; message : "Transfer not Allowed:tokens greater than allowed" };
         event e
       end
-    | _ =>
-      
+    | _ =>      
       e = { _eventname : "transferFromFailed"; _recipient : _sender; _amount : Uint128 0; message : "failed" };
       event e
     end
-  | None =>
-    
+  | None =>    
     e = { _eventname : "transferFailed"; _recipient : _sender; _amount : Uint128 0; message : "No allowed balance found" };
     event e
   end
@@ -243,51 +219,40 @@ transition burnFrom(from : ByStr20,value :Uint128)
       can_do=le_int value t;
       match can_do with
       | True =>
-        new_from_bal = builtin sub a value;
-        
+        new_from_bal = builtin sub a value;        
         balances[from] := new_from_bal;
-        new_allowed=builtin sub b value;
-        
+        new_allowed=builtin sub b value;        
         allowed[from][_sender] := new_allowed;
 	e = { _eventname : "burnFrom"; _recipient : _sender; _amount : Uint128 0; message : "burned" };
-        event e
-      
-      | False =>
-        
+        event e      
+      | False =>        
 	e = { _eventname : "burnFromFailed"; _recipient : _sender; _amount : Uint128 0; message : "failed to burn:value passed is greater than tokens present" };
-        event e    
-        
+        event e            
       end    
-    | _ =>
-          
+    | _ =>          
       e = { _eventname : "burnFromFailed"; _recipient : _sender; _amount : Uint128 0; message : "failed to burn" };
       event e
     end
-  | None =>
-    
+  | None =>    
     e = { _eventname : "burnFromFailed"; _recipient : _sender; _amount : Uint128 0; message : "No allowed balance found" };
     event e
   end
 end
 
-transition Allowance (tokenOwner : ByStr20, spender : ByStr20)
-  
+transition Allowance (tokenOwner : ByStr20, spender : ByStr20)  
   towner_map <- allowed[tokenOwner];
   match towner_map with
   | Some m =>
     spender_allowance <- allowed[tokenOwner][spender];
     match spender_allowance with
-    | Some n =>
-      
+    | Some n =>      
       e = { _eventname : "allowed"; _recipient : _sender; _amount : Uint128 0; allowed : n };
       event e
-    | None =>
-      
+    | None =>      
       e = { _eventname : "allowanceFailed"; _recipient : _sender; _amount : Uint128 0; message : "No balance found to allow" };
       event e
     end
-  | None =>
-    
+  | None =>    
     e = { _eventname : "allowanceFailed"; _recipient : _sender; _amount : Uint128 0; message : "Allowance Failed" };
     event e
   end
