@@ -7,6 +7,12 @@
             "vname": "compaignID",
             "type": "Uint32",
             "value": "1"
-        }]
+        },
+        {
+            "vname": "seed",
+            "type": "Uint128",
+            "value": "7843651"
+        }
+]
        }
 

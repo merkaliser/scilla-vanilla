@@ -204,7 +204,6 @@ field _consumer : Map Uint32 (Pair ByStr20 Uint128) = Emp Uint32 (Pair ByStr20 U
 (*compaignID -> randomNumber*)
 field random: Map Uint32 Uint256 = Emp Uint32 Uint256
 
-
 (*deposit of bounty by consumer and set compaign*)
 transition setCompaign ( compaignID : Uint32, deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
  iscompaignID_unique <- exists _consumer[compaignID];
@@ -464,14 +463,15 @@ transition getMyBounty(compaignID: Uint32)
 
 
 (*random no. generated for compaign*)
-transition getRandom (compaignID: Uint32)
+transition getRandom (compaignID: Uint32, seed : Uint128)
  blk <- & BLOCKNUMBER;
  bn<-_bnum[compaignID];
  mp<-_minParticipant[compaignID];
  isEnd = blk_le_opt bn blk;
  r<-revealsNum[compaignID];
- rn<-random[compaignID];
  consumerMap <- _consumer[compaignID];
+ seed_256_opt = builtin to_uint256 seed;
+ seedHash= builtin sha256hash seed;
  match consumerMap with
   | Some h =>
     match h with
@@ -484,14 +484,25 @@ transition getRandom (compaignID: Uint32)
                isSettled= le_int_opt mp r;
                match isSettled with
   	         | True =>
- 	           match rn with 
- 	            | Some random =>
- 	              e = { _eventname : "RandomNumber" ;  compaignID : compaignID; number : random  };
- 	              event e
- 	            | None =>
+	             prRandom<-random[compaignID];
+                     match prRandom with 
+ 	               | Some previousRandom =>
+			  match seed_256_opt with
+                          | Some s_256 =>
+			    previousRandomHash = builtin sha256hash previousRandom;
+	                    newRandomNoFromHash=builtin dist previousRandomHash seedHash;
+			    newRandom= builtin div newRandomNoFromHash s_256;
+                            random[compaignID]:=newRandom;	
+ 	                    e = { _eventname : "RandomNumber" ;  compaignID : compaignID; number : newRandom  };
+ 	                    event e
+   	                 | None =>
+  	                    e = mk_error_event failure_err_code;
+ 	                    event e 
+			   end	
+ 	             | None =>
  	               e = mk_error_event failure_err_code;
  	               event e 
- 	            end
+ 	              end
    	        | False =>
     	           e = mk_error_event failure_err_code;
    	           event e 

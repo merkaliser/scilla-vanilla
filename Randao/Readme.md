@@ -21,7 +21,7 @@ Set the compaign using `setCompaign`. Parallel Compaigns can run through. Compai
 Anyone who want to participate in the random number generation needs to
 send a transaction to the contract with required deposit as pledge in a specified
 time period, accompanied by the result of sha3(s), s is the secret number respective picked by
-participant. `commit` is used with sha256 hash of any number as parameter.
+participant. `commit` is used with sha256 hash of any number as parameter. It cannot be equal to equivalent to secret 0.
 
 ##### The second phase (reveal phase): collecting valid s
 After the first phase, anyone who submitted sha3(s) successfully needs
@@ -66,7 +66,7 @@ Following test cases are explained in sequence of how transitions can be called.
 8. reveal: if the secret submitted doesnot match with the sha256 `commitment`. Expected: [Failure] `-9`.
 9. reveal: Reveal the secret (number) at `20` (as 20 bnum is included in 16 to 20 range) whose `commitment` was submitted in commit phase. Expected: [Success].
 10. reveal: try to reveal the secret after the reveal phase is over. Expected: [Failure] `-6`.
-11. getRandom: After the reveal phase is over (after `20`), consumer can get the random number generated. Expected: [Success]`751757800038898737625592306038522193915507092037495391329674442062960735`. Event: `RandomNumber`.
+11. getRandom: After the reveal phase is over (after `20`), consumer can get the random number generated. Expected: [Success]`1687564546916791024936105827028501796611780502564660906526728574680759`. Event: `RandomNumber`.
 12. getMyBounty: After the reveal phase is over (after `20`), one can get his share of bounty. Expected: [Success] `successful`.`43` => `33` (bounty divide share) + `5` (deposit) + `5` (fine as 1 commit didnot successfully reveal). Event: `Commitment`.
 13. getMyBounty: try to get bounty when secret was not revealed in reveal phase. Expected: [Failure] `-4`.
 14. getMyBounty: try to get bounty when it didnot `commit` in commit phase . Expected: [Failure] `-5`. 
