@@ -28,10 +28,6 @@ let min_int =
   | False =>
     b
   end
-
-     
-  
-
 let le_int =
   fun (a : Uint128) => fun (b : Uint128) =>
     let x = builtin lt a b in
@@ -70,8 +66,6 @@ field token : Map ByStr20 Uint128 =
 field _state : Uint128 = state
 field bene_zil_bal : Uint128 = zero
 field bene_tok_bal : Uint128 = zero
-
-
       
 (*closed() transition changes the state from active to closed if the goal is reached ,can only be accessed the payee*)
       
@@ -80,10 +74,9 @@ transition closed()
   st1 <- _state;
   isstate=builtin eq st1 closed;
   match isstate with
-  | False =>
-      
+  | False =>      
     bl<-all_deposits;
-    zilraised=builtin get bl _sender;
+    zilraised <- all_deposits[_sender];
     match isPrimary with 
     | True =>
       match zilraised with
@@ -118,7 +111,7 @@ transition refunding()
 
   isPrimary=builtin eq _sender payee;
   bl<-all_deposits;
-  zilraised=builtin get bl _sender;
+  zilraised <-all_deposits[_sender];
   match isPrimary with 
   | True =>
     match zilraised with
@@ -165,44 +158,34 @@ match isState with
     match val1 with 
     | False =>
       number_of_token = builtin mul _rate dep; 
-      payee_tok_bal=builtin get s payee;
+      payee_tok_bal <- token[payee];
       match payee_tok_bal with
       | Some x =>
         can_do=le_int number_of_token x;
         match can_do with
         | True =>
           p = number_of_token;
-          payee_tok_bal1=builtin sub x p;
-          payee_tok_bal1_new=builtin put s payee payee_tok_bal1;
-          token:=payee_tok_bal1_new;
-          tk=builtin get s _sender;
+          payee_tok_bal1=builtin sub x p;          
+          token[payee]:= payee_tok_bal1;
+          tk <- token[_sender];
           match tk with 
           | Some x =>
-            new_to_tk_bal=builtin add x number_of_token;
-            new_tk_bal=builtin put s _sender new_to_tk_bal;
-            
-            token := new_tk_bal
-          | None =>
-            new_tk_bal1=builtin put s _sender number_of_token;
-            token := new_tk_bal1;
-          to_bal = builtin get bl payee;
+            new_to_tk_bal=builtin add x number_of_token;            
+            token[_sender] := new_to_tk_bal
+          | None =>            
+            token[_sender] := number_of_token;
+          to_bal <- all_deposits[payee];
           match to_bal with
           | Some x =>
-            new_to_bal = builtin add x dep;
-            new_balances2 = builtin put bl payee new_to_bal;
-            all_deposits := new_balances2
-            
-          | None =>
-            new_balances3 = builtin put bl payee dep;
-            all_deposits := new_balances3
+            new_to_bal = builtin add x dep;           
+            all_deposits[payee] := new_to_bal            
+          | None =>            
+            all_deposits[payee]:= dep
           end;
           
           e = { _eventname : "purchasedSuccessfully"; _recipient : _sender; _amount : Uint128 0; message : "tokens purchased successfully" };        
-          event e   
-            
-              
-          end
-          
+          event e                 
+          end          
         | False =>
           e = { _tag : "insufficientTokens"; _recipient : _sender; _amount : Uint128 0; message : "not enough tokens left for sale" };
           event e  
@@ -223,9 +206,7 @@ match isState with
   e = { _tag : "notActive"; _recipient : _sender; _amount : Uint128 0; message : "state is not active" };
   event e     
 end
-end
-
-      
+end      
 
 (*beneficiaryWithdraw() allows the investor to withdraw the investment if state of the sale has been changed to refunding.*)
 transition beneficiaryWithdraw()
@@ -239,29 +220,23 @@ transition beneficiaryWithdraw()
     can_do=builtin eq payee _sender;
     match can_do with
     | False=>
-      beneficiary_tok_bal=builtin get s _sender;
-      
-      match beneficiary_tok_bal with
-             
-      | Some x=>
-         
+      beneficiary_tok_bal=builtin get s _sender;      
+      match beneficiary_tok_bal with             
+      | Some x=>         
         beneficiary_zil_bal=builtin div x _rate;
         bene_zil_bal := beneficiary_zil_bal;
         bene_zil_return <- bene_zil_bal;
-        beneficiary_tok_bal_new=builtin mul zero x;
-        tok_new_bal=builtin put s _sender beneficiary_tok_bal_new;
-        token := tok_new_bal;
-        payee_tok_bal = builtin get s payee;
+        beneficiary_tok_bal_new=builtin mul zero x;        
+        token[_sender] := beneficiary_tok_bal_new;
+        payee_tok_bal <- token[payee];
         match payee_tok_bal with
         | Some p =>
-          payee_tok_bal1=builtin add p x;
-          payee_tok_bal_new=builtin put s payee payee_tok_bal1;
-          token := payee_tok_bal_new;
-          bene_zil_bal1= builtin get bl _sender
-             
+          payee_tok_bal1=builtin add p x;          
+          token[payee] := payee_tok_bal1;
+          bene_zil_bal1 <- all_deposits[_sender]             
         | None =>  
           payee_tok_bal_new=builtin put s payee x;
-          token := payee_tok_bal_new;
+          token[payee] := x;
         msg = { _tag : "Main"; _recipient : _sender; _amount : bene_zil_return ; message : "refunded" };
         msgs = one_msg msg;
         send msgs  
@@ -269,8 +244,7 @@ transition beneficiaryWithdraw()
       | None =>
         e = { _eventname : "noTokens"; _recipient : _sender; _amount : Uint128 0; message : "tokens not found" };
         event e
-      end 
-        
+      end         
     | True =>
       e = { _eventname : "notBeneficiary"; _recipient : _sender; _amount : Uint128 0; message : "token owner cannot be a beneficiary" };
       event e
@@ -279,10 +253,7 @@ transition beneficiaryWithdraw()
     e = { _eventname : "notRefunding"; _recipient : _sender; _amount : Uint128 0; message : "Not in a refunding state" };
     event e
   end
-end  
-  
-  
-  
+end    
   
 (*withdrawPrimary() transition allows the owner to withdraw the zil raised if the goal has been achieved.*)
 transition withdrawPrimary (withdrawalamount : Uint128)
@@ -293,46 +264,35 @@ transition withdrawPrimary (withdrawalamount : Uint128)
   | True =>
     isState=builtin eq st closed;
     match isState with
-    | True =>
-          
+    | True =>          
       bl <- all_deposits;
-      bal = builtin get bl _sender;
+      bal <- all_deposits[_sender];
       match bal with
       | Some b =>
         can_do = le_int withdrawalamount b;
         match can_do with
         | True =>
           (* subtract withdrawalamount from pprimary  and add it to  _sender*)
-          new_sender_bal = builtin sub b withdrawalamount;
-          new_balances = builtin put bl _sender new_sender_bal;
-          all_deposits := new_balances;
-          
-          
+          new_sender_bal = builtin sub b withdrawalamount;          
+          all_deposits[_sender] := new_Sender_bal;          
           e = { _eventname : "withdrawPrimary"; _recipient : _sender; _amount : withdrawalamount ; transferred : withdrawalamount };
-          event e
-          
+          event e          
         | False =>
           (* balance not sufficient. *)
           e = { _eventname : "balInsufficient"; _recipient : _sender; _amount : Uint128 0; message : "balance not sufficient" };
-          event e
-          
+          event e          
         end
       | None =>
         (* no balance record, can't transfer *)
         e = { _eventname : "noZilBalance"; _recipient : _sender; _amount : Uint128 0; message : "no zil balanc found" };
         event e
       end
-    | False=>
-        
+    | False=>        
       e= { _eventname : "notClosed"; _recipient : _sender; _amount : Uint128 0; message : "state is not closed" };    
-      event e
-      
-    end    
-        
+      event e      
+    end            
   | False =>
     e = {_eventname : "TransferFailure"; sender : _sender;  amount : Uint128 0};
-    event e
-     
-  end
-  
+    event e     
+  end  
 end

@@ -1,45 +1,41 @@
 {
-    
-    "message": [{
-        "_tag":"Main",
-        "_amount":"0",
-        "accepted":"false",
-        "_recipient":"0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
-        "params":[
-            {
-                "vname":"transferred",
-                "type":"Uint128",
-                "value":"500",
-            }
-        ]
+  "gas_remaining": "7093",
+  "message": null,
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    {
+      "vname": "allowed",
+      "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
+      "value": []
+    },
+    {
+      "vname": "balances",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        {
+          "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
+          "val": "9000"
+        },
+        {
+          "key": "0x23271327e72f96aab882f614b467ebb5ed3003d9",
+          "val": "1000"
+        }
+      ]
+    },
+    { "vname": "_totalSupply", "type": "Uint128", "value": "10000" }
+  ],
+  "events": [
+    {
+      "_eventname": "tokensTransferred",
+      "params": [
+        {
+          "vname": "_recipient",
+          "type": "ByStr20",
+          "value": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef"
+        },
+        { "vname": "_amount", "type": "Uint128", "value": "0" },
+        { "vname": "transferred", "type": "Uint128", "value": "500" }
+      ]
     }
-
-    ],
-    "states": [
-      { "vname": "_balance", "type": "Uint128", "value": "0" },
-      {
-        "vname": "balances",
-        "type": "Map (ByStr20) (Uint128)",
-        "value": [
-            {
-                "key": "0x23271327E72F96AAB882F614B467EBB5ED3003D9",
-                "val": "500"
-            },
-            {
-                "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
-                "val": "9500"
-            }
-        ]
-      },
-      {
-        "vname": "allowed",
-        "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
-        "value": []
-      },
-      {
-        "vname": "_totalSupply",
-        "type": "Uint128",
-        "value": "10000"
-      }
-    ]
-  }
+  ]
+}

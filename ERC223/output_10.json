@@ -1,60 +1,52 @@
 {
-    
-    "message": [{
-        "_tag":"Main",
-        "_amount":"0",
-        "accepted":"false",
-        "_recipient":"0x23271327e72f96aab882f614b467ebb5ed3003d9",
-        "params":[
+  "gas_remaining": "7151",
+  "message": null,
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "_totalSupply", "type": "Uint128", "value": "9700" },
+    {
+      "vname": "allowed",
+      "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
+      "value": [
+        {
+          "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
+          "val": [
             {
-                "vname":"message",
-                "type":"String",
-                "value":"burned",
-            }
-        ]
-    }
-
-    ],
-    "states": [
-      { "vname": "_balance", "type": "Uint128", "value": "0" },
-      {
-        "vname": "balances",
-        "type": "Map (ByStr20) (Uint128)",
-        "value": [
-            {
-                "key": "0x23271327E72F96AAB882F614B467EBB5ED3003D9",
-                "val": "600"
+              "key": "0xf83c97044c0b5c8dc38cf5a57c23e03c396aeeff",
+              "val": "800"
             },
             {
-                "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
-                "val": "9100"
-            }
-        ]
-      },
-      {
-        "vname": "allowed",
-        "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
-        "value": [
-            {
-              "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
-              "val": [
-                {
-                    "key": "0xf83c97044c0b5c8dc38cf5a57c23e03c396aeeff",
-                    "val": "800"
-                },
-                {
-                    "key": "0xfc951123d89d0148e8f65c5842afe081dc1646d1",
-                    "val": "1000"
-                }
-                
-              ]
+              "key": "0xfc951123d89d0148e8f65c5842afe081dc1646d1",
+              "val": "1000"
             }
           ]
-      },
-      {
-        "vname": "_totalSupply",
-        "type": "Uint128",
-        "value": "9700"
-      }
-    ]
-  }
+        }
+      ]
+    },
+    {
+      "vname": "balances",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        {
+          "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
+          "val": "9100"
+        },
+        { "key": "0x23271327e72f96aab882f614b467ebb5ed3003d9", "val": "600" }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "_eventname": "burned",
+      "params": [
+        {
+          "vname": "_recipient",
+          "type": "ByStr20",
+          "value": "0x23271327e72f96aab882f614b467ebb5ed3003d9"
+        },
+        { "vname": "_amount", "type": "Uint128", "value": "0" },
+        { "vname": "message", "type": "String", "value": "burned" }
+      ]
+    }
+  ]
+}
