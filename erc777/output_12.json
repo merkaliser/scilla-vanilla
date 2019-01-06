@@ -1,18 +1,6 @@
 {
-  "gas_remaining": "6697",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
-    "params": [
-      {
-        "vname": "message",
-        "type": "String",
-        "value": "Transfer not allowed"
-      }
-    ]
-  },
+  "gas_remaining": "6775",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
@@ -31,5 +19,22 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Error",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
+        },
+        { "vname": "amount", "type": "Uint128", "value": "8" },
+        {
+          "vname": "code",
+          "type": "String",
+          "value": "Transfer not allowed"
+        }
+      ]
+    }
+  ]
 }

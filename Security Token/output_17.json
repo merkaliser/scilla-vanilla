@@ -1,14 +1,6 @@
 {
-  "gas_remaining": "6644",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x1234567890123456789012345678906784567891",
-    "params": [
-      { "vname": "status", "type": "String", "value": "burn successful" }
-    ]
-  },
+  "gas_remaining": "6809",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     { "vname": "_totalSupply", "type": "Uint128", "value": "500" },

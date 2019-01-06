@@ -69,65 +69,48 @@ field approvals : Map ByStr20 (Map ByStr20 Uint32) = Emp ByStr20 (Map ByStr20 Ui
 
  
 transition name()
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; name : name};
-  msgs = one_msg msg;
-  send msgs
+  e = { _eventname : "Name"; name : name };
+  event e
 end
 
 transition symbol()
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; symbol : symbol};
-  msgs = one_msg msg;
-  send msgs
+ e = { _eventname : "Symbol"; symbol : symbol };
+ event e
 end
 
 
 transition totalSupply ()
   t<-_totalSupply;
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; totalSupply : t};
-  msgs = one_msg msg;
-  send msgs
+ e = { _eventname : "TotalSupply"; totalSupply : t };
+ event e
  end
 
 
 transition balanceOf (_owner : ByStr20)
-  bl <- balances;
-  val = builtin get bl _owner;
+  val <- balances[_owner];
   match val with
   | Some v =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : v };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "BalanceOf"; owner : _owner; balance : v };
+    event e
   | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint128 0 };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "BalanceOf"; owner : _owner; balance : _zero };
+    event e
   end
 end 
 
 
 (*Returns restricted token balance*)
 transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
-  tr <- tranches;
-  val = builtin get tr _owner;
+  val <- tranches [_owner][_tranche];
   match val with
-  | Some v =>
-    bl = builtin get v _tranche;
-    match bl with
-    | Some v1 => 
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : v1 };
-    msgs = one_msg msg;
-    send msgs
-    | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
-    msgs = one_msg msg;
-    send msgs
-    end
+  | Some v => 
+    e = { _eventname : "BalanceOfTranche"; owner : _owner; tranche : _tranche; balance : v };
+    event e
   | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; bal : Uint256 0 };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "BalanceOfTranche"; owner : _owner; tranche : _tranche; balance : _zero  };
+    event e
+    end
   end
-end
 
 
 (* @notice Enables caller to determine the count of tranches owned by an address*)
@@ -146,43 +129,38 @@ end
 (*@param amount The amount of tokens to transfer from `_tranche`*)
 (*@param _data Additional data attached to the transfer of tokens*)   
 (* Transfers tokens from the sender to the _to address, keeping the _tranche the same*)
-transition sendTranche (_tranche : Uint32, _to : ByStr20, _data:String )
-success="send tranche successful";
+transition sendTranche (_tranche : Uint32, _to : ByStr20, _data:String ,amount:Uint128)
+noTranche="no tranche for _sender";
+noBal="no toek balance by _sender";
 v <- tranches[_sender][_tranche];
 match v with
  | Some vx =>
- fromBalTranche=builtin sub vx _amount;
+ fromBalTranche=builtin sub vx amount;
  v1<-balances[_sender];
  match v1 with
    | Some v1x =>
-   fromBal=builtin sub v1x _amount;
+   fromBal=builtin sub v1x amount;
    v2<-tranches[_to][_tranche];
    match v2 with
      | Some v2x =>
-     toBalTranche=builtin add v2x _amount;
+     toBalTranche=builtin add v2x amount;
      v3 <- balances[_to] ;
      match v3 with
  	| Some v3x =>
 	tranches[_sender][_tranche] := fromBalTranche;
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
- 	toBal=builtin add v3x _amount;
+ 	toBal=builtin add v3x amount;
  	balances[_to] := toBal;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
-	msgs = one_msg msg;
-	send msgs
+        event e
 	| None =>
         tranches[_sender][_tranche] := fromBalTranche;
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
- 	balances[_to] := _amount;
+ 	balances[_to] := amount;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
-	msgs = one_msg msg;
-	send msgs
+        event e
 	end
     | None =>
     toBalTranche=_amount;
@@ -192,70 +170,59 @@ match v with
 	tranches[_sender][_tranche] := fromBalTranche;
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
- 	toBal=builtin add v3x _amount;
+ 	toBal=builtin add v3x amount;
  	balances[_to] := toBal;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
-	msgs = one_msg msg;
-	send msgs
+        event e
 	| None =>
         tranches[_sender][_tranche] := fromBalTranche;
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
- 	balances[_to] := _amount;
+ 	balances[_to] := amount;
       	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;	
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; sent : success };
-	msgs = one_msg msg;
-	send msgs
+        event e
 	end
     end
   | None =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint32 3 };
-  msgs = one_msg msg;
-  send msgs
+  e = { _eventname : "error"; code : noBal };
+  event e
   end
-| None =>	
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint32 4 };
-msgs = one_msg msg;
-send msgs
-end
-end
+  | None =>
+  e = { _eventname : "error"; code : noTranche };
+  event e
+  end
+end 
 
 
 (* returns (address[])*)
 transition defaultOperators ()
 (* No default operators*)
-     msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; default : owner};
-     msgs = one_msg msg;
-     send msgs
+  e = { _eventname : "DefaultOperators"; owner:owner };
+  event e
 end
 
 
 transition defaultOperatorsTranche ()
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; default : owner};
-    msgs = one_msg msg;
-    send msgs
+  e = { _eventname : "DefaultOperatorsTranche"; owner:owner };
+  event e
 end
 
 transition authorizeOperator ( operator : ByStr20)
   approvals[_sender][operator] := true;
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : Uint128 1  };
-  msgs = one_msg msg;
-  send msgs
+  e = { _eventname : "AuthorizeOperator"; from : _sender ; operator : operator };
+  event e
 end
 
 transition revokeOperator ( operator : ByStr20)
   approvals[_sender][operator] := false;
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; unauthorized : Uint128 1  };
-  msgs = one_msg msg;
-  send msgs
+  e = { _eventname : "RevokeOperator"; from : _sender ; operator : operator };
+  event e
 end
 
 
 transition operatorSend(_from : ByStr20, _to : ByStr20, _data:String, _operatorData:String )
-success="operator send successful";
+noOp="not an operator";
+noBal="no balance";
 app <- approvals[_sender][_from];
 match app with
 | Some val =>
@@ -272,37 +239,32 @@ match v with
     | Some v1x =>
     toBal=builtin add v1x _amount;
     balances[_to] := toBal;
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "OperatorSent"; from : _sender ; to : _to ; amount : _amount ; data : _data ; operatorData : _operatorData };
+    event e
     | None =>
     balances[_to] := _amount;
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "OperatorSent"; from : _sender ; to : _to ; amount : _amount ; data : _data ; operatorData : _operatorData };
+    event e
     end
   | None =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint128 4 };
-  msgs = one_msg msg;
-  send msgs
+  e = { _eventname : "OperatorError"; code: noBal};
+  event e
   end
 | False =>
-noOp="not an operator";
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
-msgs = one_msg msg;
-send msgs
+e = { _eventname : "OperatorError"; code: noOp };
+event e
 end
 | None =>
-noOp="not an operator";
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
-msgs = one_msg msg;
-send msgs
+e = { _eventname : "OperatorError"; code: noOp };
+event e
 end
 end
 
 
 transition operatorSendTranche (_tranche : Uint32,_from : ByStr20, _to : ByStr20, _data:String, _operatorData:String )
 success="operator tranche send successful";
+noOp="not an operator";
+noBal="no balance";
 trApp <- trancheApprovals[_sender][_tranche][_from];
 match trApp with
 | Some val =>
@@ -329,23 +291,16 @@ match v with
         tranches[_to][_tranche] := toBalTranche;
  	toBal=builtin add v3x _amount;
  	balances[_to] := toBal;
-      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	msgs = one_msg msg;
-	send msgs
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e
 	| None =>
         tranches[_sender][_tranche] := fromBalTranche;
         balances[_sender] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
-      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	msgs = one_msg msg;
-	send msgs
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e
 	end
-
     | None =>
     toBalTranche=_amount;
      v3 <- balances[_to] ;
@@ -356,62 +311,48 @@ match v with
         tranches[_to][_tranche] := toBalTranche;
  	toBal=builtin add v3x _amount;
  	balances[_to] := toBal;
-      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	msgs = one_msg msg;
-	send msgs
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e
 	| None =>
         tranches[_from][_tranche] := fromBalTranche;
         balances[_from] := fromBal;
         tranches[_to][_tranche] := toBalTranche;
  	balances[_to] := _amount;
-      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
-        event e;
-	msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-	msgs = one_msg msg;
-	send msgs
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e
 	end
     end
   | None =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint128 5 };
-  msgs = one_msg msg;
-  send msgs
+  e = { _eventname : "OperatorError"; code: noBal};
+  event e
   end
 | None =>	
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : Uint128 6 };
-msgs = one_msg msg;
-send msgs
+e = { _eventname : "OperatorError"; code: noBal };
+event e
 end
 | False =>
-noOp="not an operator";
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
-msgs = one_msg msg;
-send msgs
+e = { _eventname : "OperatorError"; code: noOp };
+event e
 end
 | None =>
-noOp="not an operator";
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : noOp };
-msgs = one_msg msg;
-send msgs
+e = { _eventname : "OperatorError"; code: noOp };
+event e
 end
 end
 
 
-transition authorizeOperatorTranche ( _operator : ByStr20, _tranche:Uint32 )
+transition authorizeOperatorTranche ( _operator : ByStr20, _tranche : Uint32 )
 success="authorized the operator for tranche";
 trancheApprovals[_operator][_tranche][_sender] := true;
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; authorized : success  };
-msgs = one_msg msg;
-send msgs
+e = { _eventname : "AuthorizeOperatorTranche"; _operator: _operator ; tranche : _tranche  };
+event e
 end
 
 
-transition revokeOperatorTranche ( _operator : ByStr20,_tranche:Uint32 )
+transition revokeOperatorTranche ( _operator : ByStr20,_tranche : Uint32 )
 trancheApprovals[_operator][_tranche][_sender] := false;
-msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; unauthorized : Uint128 1  };
-msgs = one_msg msg;
-send msgs
+e = { _eventname : "RevokeOperatorTranche"; _operator: _operator ; tranche : _tranche  };
+event e
 end
 
 
@@ -425,18 +366,15 @@ match tr with
 isTrue=builtin eq v true;
 match isTrue with 
  | True =>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : t };
- msgs = one_msg msg;
- send msgs
+   e = { _eventname : "isOperatorFor"; owner: _owner ; amount : _amount ; status : t  };
+   event e
  | False =>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : r };
- msgs = one_msg msg;
- send msgs
+   e = { _eventname : "isOperatorFor"; owner: _owner ; amount : _amount ; status : r };
+   event e
  end
 | None =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : f };
-  msgs = one_msg msg;
-  send msgs
+   e = { _eventname : "isOperatorFor"; owner: _owner ; amount : _amount ; status : f  };
+   event e
   end
 end
 
@@ -452,26 +390,23 @@ match tr with
 isTrue=builtin eq v true;
 match isTrue with 
  | True =>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : t };
- msgs = one_msg msg;
- send msgs
+  e = { _eventname : "IsOperator";  tranche : _tranche ; operator : _operator ; code : t  };
+  event e
  | False =>
- msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : r };
- msgs = one_msg msg;
- send msgs
+   e = { _eventname : "IsOperator";  tranche : _tranche ; operator : _operator ; code : r  };
+   event e
  end
 | None =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : f };
-  msgs = one_msg msg;
-  send msgs
+  e = { _eventname : "IsOperator";  tranche : _tranche ; operator : _operator ; code : f  };
+  event e
   end
 end
 
 
 (*for _tranche given _amount is burnt*)
 transition burn (_tranche : Uint32,  _data : String)
-success="burn successful";
-unsuccess="burn unsuccessful";
+noBal="no balance";
+noTranche="no tranche for _sender";
 v <- tranches[_sender][_tranche];
 match v with
  | Some vx =>
@@ -486,19 +421,14 @@ match v with
    newSupply=builtin sub t _amount;
    _totalSupply:= newSupply;
    e = { _eventname : "Burnt"; owner: _sender ; tranche : _tranche ; amount : _amount ; data : _data };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success};
-   msgs = one_msg msg;
-   send msgs	
+   event e	
   | None =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : unsuccess};
-  msgs = one_msg msg;
-  send msgs
+    e = { _eventname : "BurnError";  tranche : _tranche ; amount : _amount ; code : noBal  };
+    event e
   end
 | None =>
-  msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; error : unsuccess };
-  msgs = one_msg msg;
-  send msgs
+  e = { _eventname : "BurnError";  tranche : _tranche ; amount : _amount ; code : noTranche  };
+  event e
   end
 end
 
@@ -521,10 +451,7 @@ match v with
    _totalSupply:= newSupply;
    accept;
    e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-   msgs = one_msg msg;
-   send msgs
+   event e
   | None =>
    fromBal=_amount;
    tranches[_owner][_tranche] := fromBalTranche;
@@ -534,10 +461,7 @@ match v with
    _totalSupply:= newSupply;
    accept;
    e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success};
-   msgs = one_msg msg;
-   send msgs
+   event e
    end
 | None =>
  v1<-balances[_owner];
@@ -552,10 +476,7 @@ match v with
    _totalSupply:= newSupply;
    accept;
    e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-   msgs = one_msg msg;
-   send msgs
+   event e
   | None =>
   fromBal= _amount;
    tranches[_owner][_tranche] := fromBalTranche;
@@ -565,10 +486,7 @@ match v with
    _totalSupply:= newSupply;
    accept;
    e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
-   event e;
-   msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; status : success };
-   msgs = one_msg msg;
-   send msgs
+   event e
    end
 end
 end

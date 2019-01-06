@@ -1,12 +1,12 @@
 {
-  "gas_remaining": "7443",
+  "gas_remaining": "7445",
   "message": {
     "_tag": "Main",
     "_amount": "0",
     "_accepted": "false",
     "_recipient": "0x41c8f599bee23658734ca47b4dd7b10f71445b62",
     "params": [
-      { "vname": "msg", "type": "String", "value": "not an owner" }
+      { "vname": "code", "type": "String", "value": "not an owner" }
     ]
   },
   "states": [

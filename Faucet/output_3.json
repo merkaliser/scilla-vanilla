@@ -1,12 +1,6 @@
 {
-  "gas_remaining": "7299",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-    "params": [ { "vname": "code", "type": "String", "value": "success" } ]
-  },
+  "gas_remaining": "7382",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     { "vname": "isPaused", "type": "Uint128", "value": "1" },
@@ -32,5 +26,16 @@
       "value": []
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Paused",
+      "params": [
+        {
+          "vname": "account",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        }
+      ]
+    }
+  ]
 }
