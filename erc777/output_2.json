@@ -1,14 +1,6 @@
 {
-  "gas_remaining": "7483",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0xabcdeabcde123456789012345678901234567890",
-    "params": [
-      { "vname": "tokenSymbol", "type": "String", "value": "Merkalise" }
-    ]
-  },
+  "gas_remaining": "7564",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
@@ -28,5 +20,12 @@
     },
     { "vname": "_totalSupply", "type": "Uint128", "value": "1000" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Symbol",
+      "params": [
+        { "vname": "symbol", "type": "String", "value": "Merkalise" }
+      ]
+    }
+  ]
 }

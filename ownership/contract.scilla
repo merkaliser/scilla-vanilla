@@ -25,74 +25,58 @@ field _owner : ByStr20 = owner
 field noOwner : ByStr20 = owner
 
 (*owner address*)
-
 transition owner ()
-    owner1<-_owner;
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; owner : owner1};
-    msgs = one_msg msg;
-    send msgs
+ owner1<-_owner;
+ e = { _eventname : "Owner"; from : _sender  ; owner : owner1 };
+ event e 
 end
 
-
 (*  true if _sender is the owner of the contract.*)
-
 transition isOwner ()
 owner1<-_owner;
-isowner=builtin eq _sender owner1;
+isOwner=builtin eq _sender owner1;
 t="true";
 f="false";
-match isowner with
+match isOwner with
 |True=>
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; is_owner : t};
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "isOwner"; from : _sender  ; is_owner : t };
+    event e 
 |False=>
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; is_owner : f};
-    msgs = one_msg msg;
-    send msgs
+    e = { _eventname : "isOwner"; from : _sender  ; is_owner : f };
+    event e 
 end
 end
 
 
 (*Allows the current owner to transfer control of the contract to a newOwner.*)
-
 transition transferOwnership (newOwner : ByStr20)
 owner1<-_owner;
 isowner=builtin eq _sender owner1;
-msg1 = "Transfer Ownership successful";
-msg2 = "not an owner";
+noOwnerErr = "not an owner";
 match isowner with
 |True=>
      _owner:=newOwner;
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg1};
-    msgs = one_msg msg;
-    send msgs
+     e = { _eventname : "Transfer Ownership"; from : _sender  ; to : owner1};
+	   event e 
 |False=>
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg2};
-    msgs = one_msg msg;
-    send msgs
+     e = { _eventname : "Error"; from : _sender; code: noOwnerErr };
+	   event e 
 end
 end 
  
-
-
 transition renounceOwnership ()
 owner1<-_owner;
 _noOwner<-noOwner;
-msg1 = "Renounce Ownership successful";
-msg2 = "not an owner";
-isOwner=builtin eq _sender owner1;
+noOwnerErr = "not an owner";
+isOwner = builtin eq _sender owner1;
 match isOwner with
 |True=>
     _owner:= _noOwner;
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg1};
-    msgs = one_msg msg;
-    send msgs
+     e = { _eventname : "Renounce Ownership"; from : _sender  ; to : _noOwner};
+	   event e 
 |False=>
-    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; msg : msg2};
+    msg = {_tag : "Main"; _recipient : _sender; _amount : Uint128 0; code : noOwnerErr};
     msgs = one_msg msg;
     send msgs
 end
 end 
-
-

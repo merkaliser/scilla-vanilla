@@ -1,12 +1,6 @@
 {
-  "gas_remaining": "7149",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x1234567890123456789012345678906784567891",
-    "params": [ { "vname": "bal", "type": "Uint128", "value": "600" } ]
-  },
+  "gas_remaining": "7194",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     { "vname": "_totalSupply", "type": "Uint128", "value": "600" },
@@ -38,5 +32,18 @@
       "value": []
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "BalanceOf",
+      "params": [
+        {
+          "vname": "owner",
+          "type": "ByStr20",
+          "value": "0x1234567890123456789012345678906784567891"
+        },
+        { "vname": "tranche", "type": "Uint32", "value": "1" },
+        { "vname": "balance", "type": "Uint128", "value": "600" }
+      ]
+    }
+  ]
 }

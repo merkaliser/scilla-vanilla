@@ -1,20 +1,6 @@
-{
-    
-    "message": [{
-        "_tag":"Main",
-        "_amount":"0",
-        "accepted":"false",
-        "_recipient":"0xfc951123d89d0148e8f65c5842afe081dc1646d1",
-        "params":[
-            {
-                "vname":"message",
-                "type":"String",
-                "value":"Insufficient balance cannot burn",
-            }
-        ]
-    }
-
-    ],
+{   
+    "gas_remaining": "7194",
+    "message": null,
     "states": [
       { "vname": "_balance", "type": "Uint128", "value": "0" },
       {
@@ -56,5 +42,23 @@
         "type": "Uint128",
         "value": "9700"
       }
-    ]
+    ],
+    "events": [
+    {
+      "_eventname": "burnFromFailed",
+      "params": [
+        {
+          "vname": "_recipient",
+          "type": "ByStr20",
+          "value": "0x23271327e72f96aab882f614b467ebb5ed3003d9"
+        },
+        { "vname": "_amount", "type": "Uint128", "value": "0" },
+        {
+          "vname": "message",
+          "type": "String",
+          "value": "Insufficient balance cannot burn"
+        }
+      ]
+    }
+  ]
   }

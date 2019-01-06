@@ -1,18 +1,6 @@
 {
-  "gas_remaining": "6508",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x74d045132c83f0c6478930569eccc963c89e2467",
-    "params": [
-      {
-        "vname": "status",
-        "type": "String",
-        "value": "operator tranche send successful"
-      }
-    ]
-  },
+  "gas_remaining": "6417",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     { "vname": "_totalSupply", "type": "Uint128", "value": "600" },
@@ -79,5 +67,29 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "SentTranche",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x74d045132c83f0c6478930569eccc963c89e2467"
+        },
+        {
+          "vname": "to",
+          "type": "ByStr20",
+          "value": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4"
+        },
+        { "vname": "tranche", "type": "Uint32", "value": "1" },
+        { "vname": "amount", "type": "Uint128", "value": "20" },
+        { "vname": "data", "type": "String", "value": "data1" },
+        {
+          "vname": "operatorData",
+          "type": "String",
+          "value": "operatordata1"
+        }
+      ]
+    }
+  ]
 }

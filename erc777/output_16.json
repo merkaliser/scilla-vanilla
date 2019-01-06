@@ -1,15 +1,6 @@
 {
-  "gas_remaining": "7028",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-    "params": [
-      { "vname": "transferred", "type": "Uint128", "value": "0" },
-      { "vname": "message", "type": "String", "value": "Not granular" }
-    ]
-  },
+  "gas_remaining": "6974",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
@@ -28,5 +19,28 @@
       ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Error",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        {
+          "vname": "to",
+          "type": "ByStr20",
+          "value": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4"
+        },
+        {
+          "vname": "userData",
+          "type": "String",
+          "value": "sending 8 tokens to 5th account"
+        },
+        { "vname": "amount", "type": "Uint128", "value": "7" },
+        { "vname": "code", "type": "String", "value": "Not granular" }
+      ]
+    }
+  ]
 }

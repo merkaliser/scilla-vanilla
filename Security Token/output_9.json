@@ -1,35 +1,30 @@
 {
-  "gas_remaining": "7473",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x1234567890123456789012345678906784567891",
-    "params": [
-      {
-        "vname": "default",
-        "type": "ByStr20",
-        "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
-      }
-    ]
-  },
+  "gas_remaining": "7435",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "_totalSupply", "type": "Uint128", "value": "600" },
     {
       "vname": "balances",
       "type": "Map (ByStr20) (Uint128)",
       "value": [
-        {
-          "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-          "val": "1000"
-        }
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "50" },
+        { "key": "0x1234567890123456789012345678906784567891", "val": "550" }
       ]
     },
-    { "vname": "_totalSupply", "type": "Uint128", "value": "1000" },
     {
       "vname": "tranches",
       "type": "Map (ByStr20) (Map (Uint32) (Uint128))",
-      "value": []
+      "value": [
+        {
+          "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+          "val": [ { "key": "1", "val": "50" } ]
+        },
+        {
+          "key": "0x1234567890123456789012345678906784567891",
+          "val": [ { "key": "1", "val": "550" } ]
+        }
+      ]
     },
     {
       "vname": "trancheApprovals",
@@ -42,5 +37,16 @@
       "value": []
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "DefaultOperatorsTranche",
+      "params": [
+        {
+          "vname": "owner",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        }
+      ]
+    }
+  ]
 }

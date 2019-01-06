@@ -1,14 +1,6 @@
 {
-  "gas_remaining": "7303",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-    "params": [
-      { "vname": "transferred", "type": "String", "value": "true" }
-    ]
-  },
+  "gas_remaining": "7344",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     { "vname": "maxAllowanceInclusive", "type": "Uint128", "value": "50" },
@@ -34,5 +26,17 @@
       "value": []
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "ReclaimTokens",
+      "params": [
+        {
+          "vname": "account",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        { "vname": "transferred", "type": "String", "value": "true" }
+      ]
+    }
+  ]
 }

@@ -1,8 +1,18 @@
 {
-  "gas_remaining": "6594",
+  "gas_remaining": "6613",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "_totalSupply", "type": "Uint128", "value": "976" },
+    {
+      "vname": "balances",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4", "val": "8" },
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "960" },
+        { "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5", "val": "8" }
+      ]
+    },
     {
       "vname": "allowed",
       "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
@@ -17,17 +27,34 @@
           ]
         }
       ]
-    },
-    { "vname": "_totalSupply", "type": "Uint128", "value": "976" },
-    {
-      "vname": "balances",
-      "type": "Map (ByStr20) (Uint128)",
-      "value": [
-        { "key": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4", "val": "8" },
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "960" },
-        { "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5", "val": "8" }
-      ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Operator Burnt",
+      "params": [
+        {
+          "vname": "sender",
+          "type": "ByStr20",
+          "value": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
+        },
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        { "vname": "amount", "type": "Uint128", "value": "4" },
+        {
+          "vname": "userData",
+          "type": "String",
+          "value": "burning 4 tokens of th account"
+        },
+        {
+          "vname": "operatorData",
+          "type": "String",
+          "value": "1st account is operated by 2nd"
+        }
+      ]
+    }
+  ]
 }
