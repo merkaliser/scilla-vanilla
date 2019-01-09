@@ -1,5 +1,7 @@
 {
-  "gas_remaining": "7069",
+  "scilla_major_version": "0",
+  "gas_remaining": "7067",
+  "_accepted": "true",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "10" },

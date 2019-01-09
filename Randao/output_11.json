@@ -1,5 +1,7 @@
 {
-  "gas_remaining": "6033",
+  "scilla_major_version": "0",
+  "gas_remaining": "6240",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -170,23 +172,15 @@
         {
           "key": "1",
           "val":
-            "1687564546916791024936105827028501796611780502564660906526728574680759"
-       }
+            "31581345179634135967651132776678317366390452936495181389759623311064980503249"
+        }
       ]
     }
   ],
   "events": [
     {
-      "_eventname": "RandomNumber",
-      "params": [
-        { "vname": "compaignID", "type": "Uint32", "value": "1" },
-        {
-          "vname": "number",
-          "type": "Uint256",
-          "value":
-            "1687564546916791024936105827028501796611780502564660906526728574680759"
-        }
-      ]
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-6" } ]
     }
   ]
 }

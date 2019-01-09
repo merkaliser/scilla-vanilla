@@ -1,7 +1,7 @@
 {
     "_tag": "getMyBounty",
     "_amount": "0",
-    "_sender" : "0xEDC0D43CCA587E1DF2137A0C37E40315E4989774",
+    "_sender" : "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
     "params": [
         {
             "vname": "compaignID",

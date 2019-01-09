@@ -1,5 +1,7 @@
 {
-  "gas_remaining": "7334",
+  "scilla_major_version": "0",
+  "gas_remaining": "7254",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
@@ -12,7 +14,7 @@
           "val": [
             {
               "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a",
-              "val": "0"
+              "val": "1"
             }
           ]
         }
@@ -21,19 +23,15 @@
   ],
   "events": [
     {
-      "_eventname": "Role Renounced",
+      "_eventname": "hasAccount",
       "params": [
         { "vname": "role", "type": "String", "value": "myrole" },
-        {
-          "vname": "from",
-          "type": "ByStr20",
-          "value": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a"
-        },
         {
           "vname": "account",
           "type": "ByStr20",
           "value": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a"
-        }
+        },
+        { "vname": "has", "type": "String", "value": "true" }
       ]
     }
   ]

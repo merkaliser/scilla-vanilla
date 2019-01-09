@@ -1,3 +1,5 @@
+scilla_version 0
+
 import BoolUtils
 
 library ERC223Token
@@ -247,13 +249,11 @@ end
 
 transition burnFrom(from : ByStr20,value :Uint128)  
   bal <- balances[from];
-  allowed_from <- allowed[from];
-  match allowed_from with
-  | Some m=>
-    sender_allowed_from <- m[_sender];
-    all=Pair {(Option Uint128)(Option Uint128)} bal sender_allowed_from;
-    match all with
-    | Pair (Some a)(Some b) =>
+  sender_allowed_from <- allowed[from][_sender];
+  match bal with
+  | Some a =>
+    match sender_allowed_from with
+    | Some b =>
       t = min_int a b;
       can_do=less_equal value t;
       match can_do with
@@ -265,18 +265,18 @@ transition burnFrom(from : ByStr20,value :Uint128)
         ts <- _totalSupply;
         ts=builtin sub ts value;
         _totalSupply := ts;        
-	e = { _eventname : "burnFromBurned"; _recipient : _sender; _amount : Uint128 0; message : "burned" };
-	event e
+        e = { _eventname : "burnFromBurned"; _recipient : _sender; _amount : Uint128 0; message : "Burned" };
+        event e
       | False =>            
-	e = { _eventname : "burnFromFailed"; _recipient : _sender; _amount : Uint128 0; message : "Insufficient balance cannot burn" };
-	event e        
+        e = { _eventname : "burnFromFailed"; _recipient : _sender; _amount : Uint128 0; message : "Insufficient balance cannot burn" };
+        event e        
       end    
-    | _ =>         
-      e = { _eventname : "burnFromError"; _recipient : _sender; _amount : Uint128 0; message : "Error" };
+    | None =>         
+      e = { _eventname : "burnFromError"; _recipient : _sender; _amount : Uint128 0; message : "Tokens not allowed by owner for given spender" };
       event e
     end
   | None =>    
-    e = { _eventname : "burnFrom tokens_notallowed"; _recipient : _sender; _amount : Uint128 0; message : "Tokens not allowed by owner for given spender" };
+    e = { _eventname : "burnFrom tokens_notallowed"; _recipient : _sender; _amount : Uint128 0; message : "Error" };
     event e
   end
 end

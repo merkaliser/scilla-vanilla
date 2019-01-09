@@ -6,12 +6,13 @@
         {
             "vname": "_hs",
             "type": "ByStr32",
-            "value": "0x9b65b044264bd07cae9001dfe2c7b240b7bfcf39b4ce111d5e178bd7e9412a88"
-        } ,
+            "value": "0x8e752b727746da1d2c1e9c68f243260f16d34f2775c86bb24b160c7610b574a7"
+        },
         {
             "vname": "compaignID",
             "type": "Uint32",
             "value": "1"
         }  
-   ]
+  
+  ]
 }

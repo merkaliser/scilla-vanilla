@@ -1,5 +1,7 @@
 {
-  "gas_remaining": "5791",
+  "scilla_major_version": "0",
+  "gas_remaining": "6165",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -42,7 +44,7 @@
                 "argtypes": [ "ByStr32", "Uint128" ],
                 "arguments": [
                   "0x1316634517196279dafb71644435936d69d0fcaa1e11d5c41f7e3376385da3ce",
-                  "21154"
+                  "0"
                 ]
               }
             },
@@ -53,7 +55,7 @@
                 "argtypes": [ "ByStr32", "Uint128" ],
                 "arguments": [
                   "0x1928417eb686f7cb81393731b1bc0683526e86677a47da01d86a636003004bcc",
-                  "32332"
+                  "0"
                 ]
               }
             },
@@ -75,7 +77,7 @@
                 "argtypes": [ "ByStr32", "Uint128" ],
                 "arguments": [
                   "0xcc372bbece16b3487382c4fd8f4a77ca82cc86398dc8f79654c069df2f9b831d",
-                  "42010"
+                  "0"
                 ]
               }
             }
@@ -92,11 +94,11 @@
           "val": [
             {
               "key": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
-              "val": "1"
+              "val": "0"
             },
             {
               "key": "0xaf332ea57ac9e106e30d79d476f0449804142543",
-              "val": "1"
+              "val": "0"
             },
             {
               "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
@@ -104,7 +106,7 @@
             },
             {
               "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
-              "val": "1"
+              "val": "0"
             }
           ]
         }
@@ -161,32 +163,18 @@
     {
       "vname": "revealsNum",
       "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "3" } ]
+      "value": [ { "key": "1", "val": "0" } ]
     },
     {
       "vname": "random",
       "type": "Map (Uint32) (Uint256)",
-      "value": [
-        {
-          "key": "1",
-          "val":
-            "751757800038898737625592306038522193915507092037495391329674442062960735"
-        }
-      ]
+      "value": [ { "key": "1", "val": "0" } ]
     }
   ],
   "events": [
     {
-      "_eventname": "LogReveal",
-      "params": [
-        { "vname": "compaignID", "type": "Uint32", "value": "1" },
-        {
-          "vname": "from",
-          "type": "ByStr20",
-          "value": "0x5c1f82f393c23a0301aa756e864d41671f5352e5"
-        },
-        { "vname": "secret", "type": "Uint128", "value": "42010" }
-      ]
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-2" } ]
     }
   ]
 }

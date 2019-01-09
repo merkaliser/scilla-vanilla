@@ -1,5 +1,7 @@
 {
-  "gas_remaining": "6627",
+  "scilla_major_version": "0",
+  "gas_remaining": "6167",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
@@ -165,21 +167,14 @@
     },
     {
       "vname": "random",
-      "type": "Map (Uint32) (Uint128)",
+      "type": "Map (Uint32) (Uint256)",
       "value": [ { "key": "1", "val": "0" } ]
     }
   ],
   "events": [
     {
-      "_eventname": "Commitment",
-      "params": [
-        {
-          "vname": "commitment",
-          "type": "Uint256",
-          "value":
-            "51963172940044166565186087234975693518382054667426374225407638091149061803455"
-        }
-      ]
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-1" } ]
     }
   ]
 }

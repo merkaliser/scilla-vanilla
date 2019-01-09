@@ -1,5 +1,7 @@
 {
-  "gas_remaining": "6851",
+  "scilla_major_version": "0",
+  "gas_remaining": "6819",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
@@ -37,7 +39,7 @@
   ],
   "events": [
     {
-      "_eventname": "safe approved",
+      "_eventname": "currentValue not equal",
       "params": [
         {
           "vname": "_recipient",
@@ -45,7 +47,12 @@
           "value": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef"
         },
         { "vname": "_amount", "type": "Uint128", "value": "0" },
-        { "vname": "message", "type": "String", "value": "Spender approved" }
+        {
+          "vname": "message",
+          "type": "String",
+          "value":
+            "CurrentValue given is not equal to the tokens allowed to spender"
+        }
       ]
     }
   ]

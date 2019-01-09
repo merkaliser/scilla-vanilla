@@ -1,5 +1,7 @@
 {
-  "gas_remaining": "6476",
+  "scilla_major_version": "0",
+  "gas_remaining": "6444",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "77" },
@@ -178,7 +180,7 @@
   "events": [
     {
       "_eventname": "RandaoError",
-      "params": [ { "vname": "err_code", "type": "Int32", "value": "-5" } ]
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-4" } ]
     }
   ]
 }

@@ -1,5 +1,7 @@
 {
-  "gas_remaining": "6710",
+  "scilla_major_version": "0",
+  "gas_remaining": "6742",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
@@ -37,7 +39,7 @@
   ],
   "events": [
     {
-      "_eventname": "transferFrom",
+      "_eventname": "transferFromFailed",
       "params": [
         {
           "vname": "_recipient",
@@ -45,7 +47,12 @@
           "value": "0xf83c97044c0b5c8dc38cf5a57c23e03c396aeeff"
         },
         { "vname": "_amount", "type": "Uint128", "value": "0" },
-        { "vname": "message", "type": "String", "value": "transferred" }
+        {
+          "vname": "message",
+          "type": "String",
+          "value":
+            "Tokens to transfer cannot be greater than available or authorized value"
+        }
       ]
     }
   ]

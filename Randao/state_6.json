@@ -162,7 +162,7 @@
     },
     {
       "vname": "random",
-      "type": "Map (Uint32) (Uint128)",
+      "type": "Map (Uint32) (Uint256)",
       "value": [ { "key": "1", "val": "0" } ]
     }
   ]

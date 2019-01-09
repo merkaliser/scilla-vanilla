@@ -1,9 +1,11 @@
 {
-  "gas_remaining": "7151",
+  "scilla_major_version": "0",
+  "gas_remaining": "7147",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
-    { "vname": "_totalSupply", "type": "Uint128", "value": "9700" },
+    { "vname": "_totalSupply", "type": "Uint128", "value": "9400" },
     {
       "vname": "allowed",
       "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
@@ -31,7 +33,7 @@
           "key": "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
           "val": "9100"
         },
-        { "key": "0x23271327e72f96aab882f614b467ebb5ed3003d9", "val": "600" }
+        { "key": "0x23271327e72f96aab882f614b467ebb5ed3003d9", "val": "300" }
       ]
     }
   ],
