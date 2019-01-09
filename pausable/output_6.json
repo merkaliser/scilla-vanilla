@@ -1,29 +1,42 @@
 {
-  "gas_remaining": "7268",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
-    "params": [
-      { "vname": "_transfer", "type": "String", "value": "not primary" }
-    ]
-  },
+  "scilla_major_version": "0",
+  "gas_remaining": "7330",
+  "_accepted": "false",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
-      "vname": "all_deposits",
-      "type": "Map (ByStr20) (Uint128)",
+      "vname": "bearer",
+      "type": "Map (String) (Map (ByStr20) (Int32))",
       "value": [
-        { "key": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2", "val": "985" },
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "15" }
+        {
+          "key": "myrole",
+          "val": [
+            {
+              "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a",
+              "val": "0"
+            }
+          ]
+        }
       ]
-    },
-    {
-      "vname": "_primary",
-      "type": "ByStr20",
-      "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Role Renounced",
+      "params": [
+        { "vname": "role", "type": "String", "value": "myrole" },
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a"
+        },
+        {
+          "vname": "account",
+          "type": "ByStr20",
+          "value": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a"
+        }
+      ]
+    }
+  ]
 }

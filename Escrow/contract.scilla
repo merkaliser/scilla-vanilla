@@ -1,6 +1,6 @@
-(* This contract implements a Escrow contract*)
-(* This contract does not fire events *)
+scilla_version 0
 
+(* This contract implements a Escrow contract*)
 
 (***************************************************)
 (*               Associated library                *)

@@ -1,18 +1,37 @@
 {
-    "_tag": "commit",
-    "_amount": "5",
-    "_sender" : "0xC589636E0C9A77D20A3C458A0972D6EAF856CE81",
+    "_tag": "setCompaign",
+    "_amount": "100",
+    "_sender" : "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617",
     "params": [
         {
-            "vname": "_hs",
-            "type": "ByStr32",
-            "value": "0x8e752b727746da1d2c1e9c68f243260f16d34f2775c86bb24b160c7610b574a7"
+            "vname": "deposit",
+            "type": "Uint128",
+            "value": "5"
         },
         {
+            "vname": "commitBalkline",
+            "type": "BNum",
+            "value": "5"
+        },
+        {
+            "vname": "commitDeadline",
+            "type": "BNum",
+            "value": "15"
+        },
+        {
+            "vname": "bnum",
+            "type": "BNum",
+            "value": "20"
+        },
+        {
+            "vname": "minParticipant",
+            "type": "Uint128",
+            "value": "3"
+        },
+	{
             "vname": "compaignID",
             "type": "Uint32",
             "value": "1"
-        }  
-  
-  ]
+        }
+       ]
 }

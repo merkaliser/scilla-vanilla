@@ -1,0 +1,493 @@
+scilla_version 0
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+
+import BoolUtils
+
+library SecurityToken 
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let no_msg = Nil {Message}
+
+
+let min_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+  let alt = builtin lt a b in
+  match alt with
+  | True =>
+    a
+  | False =>
+    b
+  end
+
+let le_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+    let x = builtin lt a b in
+    match x with
+    | True => True
+    | False =>
+      let y = builtin eq a b in
+      match y with
+      | True => True
+      | False => False
+      end
+    end
+    
+let true   = Uint32 1
+let false   = Uint32 0
+let _zero   = Uint128 0
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract SecurityToken 
+(name:String ,
+ symbol: String,
+ owner : ByStr20)
+
+(* Initial balance is not stated explicitly: it's initialized when creating the contract. *)
+field balances : Map ByStr20 Uint128 = Emp ByStr20 Uint128 
+
+field _totalSupply: Uint128 = _zero
+
+(* Mapping from investor to their tranches (Address ->  tranche amount)*)
+field tranches : Map ByStr20 (Map Uint32 Uint128) = Emp ByStr20 (Map Uint32 Uint128)
+(*field tranchesLastID=Uint32 0*)
+(* new ids would be tranchesLastID plus one*)
+
+(* Mapping from (investor, tranche, operator) to approved status*)
+field trancheApprovals : Map ByStr20 (Map Uint32 (Map ByStr20 Uint32)) = Emp ByStr20 (Map Uint32 (Map ByStr20 Uint32))
+
+(* Mapping from (investor, operator) to approved status (can be used against any tranches)*)
+field approvals : Map ByStr20 (Map ByStr20 Uint32) = Emp ByStr20 (Map ByStr20 Uint32)
+
+ 
+transition name()
+  e = { _eventname : "Name"; name : name };
+  event e
+end
+
+transition symbol()
+ e = { _eventname : "Symbol"; symbol : symbol };
+ event e
+end
+
+
+transition totalSupply ()
+  t<-_totalSupply;
+ e = { _eventname : "TotalSupply"; totalSupply : t };
+ event e
+ end
+
+
+transition balanceOf (_owner : ByStr20)
+  val <- balances[_owner];
+  match val with
+  | Some v =>
+    e = { _eventname : "BalanceOf"; owner : _owner; balance : v };
+    event e
+  | None =>
+    e = { _eventname : "BalanceOf"; owner : _owner; balance : _zero };
+    event e
+  end
+end 
+
+
+(*Returns restricted token balance*)
+transition balanceOfTranche ( _tranche: Uint32  ,_owner : ByStr20)
+  val <- tranches [_owner][_tranche];
+  match val with
+  | Some v => 
+    e = { _eventname : "BalanceOfTranche"; owner : _owner; tranche : _tranche; balance : v };
+    event e
+  | None =>
+    e = { _eventname : "BalanceOfTranche"; owner : _owner; tranche : _tranche; balance : _zero  };
+    event e
+    end
+  end
+
+
+(* @notice Enables caller to determine the count of tranches owned by an address*)
+(* @param _owner An address over which to enumerate tranches*)
+(* @return The number of tranches owned by an `_owner`*)
+(*transition tranchesOf(ByStr20 _owner) *)
+(*s<-tranches[_owner].length;*)
+(*msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; tranches : s};*)
+(*msgs = one_msg msg;*)
+(*send msgs*)
+(*end*)
+
+
+(*@param _tranche The tranche from which to transfer tokens*)
+(*@param _to The address to which to transfer tokens to*)
+(*@param amount The amount of tokens to transfer from `_tranche`*)
+(*@param _data Additional data attached to the transfer of tokens*)   
+(* Transfers tokens from the sender to the _to address, keeping the _tranche the same*)
+transition sendTranche (_tranche : Uint32, _to : ByStr20, _data:String ,amount:Uint128)
+noTranche="no tranche for _sender";
+noBal="no toek balance by _sender";
+v <- tranches[_sender][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin sub vx amount;
+ v1<-balances[_sender];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin sub v1x amount;
+   v2<-tranches[_to][_tranche];
+   match v2 with
+     | Some v2x =>
+     toBalTranche=builtin add v2x amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x amount;
+ 	balances[_to] := toBal;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+        event e
+	| None =>
+        tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	balances[_to] := amount;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+        event e
+	end
+    | None =>
+    toBalTranche=_amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x amount;
+ 	balances[_to] := toBal;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+        event e
+	| None =>
+        tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	balances[_to] := amount;
+      	e = { _eventname : "SentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data  };
+        event e
+	end
+    end
+  | None =>
+  e = { _eventname : "error"; code : noBal };
+  event e
+  end
+  | None =>
+  e = { _eventname : "error"; code : noTranche };
+  event e
+  end
+end 
+
+
+(* returns (address[])*)
+transition defaultOperators ()
+(* No default operators*)
+  e = { _eventname : "DefaultOperators"; owner:owner };
+  event e
+end
+
+
+transition defaultOperatorsTranche ()
+  e = { _eventname : "DefaultOperatorsTranche"; owner:owner };
+  event e
+end
+
+transition authorizeOperator ( operator : ByStr20)
+  approvals[_sender][operator] := true;
+  e = { _eventname : "AuthorizeOperator"; from : _sender ; operator : operator };
+  event e
+end
+
+transition revokeOperator ( operator : ByStr20)
+  approvals[_sender][operator] := false;
+  e = { _eventname : "RevokeOperator"; from : _sender ; operator : operator };
+  event e
+end
+
+
+transition operatorSend(_from : ByStr20, _to : ByStr20, _data:String, _operatorData:String )
+noOp="not an operator";
+noBal="no balance";
+app <- approvals[_sender][_from];
+match app with
+| Some val =>
+isTrue=builtin eq val true;
+match isTrue with
+| True =>
+v <- balances[_from];
+match v with
+ | Some vx =>
+   fromBal=builtin sub vx _amount;
+   balances[_from] := fromBal;
+   v1 <- balances[_to];
+   match v1 with
+    | Some v1x =>
+    toBal=builtin add v1x _amount;
+    balances[_to] := toBal;
+    e = { _eventname : "OperatorSent"; from : _sender ; to : _to ; amount : _amount ; data : _data ; operatorData : _operatorData };
+    event e
+    | None =>
+    balances[_to] := _amount;
+    e = { _eventname : "OperatorSent"; from : _sender ; to : _to ; amount : _amount ; data : _data ; operatorData : _operatorData };
+    event e
+    end
+  | None =>
+  e = { _eventname : "OperatorError"; code: noBal};
+  event e
+  end
+| False =>
+e = { _eventname : "OperatorError"; code: noOp };
+event e
+end
+| None =>
+e = { _eventname : "OperatorError"; code: noOp };
+event e
+end
+end
+
+
+transition operatorSendTranche (_tranche : Uint32,_from : ByStr20, _to : ByStr20, _data:String, _operatorData:String )
+success="operator tranche send successful";
+noOp="not an operator";
+noBal="no balance";
+trApp <- trancheApprovals[_sender][_tranche][_from];
+match trApp with
+| Some val =>
+isTrue=builtin eq val true;
+match isTrue with
+| True =>
+v <- tranches[_from][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin sub vx _amount;
+ v1<-balances[_from];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin sub v1x _amount;
+   v2<-tranches[_to][_tranche];
+   match v2 with
+     | Some v2x =>
+     toBalTranche=builtin add v2x _amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_from][_tranche] := fromBalTranche;
+        balances[_from] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x _amount;
+ 	balances[_to] := toBal;
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e
+	| None =>
+        tranches[_sender][_tranche] := fromBalTranche;
+        balances[_sender] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	balances[_to] := _amount;
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e
+	end
+    | None =>
+    toBalTranche=_amount;
+     v3 <- balances[_to] ;
+     match v3 with
+ 	| Some v3x =>
+	tranches[_from][_tranche] := fromBalTranche;
+        balances[_from] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	toBal=builtin add v3x _amount;
+ 	balances[_to] := toBal;
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e
+	| None =>
+        tranches[_from][_tranche] := fromBalTranche;
+        balances[_from] := fromBal;
+        tranches[_to][_tranche] := toBalTranche;
+ 	balances[_to] := _amount;
+      	e = { _eventname : "OperatorSentTranche"; from : _sender ; to : _to ; tranche : _tranche ; amount : _amount ; data : _data ; operatorData : _operatorData };
+        event e
+	end
+    end
+  | None =>
+  e = { _eventname : "OperatorError"; code: noBal};
+  event e
+  end
+| None =>	
+e = { _eventname : "OperatorError"; code: noBal };
+event e
+end
+| False =>
+e = { _eventname : "OperatorError"; code: noOp };
+event e
+end
+| None =>
+e = { _eventname : "OperatorError"; code: noOp };
+event e
+end
+end
+
+
+transition authorizeOperatorTranche ( _operator : ByStr20, _tranche : Uint32 )
+success="authorized the operator for tranche";
+trancheApprovals[_operator][_tranche][_sender] := true;
+e = { _eventname : "AuthorizeOperatorTranche"; _operator: _operator ; tranche : _tranche  };
+event e
+end
+
+
+transition revokeOperatorTranche ( _operator : ByStr20,_tranche : Uint32 )
+trancheApprovals[_operator][_tranche][_sender] := false;
+e = { _eventname : "RevokeOperatorTranche"; _operator: _operator ; tranche : _tranche  };
+event e
+end
+
+
+transition isOperatorFor ( _operator : ByStr20, _owner : ByStr20 )
+t="True";
+f="False";
+r="False (revoked)";
+tr<-approvals[_operator][_owner];
+match tr with
+| Some v =>
+isTrue=builtin eq v true;
+match isTrue with 
+ | True =>
+   e = { _eventname : "isOperatorFor"; owner: _owner ; amount : _amount ; status : t  };
+   event e
+ | False =>
+   e = { _eventname : "isOperatorFor"; owner: _owner ; amount : _amount ; status : r };
+   event e
+ end
+| None =>
+   e = { _eventname : "isOperatorFor"; owner: _owner ; amount : _amount ; status : f  };
+   event e
+  end
+end
+
+
+(*checks if _operator exists for _tranche*)
+transition isOperatorForTranche ( _tranche : Uint32, _operator : ByStr20, _owner : ByStr20 )
+t="True";
+f="False";
+r="False (revoked)";
+tr<-trancheApprovals[_operator][_tranche][_owner];
+match tr with
+| Some v =>
+isTrue=builtin eq v true;
+match isTrue with 
+ | True =>
+  e = { _eventname : "IsOperator";  tranche : _tranche ; operator : _operator ; code : t  };
+  event e
+ | False =>
+   e = { _eventname : "IsOperator";  tranche : _tranche ; operator : _operator ; code : r  };
+   event e
+ end
+| None =>
+  e = { _eventname : "IsOperator";  tranche : _tranche ; operator : _operator ; code : f  };
+  event e
+  end
+end
+
+
+(*for _tranche given _amount is burnt*)
+transition burn (_tranche : Uint32,  _data : String)
+noBal="no balance";
+noTranche="no tranche for _sender";
+v <- tranches[_sender][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin sub vx _amount;
+ v1<-balances[_sender];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin sub v1x _amount;
+   tranches[_sender][_tranche] := fromBalTranche;
+   balances[_sender] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin sub t _amount;
+   _totalSupply:= newSupply;
+   e = { _eventname : "Burnt"; owner: _sender ; tranche : _tranche ; amount : _amount ; data : _data };
+   event e	
+  | None =>
+    e = { _eventname : "BurnError";  tranche : _tranche ; amount : _amount ; code : noBal  };
+    event e
+  end
+| None =>
+  e = { _eventname : "BurnError";  tranche : _tranche ; amount : _amount ; code : noTranche  };
+  event e
+  end
+end
+
+
+(*for _tranche given _amount is minted*)
+transition mint (_tranche : Uint32, _owner : ByStr20, _data : String)
+success="mint for tranche successful";
+v <- tranches[_owner][_tranche];
+match v with
+ | Some vx =>
+ fromBalTranche=builtin add vx _amount;
+ v1<-balances[_owner];
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin add v1x _amount;
+   tranches[_owner][_tranche] := fromBalTranche;
+   balances[_owner] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin add t _amount;
+   _totalSupply:= newSupply;
+   accept;
+   e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
+   event e
+  | None =>
+   fromBal=_amount;
+   tranches[_owner][_tranche] := fromBalTranche;
+   balances[_owner] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin add t _amount;
+   _totalSupply:= newSupply;
+   accept;
+   e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
+   event e
+   end
+| None =>
+ v1<-balances[_owner];
+ fromBalTranche= _amount;
+ match v1 with
+   | Some v1x =>
+   fromBal=builtin add v1x _amount;
+   tranches[_owner][_tranche] := fromBalTranche;
+   balances[_owner] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin add t _amount;
+   _totalSupply:= newSupply;
+   accept;
+   e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
+   event e
+  | None =>
+  fromBal= _amount;
+   tranches[_owner][_tranche] := fromBalTranche;
+   balances[_owner] := fromBal;
+   t<-_totalSupply;
+   newSupply=builtin add t _amount;
+   _totalSupply:= newSupply;
+   accept;
+   e = { _eventname : "Minted"; owner: _owner ; tranche : _tranche ; amount : _amount ; data : _data  };
+   event e
+   end
+end
+end

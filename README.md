@@ -9,7 +9,7 @@ Vanilla is a library for smart contract development in Scilla . It provides impl
 Feel free to create requests for smart contracts you would like to see developed by merkalise by opening an issue.
 
 ## Running Scilla contracts :running: 
-1. Install Scilla binary here: https://github.com/Zilliqa/scilla.
+1. Install Scilla binary in your `~Desktop` following steps here: https://github.com/Zilliqa/scilla.
 2. Use the easyrun script to run the test suites for each contract.
    ```
    ./easyrun.sh ERC223 1

@@ -1,17 +1,29 @@
 {
-  "gas_remaining": "7316",
+  "scilla_major_version": "0",
+  "gas_remaining": "7306",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
       "vname": "bearer",
       "type": "Map (String) (Map (ByStr20) (Int32))",
-      "value": [ { "key": "myrole", "val": [] } ]
+      "value": [
+        {
+          "key": "myrole",
+          "val": [
+            {
+              "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a",
+              "val": "0"
+            }
+          ]
+        }
+      ]
     }
   ],
   "events": [
     {
-      "_eventname": "Role Removed",
+      "_eventname": "Role Renounced",
       "params": [
         { "vname": "role", "type": "String", "value": "myrole" },
         {

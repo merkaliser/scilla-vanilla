@@ -1,4 +1,4 @@
-[
+ [
     { "vname": "_balance", "type": "Uint128", "value": "120" },
     {
       "vname": "_deposit",
@@ -39,7 +39,7 @@
                 "argtypes": [ "ByStr32", "Uint128" ],
                 "arguments": [
                   "0x1316634517196279dafb71644435936d69d0fcaa1e11d5c41f7e3376385da3ce",
-                  "21154"
+                  "0"
                 ]
               }
             },
@@ -50,7 +50,7 @@
                 "argtypes": [ "ByStr32", "Uint128" ],
                 "arguments": [
                   "0x1928417eb686f7cb81393731b1bc0683526e86677a47da01d86a636003004bcc",
-                  "32332"
+                  "0"
                 ]
               }
             },
@@ -89,11 +89,11 @@
           "val": [
             {
               "key": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
-              "val": "1"
+              "val": "0"
             },
             {
               "key": "0xaf332ea57ac9e106e30d79d476f0449804142543",
-              "val": "1"
+              "val": "0"
             },
             {
               "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
@@ -158,11 +158,11 @@
     {
       "vname": "revealsNum",
       "type": "Map (Uint32) (Uint128)",
-      "value": [ { "key": "1", "val": "2" } ]
+      "value": [ { "key": "1", "val": "0" } ]
     },
     {
       "vname": "random",
       "type": "Map (Uint32) (Uint256)",
-      "value": [ { "key": "1", "val": "37574609384519674600651178916512340003556264029923211120152802148549695169215" } ]
+      "value": [ { "key": "1", "val": "0" } ]
     }
   ]

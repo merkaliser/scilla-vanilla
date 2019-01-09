@@ -1,24 +1,27 @@
 {
-  "gas_remaining": "7298",
+  "scilla_major_version": "0",
+  "gas_remaining": "7378",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
-    {
-      "vname": "balances",
-      "type": "Map (ByStr20) (Uint128)",
-      "value": [
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "10" }
-      ]
-    },
-    { "vname": "maxAllowanceInclusive", "type": "Uint128", "value": "500" },
+    { "vname": "isPaused", "type": "Uint128", "value": "1" },
+    { "vname": "maxAllowanceInclusive", "type": "Uint128", "value": "50" },
     {
       "vname": "claimedTokens",
       "type": "Map (ByStr20) (Uint128)",
       "value": [
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "0" }
+        { "key": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a", "val": "5" }
       ]
     },
-    { "vname": "isPaused", "type": "Uint128", "value": "0" },
+    {
+      "vname": "balances",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a", "val": "5" },
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "95" }
+      ]
+    },
     {
       "vname": "allowed",
       "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
@@ -27,19 +30,13 @@
   ],
   "events": [
     {
-      "_eventname": "BalanceOf",
+      "_eventname": "Paused",
       "params": [
-        {
-          "vname": "tokenOwner",
-          "type": "ByStr20",
-          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
-        },
         {
           "vname": "sender",
           "type": "ByStr20",
-          "value": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a"
-        },
-        { "vname": "balance", "type": "Uint128", "value": "10" }
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        }
       ]
     }
   ]

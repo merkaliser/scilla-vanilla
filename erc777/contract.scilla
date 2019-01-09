@@ -1,6 +1,6 @@
-(* This contract implements a fungible token interface a la ERC777.*)
-(* This contract does not fire events *)
+scilla_version 0
 
+(* This contract implements a fungible token interface a la ERC777.*)
 
 (***************************************************)
 (*               Associated library                *)

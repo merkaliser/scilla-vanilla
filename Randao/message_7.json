@@ -1,12 +1,12 @@
 {
-    "_tag": "reveal",
-    "_amount": "0",
-    "_sender" : "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
+    "_tag": "commit",
+    "_amount": "5",
+    "_sender" : "0xFE77F63BA9E93C22197D7ED3ED11734CBC93E925",
     "params": [
         {
-            "vname": "_s",
-            "type": "Uint128",
-            "value": "42010"
+            "vname": "_hs",
+            "type": "ByStr32",
+            "value": "0x8ab3bf6e8bfac3771707cd4a013bdeef828f62ff73a9290720d0f4112902bf9b"
         },
         {
             "vname": "compaignID",

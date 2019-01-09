@@ -1,0 +1,52 @@
+{
+  "scilla_major_version": "0",
+  "gas_remaining": "7075",
+  "_accepted": "true",
+  "message": null,
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "600" },
+    { "vname": "_totalSupply", "type": "Uint128", "value": "600" },
+    {
+      "vname": "balances",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x1234567890123456789012345678906784567891", "val": "600" }
+      ]
+    },
+    {
+      "vname": "tranches",
+      "type": "Map (ByStr20) (Map (Uint32) (Uint128))",
+      "value": [
+        {
+          "key": "0x1234567890123456789012345678906784567891",
+          "val": [ { "key": "1", "val": "600" } ]
+        }
+      ]
+    },
+    {
+      "vname": "trancheApprovals",
+      "type": "Map (ByStr20) (Map (Uint32) (Map (ByStr20) (Uint32)))",
+      "value": []
+    },
+    {
+      "vname": "approvals",
+      "type": "Map (ByStr20) (Map (ByStr20) (Uint32))",
+      "value": []
+    }
+  ],
+  "events": [
+    {
+      "_eventname": "Minted",
+      "params": [
+        {
+          "vname": "owner",
+          "type": "ByStr20",
+          "value": "0x1234567890123456789012345678906784567891"
+        },
+        { "vname": "tranche", "type": "Uint32", "value": "1" },
+        { "vname": "amount", "type": "Uint128", "value": "600" },
+        { "vname": "data", "type": "String", "value": "data1" }
+      ]
+    }
+  ]
+}

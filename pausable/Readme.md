@@ -8,10 +8,9 @@ https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/life
 
 ## Test cases
 
-0. add: adds the pausable address with specified role `True`. Expected: [Success].
-1. renounce: updates the pausable address with specified role `False`. Expected: [Success] .
-2. remove: removes the pausable address with specified role . Expected: [Success] 
-3. has: checks if the pausable address exists with specified role. Expected: [Success] `False`. 
-4. has: checks if the pausable address exists with specified role. Expected: [Success] `True`
-5. renounce: here it updates the pausable address with specified role `False`. Expected: [Success].
-
+1. add: adds the pausable address with specified role `True`. Expected: [Success].
+2. renounce: updates the pausable address with specified role `False`. Expected: [Success] .
+3. remove: removes the pausable address with specified role . Expected: [Success].
+4. has: checks if the pausable address exists with specified role. Expected: [Success] `False`.
+5. has: checks if the pausable address exists with specified role. Expected: [Success] `True`.
+6. renounce: here it updates the pausable address with specified role `False`. Expected: [Success].

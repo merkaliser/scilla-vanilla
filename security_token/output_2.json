@@ -1,0 +1,32 @@
+{
+  "scilla_major_version": "0",
+  "gas_remaining": "7603",
+  "_accepted": "false",
+  "message": null,
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "0" },
+    { "vname": "balances", "type": "Map (ByStr20) (Uint128)", "value": [] },
+    { "vname": "_totalSupply", "type": "Uint128", "value": "0" },
+    {
+      "vname": "tranches",
+      "type": "Map (ByStr20) (Map (Uint32) (Uint128))",
+      "value": []
+    },
+    {
+      "vname": "trancheApprovals",
+      "type": "Map (ByStr20) (Map (Uint32) (Map (ByStr20) (Uint32)))",
+      "value": []
+    },
+    {
+      "vname": "approvals",
+      "type": "Map (ByStr20) (Map (ByStr20) (Uint32))",
+      "value": []
+    }
+  ],
+  "events": [
+    {
+      "_eventname": "Symbol",
+      "params": [ { "vname": "symbol", "type": "String", "value": "ST" } ]
+    }
+  ]
+}

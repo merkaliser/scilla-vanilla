@@ -1,16 +1,18 @@
 {
-    "_tag": "reveal",
+    "_tag": "getRandom",
     "_amount": "0",
-    "_sender" : "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
+    "_sender" : "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
     "params": [
-        {
-            "vname": "_s",
-            "type": "Uint128",
-            "value": "1"
-        },
         {
             "vname": "compaignID",
             "type": "Uint32",
             "value": "1"
-        } ]
+        },
+        {
+            "vname": "seed",
+            "type": "Uint128",
+            "value": "7843651"
+        }
+    ]
 }
+
