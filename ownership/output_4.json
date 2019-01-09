@@ -1,12 +1,13 @@
 {
-  "gas_remaining": "7443",
+  "scilla_major_version": "0",
+  "gas_remaining": "7441",
+  "_accepted": "false",
   "message": {
     "_tag": "Main",
     "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
+    "_recipient": "0x41c8f599bee23658734ca47b4dd7b10f71445b62",
     "params": [
-      { "vname": "msg", "type": "String", "value": "not an owner" }
+      { "vname": "code", "type": "String", "value": "not an owner" }
     ]
   },
   "states": [
@@ -14,7 +15,7 @@
     {
       "vname": "_owner",
       "type": "ByStr20",
-      "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+      "value": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
     },
     {
       "vname": "noOwner",

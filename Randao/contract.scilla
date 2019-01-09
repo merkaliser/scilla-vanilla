@@ -1,0 +1,524 @@
+scilla_version 0
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+
+import BoolUtils 
+
+library Randao 
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let no_msg = Nil {Message}
+
+let blk_le_opt =
+  fun (blk1 : Option BNum) =>
+  fun (blk2 : BNum) =>
+  match blk1 with
+    | None => False
+    | Some bl1 => 
+     builtin blt bl1 blk2 
+     end
+
+let le_int_opt =
+ fun (a : Option Uint128) => fun (b : Option Uint128) =>
+ match a with 
+    | None => False
+    | Some a1 =>  
+   match b with 
+    | None => False
+    | Some b1 => 
+      let x = builtin lt a1 b1 in
+      match x with
+       | True => True
+       | False =>
+         builtin eq a1 b1 
+      end
+   end
+ end
+
+let eq_one_32 =
+  fun (a : Option Uint32) => 
+    match a with 
+    | None => False
+    | Some a1 => 
+      let _one = Uint32 1 in
+      builtin eq a1 _one 
+    end
+
+let eq_opt_128 =
+  fun (a : Option Uint128) =>  fun (b : Uint128) =>
+    match a with 
+    | None => False
+    | Some a1 => 
+      builtin eq a1 b 
+    end
+   
+let in_time =
+  fun (bn1 : Option BNum) =>
+  fun (bn2 : Option BNum) =>
+  fun (bn : BNum) =>
+    match bn1 with
+      | None => False
+      | Some b1 => 
+        let d = builtin blt b1 bn in
+        match d with
+      | False => False
+      | True => 
+        match bn2 with
+        | None => False
+        | Some b2 => 
+          let bc1 = builtin blt bn b2 in 
+          let bc2 = builtin eq bn b2 in 
+          orb bc1 bc2
+         end
+      end
+      end     
+
+let addOneOpt =
+fun (a : Option Uint128) =>
+  match a with
+   | None => 
+     let _zero = Uint128 0 in
+     _zero
+   | Some a1 => 
+     let _one = Uint128 1 in
+     builtin add a1 _one
+  end
+
+let addOpt =
+fun (a : Option Uint128) =>
+fun (b : Uint128) =>
+  match a with
+   | None => 
+     let _zero = Uint128 0 in
+     _zero
+   | Some a1 => 
+     builtin add a1 b
+  end
+
+let calculate_fine =
+  fun (cn : Option Uint128) =>
+  fun (rn : Option Uint128) =>
+  fun (dep : Option Uint128) =>
+  let _zero = Uint128 0 in
+    match cn with
+      | None => _zero
+      | Some cNum => 
+        match rn with
+        | None => _zero
+        | Some rNum => 
+          let diffRevealed = builtin sub cNum rNum in 
+          match dep with
+           | None => _zero
+           | Some deposit => 
+  	     builtin mul diffRevealed deposit
+          end
+       end
+    end     
+
+let calculate_share =
+  fun (rn : Option Uint128) =>
+  fun (bounty : Uint128) =>
+  let _zero = Uint128 0 in
+    match rn with
+      | None => _zero
+      | Some rNum => 
+         builtin div bounty rNum 
+      end     
+
+let sha256_zero =
+  let _zero = Uint128 0
+  in builtin sha256hash _zero
+      
+(*Constants*)
+let zero_128 = Uint128 0
+let one_128 = Uint128 1
+let zero_32 = Uint32 0
+let one_32 = Uint32 1
+let zero_256 = Uint256 0 
+
+(* Error events *)
+let mk_error_event =
+  fun (err_code : Int32) =>
+    { _eventname : "RandaoError" ; err_code : err_code }
+
+(* Error messages *)
+let insufficient_deposit_err_code = Int32 -1
+let commit_time_err_code  = Int32 -2
+let compaign_unended_err_code = Int32 -3
+let not_reveal_deadline_err_code = Int32 -4
+let not_committed_err_code = Int32 -5
+let reveal_time_err_code = Int32 -6
+let deadline_err_code = Int32 -7
+let failure_err_code = Int32 -8
+let failure_wrong_secret = Int32 -9
+let bounty_unequal_err_code = Int32 -10
+let not_consumer_err_code = Int32 -11
+let compaignID_not_unique_err_code = Int32 -12
+let sender_already_committed_err_code = Int32 -13
+let secret_zero_err_code = Int32 -14
+
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract Randao 
+()
+
+(*_deposit is _amount of zil required to send to take part in commit phase*)
+(*commitBalkline is the Bnum when the commit phase starts*)
+(*commitDeadline is the Bnum when the commit phase ends*)
+(*bnum is the Bnum when the reveal phase ends*)
+(*between commitDeadline and bnum is the reveal phase*)
+(*so commitBalkline < commitDeadline < bnum*)
+
+field _deposit : Map Uint32 Uint128 = Emp Uint32 Uint128
+field _commitBalkline: Map Uint32 BNum  = Emp Uint32 BNum
+field _commitDeadline:  Map Uint32 BNum  = Emp Uint32 BNum
+field _bnum: Map Uint32 BNum  = Emp Uint32 BNum
+field _minParticipant : Map Uint32 Uint128 = Emp Uint32 Uint128
+field commitNum : Map Uint32 Uint128 = Emp Uint32 Uint128
+field revealsNum : Map Uint32 Uint128 = Emp Uint32 Uint128
+
+(*compaignID-> address-> [commitment (i.e. sha256 hash of secret), secret] *)
+field participant :Map Uint32(Map ByStr20( Pair ByStr32 Uint128 )) = Emp Uint32(Map ByStr20(Pair ByStr32  Uint128 ))
+(*secret is initialized to zero in mapping*)
+
+(*mapping for compaignID if address has revealed secret in reveal phase and is eligible for bounty*)
+(*compaignID-> address-> [True(1)/False(0)] *)
+field revealed : Map Uint32(Map ByStr20 Uint32) = Emp Uint32 (Map ByStr20 Uint32) 
+
+(*mapping for compaignID if address has been rewarded*)
+(*compaignID-> address-> [True(1)/False(0)] *)
+field rewarded: Map Uint32 (Map ByStr20 Uint32) = Emp Uint32 (Map ByStr20 Uint32) 
+
+(*compaignID -> [address <=> balance of Consumer in zil]*)
+field _consumer : Map Uint32 (Pair ByStr20 Uint128) = Emp Uint32 (Pair ByStr20 Uint128)
+
+(*random number is generated after reveal phase is over, initialized to zero at compaign start*) 
+(*compaignID -> randomNumber*)
+field random: Map Uint32 Uint256 = Emp Uint32 Uint256
+
+(*deposit of bounty by consumer and set compaign*)
+transition setCompaign ( compaignID : Uint32, deposit : Uint128, commitBalkline : BNum, commitDeadline : BNum, bnum : BNum, minParticipant : Uint128)
+ iscompaignID_unique <- exists _consumer[compaignID];
+ match iscompaignID_unique with
+    | False =>
+ 	accept;
+ 	commitNum[compaignID]:=zero_128;
+ 	revealsNum[compaignID]:=zero_128;
+	p = Pair {(ByStr20) (Uint128)} _sender _amount;
+ 	_consumer[compaignID] := p;
+	random[compaignID]:= zero_256;
+ 	_deposit[compaignID] := deposit;
+ 	_commitBalkline[compaignID] := commitBalkline; 
+ 	_commitDeadline[compaignID] := commitDeadline;
+ 	_bnum[compaignID] := bnum;
+ 	_minParticipant[compaignID] := minParticipant;
+ 	e = { _eventname : "Compaign Created"; compaignID : compaignID; deposit : deposit; bounty : _amount;  commitBalkline : commitBalkline; commitDeadline : commitDeadline; bnum : bnum; minParticipant : minParticipant }; 
+ 	event e
+    | True =>
+       e = mk_error_event compaignID_not_unique_err_code;
+       event e 
+     end
+  end
+
+(*commit sha256 hash (of secret) in commit phase for particular compaignID*)
+transition commit (compaignID : Uint32, _hs : ByStr32 )
+ cn<- commitNum[compaignID];
+ d <- _deposit[compaignID];
+ isEqualDeposit= eq_opt_128 d _amount;
+ blk <- & BLOCKNUMBER;
+ cb<-_commitBalkline[compaignID];
+ cd<-_commitDeadline[compaignID];
+ inTime = in_time cb cd blk;
+ (*zero secret hash cant be committed*)
+ isZeroHash = builtin eq _hs sha256_zero;
+ match isZeroHash with
+  | False =>
+    match isEqualDeposit with
+     | True =>
+        match inTime with
+        | True =>
+           p<-exists participant[compaignID][_sender];
+	   match p with
+	      | True =>
+     		 e = mk_error_event sender_already_committed_err_code;
+  		 event e 
+ 	      | False =>
+  	         accept;
+	         p = Pair {(ByStr32) (Uint128)} _hs zero_128;
+ 	         participant[compaignID][_sender]:=p;
+                 revealed[compaignID][_sender]:=zero_32;
+	         rewarded[compaignID][_sender]:=zero_32;
+                 newCommitNum=addOneOpt cn;
+                 commitNum[compaignID]:=newCommitNum;
+	         e = { _eventname : "LogCommit"; compaignID : compaignID; from : _sender ; commitment : _hs  };
+	         event e
+	         end
+       | False => 
+          e = mk_error_event commit_time_err_code;
+          event e 
+          end
+    | False =>
+      e = mk_error_event insufficient_deposit_err_code;
+      event e 
+      end
+  | True =>
+    e = mk_error_event secret_zero_err_code;
+    event e 
+    end
+ end
+
+(*returns commitment for compaignID, sha256 hash of _sender*)
+transition getCommitment (compaignID : Uint32)
+ valMap <- participant[compaignID][_sender];
+ match valMap with
+   | Some h =>
+      match h with
+      | Pair a b => 
+        e = { _eventname : "Commitment"; commitment : a  };
+        event e
+        end
+   | None=>
+      e = mk_error_event not_committed_err_code;
+      event e 
+      end
+ end
+
+(*reveal secret in reveal phase of commitment*)
+transition reveal(compaignID : Uint32, _s : Uint128)
+ cn<-commitNum[compaignID];
+ cd<-_commitDeadline[compaignID];
+ bn<-_bnum[compaignID];
+ blk <- & BLOCKNUMBER;
+ s_256_opt=builtin to_uint256 _s;
+ mp<-_minParticipant[compaignID];
+ isMinParticipants = le_int_opt mp cn;
+ (*inTime if true signifies that blk lies in commitDeadline and _bnum i.e. in phase2*)
+ inTime = in_time cd bn blk;
+ match isMinParticipants with
+  | True =>
+    match inTime with
+      | True =>
+        commit= builtin sha256hash _s;
+        val1 <- participant[compaignID][_sender];
+        match val1 with
+         | Some h =>
+           match h with 
+             | Pair a b =>
+	        isEqualCommit=builtin eq commit a;
+  		match isEqualCommit with
+   		   | True =>
+	       	     rn<-revealsNum[compaignID];
+                     newRevealNum=addOneOpt rn;
+                     revealsNum[compaignID]:=newRevealNum;
+                     (*generate random no.*)
+	             prRandom<-random[compaignID];
+                     match prRandom with 
+ 	               | Some previousRandom =>
+			  match s_256_opt with
+                          | Some s_256 =>
+			   previousRandomHash = builtin sha256hash previousRandom;
+	                   newRandomNoFromHash=builtin dist previousRandomHash commit;
+			   newRandom= builtin div newRandomNoFromHash s_256;
+                           random[compaignID]:=newRandom;	
+		  	   p = Pair {(ByStr32) (Uint128)} a _s;    
+	                   participant[compaignID][_sender] := p;
+	            	   revealed[compaignID][_sender]:=one_32;
+                           e = { _eventname : "LogReveal"; compaignID : compaignID; from : _sender  ; secret : _s  };
+	     	           event e 
+	                 | None =>
+                    	   e = mk_error_event failure_err_code;
+	     	           event e 
+  	          	  end 
+	              | None =>
+			(*Random no. initialized to zero_256 at setCompaign*)
+                    	 e = mk_error_event failure_err_code;
+	     	         event e 
+  	          	end
+   		  | False => 
+     		     e = mk_error_event failure_wrong_secret;
+   		     event e 
+    		     end
+	       	   end
+  	| None=>
+          e = mk_error_event not_committed_err_code;
+          event e 
+          end
+      | False => 
+        e = mk_error_event reveal_time_err_code;
+       event e 
+       end
+   (*if minimum participants didnot commit, refunding back _deposit and bounty to participant and consumer respectively*)
+   | False => 
+     hashPair <- exists participant [compaignID][_sender];
+     match hashPair with
+       | True =>
+         depo<-_deposit[compaignID];
+ 	 match depo with
+           | Some d =>
+             msg = { _tag : "Main"; _recipient : _sender; _amount : d;  compaignID : compaignID; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
+            msgs = one_msg msg;
+            send msgs
+  	   | None =>
+ 	      e = mk_error_event failure_err_code;
+  	      event e 
+             end
+       | False =>
+	 consumerMap <- _consumer[compaignID];
+	 match consumerMap with
+	   | Some h =>
+	     match h with
+  	     | Pair address bounty => 
+		isConsumer= builtin eq _sender address;
+		match isConsumer with
+	           | True =>
+                      msg = { _tag : "Main"; _recipient : _sender; _amount : bounty;  compaignID : compaignID; status : "Failed compaign and refunded deposit as minParticipants < total commits" };
+                      msgs = one_msg msg;
+                      send msgs
+       		   | False =>
+   		      e = mk_error_event not_consumer_err_code;
+  	      	      event e 
+		   end
+	      end
+        | None =>
+ 	   e = mk_error_event failure_err_code;
+  	   event e 
+          end
+       end      
+    end
+ end
+
+
+(*to get the reward after reveal phase is over*)
+transition getMyBounty(compaignID: Uint32)
+ blk <- & BLOCKNUMBER;
+ bn <- _bnum[compaignID];
+ isEnd = blk_le_opt bn blk;
+ deposit <- _deposit[compaignID];
+ revealno <- revealsNum[compaignID];
+ commitno <- commitNum[compaignID];
+ consumerMap <- _consumer[compaignID];
+ match consumerMap with
+   | Some h =>
+     match h with
+      | Pair address bounty => 
+        match isEnd with
+          | True =>
+             isRevealed<-revealed[compaignID][_sender];
+       	     match isRevealed with
+    	       | Some rv =>
+   	          hasRevealed=builtin eq rv one_32;
+    	          match hasRevealed with
+    	 	   | True =>
+    	    	     isRewarded<-rewarded[compaignID][_sender];
+   	   	     match isRewarded with
+                      | Some rv1 =>
+       		         hasRewarded=builtin eq rv1 one_32;
+      		         match hasRewarded with
+          	   	  | False =>
+             	      	    fine = calculate_fine commitno revealno deposit;
+           	     	    bountyShare = calculate_share revealno bounty;
+		   	    distributionAmount = builtin add fine bountyShare;
+	  	   	    userAmt = builtin sub bounty bountyShare;
+	 	   	    p = Pair {(ByStr20) (Uint128)} address userAmt;
+		   	    _consumer[compaignID]:= p;
+		   	    totalReward = addOpt deposit distributionAmount;
+        	   	    rewarded[compaignID][_sender] := one_32; 
+        	    	    msg = { _tag : "Main"; _recipient : _sender; _amount : totalReward; compaignID : compaignID;  status : "success" };
+		    	    msgs = one_msg msg;
+		    	    send msgs     	
+  	 		 | True =>
+  	            	    e = mk_error_event failure_err_code;
+            	   	    event e 
+           	     	 end 
+    	   	     | None=>
+        		e = mk_error_event failure_err_code;
+       			event e 
+        	      end 
+    		| False=>
+          	  e = mk_error_event not_reveal_deadline_err_code;
+          	  event e 
+      	  	end 
+     	    | None=>
+       	      e = mk_error_event not_committed_err_code;
+       	      event e 
+      	    end 
+  	| False =>
+   	   e = mk_error_event not_reveal_deadline_err_code;
+    	   event e 
+    	end 
+      end
+  | None=>
+     e = mk_error_event failure_err_code;
+     event e 
+   end 
+ end
+
+
+(*random no. generated for compaign*)
+transition getRandom (compaignID: Uint32, seed : Uint128)
+ blk <- & BLOCKNUMBER;
+ bn<-_bnum[compaignID];
+ mp<-_minParticipant[compaignID];
+ isEnd = blk_le_opt bn blk;
+ r<-revealsNum[compaignID];
+ consumerMap <- _consumer[compaignID];
+ seed_256_opt = builtin to_uint256 seed;
+ seedHash= builtin sha256hash seed;
+ match consumerMap with
+  | Some h =>
+    match h with
+     | Pair address bounty => 
+       isConsumer=builtin eq address _sender;
+       match isConsumer with
+         | True =>
+           match isEnd with
+             | True =>
+               isSettled= le_int_opt mp r;
+               match isSettled with
+  	         | True =>
+	             prRandom<-random[compaignID];
+                     match prRandom with 
+ 	               | Some previousRandom =>
+			  match seed_256_opt with
+                          | Some s_256 =>
+			    previousRandomHash = builtin sha256hash previousRandom;
+	                    newRandomNoFromHash=builtin dist previousRandomHash seedHash;
+			    newRandom= builtin div newRandomNoFromHash s_256;
+                            random[compaignID]:=newRandom;	
+ 	                    e = { _eventname : "RandomNumber" ;  compaignID : compaignID; number : newRandom  };
+ 	                    event e
+   	                 | None =>
+  	                    e = mk_error_event failure_err_code;
+ 	                    event e 
+			   end	
+ 	             | None =>
+ 	               e = mk_error_event failure_err_code;
+ 	               event e 
+ 	              end
+   	        | False =>
+    	           e = mk_error_event failure_err_code;
+   	           event e 
+     	         end
+            | False =>
+    	       e = mk_error_event deadline_err_code;
+   	       event e 
+  	     end
+         | False =>
+           e = mk_error_event not_consumer_err_code;
+           event e 
+         end
+      end
+  | None =>
+     e = mk_error_event not_consumer_err_code;
+     event e 
+   end
+ end

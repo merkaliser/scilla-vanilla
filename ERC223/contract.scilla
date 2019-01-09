@@ -1,3 +1,5 @@
+scilla_version 0
+
 import BoolUtils
 
 library ERC223Token
@@ -6,9 +8,7 @@ let one_msg =
     fun(msg : Message) =>
     let nil_msg=Nil {Message} in
     Cons {Message} msg nil_msg
-
 let no_msg = Nil {Message}
-
 let min_int =
   fun (a: Uint128) => fun(b: Uint128) =>
   let res =builtin lt a b in
@@ -17,8 +17,7 @@ let min_int =
     a 
   | False =>
     b
-  end
-  
+  end 
 let equal_int=
   fun(a : Uint128) => fun(b:Uint128) =>
   let equal= builtin eq a b in
@@ -40,7 +39,6 @@ let less_equal=
     end
   end    
         
-
 contract ERC223Token
 (name: String,
 symbol:String,
@@ -52,224 +50,164 @@ field balances : Map ByStr20 Uint128 =
   let m = Emp ByStr20 Uint128 in
     builtin put m owner totalSupply
 
-field allowed : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)
- 
+field allowed : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128) 
 field _totalSupply :Uint128 = totalSupply
 
-
-
 transition name ()
-msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; tokenname:name};
-msgs=one_msg msg;
-send msgs
+e = { _eventname : "name"; _recipient : _sender; _amount : Uint128 0; message : name };
+event e
 end
 
 transition symbol ()
-msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; tokensymbol:symbol};
-msgs=one_msg msg;
-send msgs
+e = { _eventname : "symbol"; _recipient : _sender; _amount : Uint128 0; message : symbol };
+event e
 end
 
 transition totalSupply ()
 t<-_totalSupply;
-msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; tokentotalSupply : t};
-msgs=one_msg msg;
-send msgs
+e = { _eventname : "total supply"; _recipient : _sender; _amount : Uint128 0; message : t };
+event e
 end
 
 transition balanceOf(tokenOwner : ByStr20)
-  bl <- balances;
-  val = builtin get bl tokenOwner;
+  
+  val <- balances[tokenOwner];
   match val with
   | Some v =>
-    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; bal : v};
-    msgs=one_msg msg;
-    send msgs  
+    e = { _eventname : "balanceOf"; _recipient : _sender; _amount : Uint128 0; balance : v };
+    event e  
   | None =>
-    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; bal : Uint128 0};   
-    msgs=one_msg msg;
-    send msgs  
+    e = { _eventname : "balanceOf"; _recipient : _sender; _amount : Uint128 0; message : "No balance found for given address" };
+    event e  
   end
 end
 (*spender:address which owner wants to give access to transfer tokens*)
 transition approve (spender : ByStr20, value : Uint128)
-  approved="spender approved";
-  notapproved="spender not approved";
-  al <- allowed;
-  sender_map = builtin get al _sender;
+  sender_map <- allowed[_sender];
   match sender_map with
-  | Some m =>
-    allowed_to_spender = builtin put m spender value;
-    allowed_new = builtin put al _sender allowed_to_spender;
-    allowed := allowed_new;
-    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : approved};   
-    msgs=one_msg msg;
-    send msgs 
-    
+  | Some m =>    
+    allowed[_sender][spender] := value;    
+    e = { _eventname : "spenderapproved"; _recipient : _sender; _amount : Uint128 0; message : "spender approved" };
+    event e     
   | None =>
-    allowed_to_spender = let m = Emp ByStr20 Uint128 in builtin put m spender value;
-    allowed_new = builtin put al _sender allowed_to_spender;
-    allowed := allowed_new;
-    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : approved};   
-    msgs=one_msg msg;
-    send msgs 
-    
+    allowed[_sender][spender] := value;    
+    e = { _eventname : "spenderapproved"; _recipient : _sender; _amount : Uint128 0; message : "spender approved" };
+    event e
   end
 end
 
-transition safeApprove(spender : ByStr20 , currentValue : Uint128 , value : Uint128 )
-  approved="Spender approved";
-  notapproved="Spender not approved";
-  currentValue_not_equal="CurrentValue given is not equal to the tokens allowed to spender";
-  no_tokens_allowed="No tokens allowed to provided spender";
-  spender_doesnot_exist="No spender exist";
-  al<-allowed;
-  sender_map=builtin get al _sender;
+transition safeApprove(spender : ByStr20 , currentValue : Uint128 , value : Uint128 )  
+  sender_map <- allowed[_sender];
   match sender_map with
   | Some m =>
-    allowed_to_spender_val=builtin get m spender;
+    allowed_to_spender_val<- allowed[_sender][spender];
     match allowed_to_spender_val with
     | Some val =>
       can_do = equal_int val currentValue;      
       match can_do with
       | True =>
-        allowed_new=builtin put m spender value;
-        allowed_new_update=builtin put al _sender allowed_new;
-        allowed := allowed_new_update;
-        msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : approved};   
-        msgs=one_msg msg;
-        send msgs
-      | False =>
-        msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : currentValue_not_equal};   
-        msgs=one_msg msg;
-        send msgs 
+        allowed[_sender][spender] := value;        
+	e = { _eventname : "safe approved"; _recipient : _sender; _amount : Uint128 0; message : "Spender approved" };
+	event e
+      | False =>        
+	e = { _eventname : "currentValue not equal"; _recipient : _sender; _amount : Uint128 0; message : "CurrentValue given is not equal to the tokens allowed to spender" };
+	event e 
       end
-    | None =>
-      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : no_tokens_allowed };   
-      msgs=one_msg msg;
-      send msgs      
+    | None =>            
+      e = { _eventname : "tokens not allowed"; _recipient : _sender; _amount : Uint128 0; message : "No tokens allowed to provided spender" };
+      event e
     end    
-  | None =>
-    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : spender_doesnot_exist };   
-    msgs=one_msg msg;
-    send msgs
+  | None =>    
+    e = { _eventname : "no spender foound"; _recipient : _sender; _amount : Uint128 0; message : "No spender exist" };
+    event e
   end
 end  
 (*returns the number of tokens allowed by owner to spender*)
-transition allowance(owner : ByStr20, spender : ByStr20)
-  spender_doesnot_exist="No spender exist";
-  no_tokens_allowed="No tokens allowed to provided spender";
-  al<-allowed;
-  allowed_by_owner = builtin get al owner;
+
+
+transition allowance(owner : ByStr20, spender : ByStr20)  
+  allowed_by_owner <- allowed[owner];
   match allowed_by_owner with
   | Some m=>
-    allowed_to_spender = builtin get m spender;
+    allowed_to_spender <-allowed[owner][spender];
     match allowed_to_spender with
-    | Some m=>
-      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; allowed_by_owner : m};   
-      msgs=one_msg msg;
-      send msgs    
-    | None =>
-      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : no_tokens_allowed};   
-      msgs=one_msg msg;
-      send msgs    
+    | Some m=>        
+      e = { _eventname : "allowed to spender"; _recipient : _sender; _amount : Uint128 0; allowed_by_owner : m };
+      event e
+    | None =>       
+      e = { _eventname : "noTokensAllowed"; _recipient : _sender; _amount : Uint128 0; message : "No tokens allowed to provided spender" };
+      event e   
     end
-  | None =>
-    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : spender_doesnot_exist};   
-    msgs=one_msg msg;
-    send msgs  
+  | None =>     
+    e = { _eventname : "no spender found"; _recipient : _sender; _amount : Uint128 0; message : "No spender exist" };
+    event e
   end
 end  
 
 
-transition transfer (to: ByStr20 , value:Uint128)
-  bl<-balances;
-  transfer_disallowed="Insufficient balance";
-  tokens_not_found="No balance found for given spender";
-  bal=builtin get bl _sender;
+transition transfer (to: ByStr20 , value:Uint128)  
+  bal <- balances[_sender];
   match bal with 
   | Some b =>
     can_do = less_equal value b;
     match can_do with
     | True =>
       new_sender_bal=builtin sub b value;
-      new_balances=builtin put bl _sender new_sender_bal;
-      to_bal=builtin get new_balances to;
+      balances[_sender] := new_sender_bal;      
+      to_bal <- balances[to];
       match to_bal with
       | Some x =>
         new_to_bal = builtin add x value;
-        new_balances2 = builtin put new_balances to new_to_bal;
-        balances := new_balances2;
-        msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; transferred : value};   
-        msgs=one_msg msg;
-        send msgs
+        balances[to]:=new_to_bal;        
+	e = { _eventname : "tokensTransferred"; _recipient : _sender; _amount : Uint128 0; transferred : value };
+	event e
       | None =>
-        new_balances3 = builtin put new_balances to value;
-        balances := new_balances3;
-        msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; transferred : value };   
-        msgs=one_msg msg;
-        send msgs
+        balances[to]:= value;        
+	e = { _eventname : "tokensTransferred"; _recipient : _sender; _amount : Uint128 0; transferred : value };
+	event e
       end
-    | False=>
-      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : transfer_disallowed};   
-      msgs=one_msg msg;
-      send msgs
+    | False=>      
+      e = { _eventname : "insufficientBalance"; _recipient : _sender; _amount : Uint128 0; message : "Insufficient balance" };
+      event e
     end  
-  | None =>
-    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : tokens_not_found};   
-    msgs=one_msg msg;
-    send msgs  
+  | None =>     
+    e = { _eventname : "noTokensFound"; _recipient : _sender; _amount : Uint128 0; message : "No balance found for given spender" };
+    event e
   end
 end  
 
-transition burn(value : Uint128)
-  burned="burned";
-  error="error";
-  insufficient_balance="Insufficient balance cannot burn";
-  bl<-balances;
-  bal=builtin get bl _sender;
+transition burn(value : Uint128) 
+  bal <- balances[_sender];
   match bal with
   | Some b =>
     can_do=less_equal value b;
     match can_do with
     | True=>
-      new_balance=builtin sub b value;
-      balances1=builtin put bl _sender new_balance;
-      balances:=balances1;
+      new_balance=builtin sub b value;      
+      balances[_sender]:=new_balance;
       ts <- _totalSupply;
       ts=builtin sub ts value;
-      _totalSupply := ts;
-        
-      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : burned};   
-      msgs=one_msg msg;
-      send msgs
-    | False =>
-      msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : insufficient_balance };   
-      msgs=one_msg msg;
-      send msgs
+      _totalSupply := ts;      
+      e = { _eventname : "burned"; _recipient : _sender; _amount : Uint128 0; message : "burned" };
+      event e
+    | False =>      
+      e = { _eventname : "insufficientBal"; _recipient : _sender; _amount : Uint128 0; message : "Insufficient balance cannot burn" };
+      event e
     end
-  | None=>
-    msg = {_tag : "Main";_recipient : _sender ; _amount:Uint128 0 ; message : error };   
-    msgs=one_msg msg;
-    send msgs  
+  | None=>      
+    e = { _eventname : "BurnError"; _recipient : _sender; _amount : Uint128 0; message : "error" };
+    event e
   end
 end 
 
-transition transferFrom (from : ByStr20, to : ByStr20, value : Uint128)
-  bl <- balances;
-  al <- allowed;
-  transfer_status="transferred";
-  
-  error="Error";
-  incorrect_transfer_value="Tokens to transfer cannot be greater than available or authorized value";
-  tokens_not_allowed="Tokens not allowed by owner for given spender";
-  bal = builtin get bl from;
+transition transferFrom (from : ByStr20, to : ByStr20, value : Uint128)  
+  bal <- balances[from];
   (* Check if _sender has been authorized by "from" *)
-  allowed_from = builtin get al from;
+  allowed_from <- allowed[from];
   match allowed_from with
   | Some m =>
     (* How many tokens has _sender been authorized to transfer, by "from" *)
-    sender_allowed_from = builtin get m _sender;
+    sender_allowed_from <- allowed[from][_sender];
     all = Pair { (Option Uint128) (Option Uint128)} bal sender_allowed_from;
     match all with
     | Pair (Some a) (Some b) =>
@@ -279,94 +217,66 @@ transition transferFrom (from : ByStr20, to : ByStr20, value : Uint128)
       match can_do with
       | True =>
         (* tokens is what we should subtract from "from" and add to "to" *)
-        new_from_bal = builtin sub a value;
-        balances_1 = builtin put bl from new_from_bal;
-        balances := balances_1;
-        to_bal = builtin get balances_1 to;
+        new_from_bal = builtin sub a value;        
+        balances[from] := new_from_bal;
+        to_bal <- balances[to];
         match to_bal with
         | Some tb =>
-          to_bal_new = builtin add tb value;
-          balances_2 = builtin put balances_1 to to_bal_new;
-          balances := balances_2;
-          send no_msg
+          to_bal_new = builtin add tb value;          
+          balances[to] := to_bal_new          
         | None =>
-          (* "to" has no balance. So just set it to tokens *)
-          balances_3 = builtin put balances_1 to value;
-          balances := balances_3;
-          send no_msg
+          (* "to" has no balance. So just set it to tokens *)          
+          balances[to] := value          
         end;
         (* reduce "allowed" by "tokens" *)
         new_allowed = builtin sub b value;
-        new_m = builtin put m _sender new_allowed;
-        new_allowed = builtin put al from new_m;
-        allowed := new_allowed;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : transfer_status };
-        msgs = one_msg msg;
-        send msgs
-      | False =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : incorrect_transfer_value };
-        msgs = one_msg msg;
-        send msgs
+        allowed[from][_sender] := new_allowed;        
+	e = { _eventname : "transferFrom"; _recipient : _sender; _amount : Uint128 0; message : "transferred" };
+	event e
+      | False =>        
+	e = { _eventname : "transferFromFailed"; _recipient : _sender; _amount : Uint128 0; message : "Tokens to transfer cannot be greater than available or authorized value" };
+	event e
       end
-    | _ =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : error };
-      msgs = one_msg msg;
-      send msgs
+    | _ =>      
+      e = { _eventname : "transferFromError"; _recipient : _sender; _amount : Uint128 0; message : "Error" };
+      event e
     end
-  | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : tokens_not_allowed };
-    msgs = one_msg msg;
-    send msgs
+  | None =>    
+    e = { _eventname : "transferFromnotAllowed"; _recipient : _sender; _amount : Uint128 0; message : "Tokens not allowed by owner for given spender" };
+    event e
   end
 end  
 
-transition burnFrom(from : ByStr20,value :Uint128)
-  bl<-balances;
-  burned="burned";
-  notburned="not burned";
-  tokens_not_allowed="Tokens not allowed by owner for given spender";
-  error="Error";
-  insufficient_balance="Insufficient balance cannot burn";
-  al<-allowed;
-  bal=builtin get bl from;
-  allowed_from=builtin get al from;
-  match allowed_from with
-  | Some m=>
-    sender_allowed_from=builtin get m _sender;
-    all=Pair {(Option Uint128)(Option Uint128)} bal sender_allowed_from;
-    match all with
-    | Pair (Some a)(Some b) =>
+transition burnFrom(from : ByStr20,value :Uint128)  
+  bal <- balances[from];
+  sender_allowed_from <- allowed[from][_sender];
+  match bal with
+  | Some a =>
+    match sender_allowed_from with
+    | Some b =>
       t = min_int a b;
       can_do=less_equal value t;
       match can_do with
       | True =>
-        new_from_bal = builtin sub a value;
-        balances1 = builtin put bl from new_from_bal;
-        balances:=balances1;
+        new_from_bal = builtin sub a value;        
+        balances[from]:=new_from_bal;
         new_allowed=builtin sub b value;
-        new_m = builtin put m _sender new_allowed;
-        new_allowed_bala=builtin put al from new_m;
-        allowed:= new_allowed_bala;
+        allowed[from][_sender]:= new_allowed;
         ts <- _totalSupply;
         ts=builtin sub ts value;
-        _totalSupply := ts;
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : burned };
-        msgs = one_msg msg;
-        send msgs
-      | False =>
-        msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : insufficient_balance };
-        msgs = one_msg msg;
-        send msgs    
-        
+        _totalSupply := ts;        
+        e = { _eventname : "burnFromBurned"; _recipient : _sender; _amount : Uint128 0; message : "Burned" };
+        event e
+      | False =>            
+        e = { _eventname : "burnFromFailed"; _recipient : _sender; _amount : Uint128 0; message : "Insufficient balance cannot burn" };
+        event e        
       end    
-    | _ =>
-      msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : error };
-      msgs = one_msg msg;
-      send msgs    
+    | None =>         
+      e = { _eventname : "burnFromError"; _recipient : _sender; _amount : Uint128 0; message : "Tokens not allowed by owner for given spender" };
+      event e
     end
-  | None =>
-    msg = { _tag : "Main"; _recipient : _sender; _amount : Uint128 0; message : tokens_not_allowed };
-    msgs = one_msg msg;
-    send msgs
+  | None =>    
+    e = { _eventname : "burnFrom tokens_notallowed"; _recipient : _sender; _amount : Uint128 0; message : "Error" };
+    event e
   end
 end

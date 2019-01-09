@@ -1,14 +1,8 @@
 {
-  "gas_remaining": "7222",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-    "params": [
-      { "vname": "authorized", "type": "String", "value": "authorized" }
-    ]
-  },
+  "scilla_major_version": "0",
+  "gas_remaining": "7357",
+  "_accepted": "false",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
@@ -38,5 +32,21 @@
     },
     { "vname": "_totalSupply", "type": "Uint128", "value": "1000" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "AuthorizeOperator",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        {
+          "vname": "operator",
+          "type": "ByStr20",
+          "value": "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
+        }
+      ]
+    }
+  ]
 }

@@ -1,5 +1,7 @@
 {
-  "gas_remaining": "7250",
+  "scilla_major_version": "0",
+  "gas_remaining": "6854",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
@@ -12,7 +14,7 @@
           "val": [
             {
               "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a",
-              "val": "3"
+              "val": "2"
             }
           ]
         }
@@ -23,7 +25,8 @@
       "type": "Map (ByStr20) (Uint128)",
       "value": [
         { "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a", "val": "2" },
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "8" }
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "7" },
+        { "key": "0x9b8f146111412b7583ee586e2d2d8709f9363e7b", "val": "1" }
       ]
     },
     { "vname": "maxAllowanceInclusive", "type": "Uint128", "value": "500" },
@@ -36,5 +39,22 @@
     },
     { "vname": "isPaused", "type": "Uint128", "value": "0" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "TransferFrom",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        {
+          "vname": "to",
+          "type": "ByStr20",
+          "value": "0x9b8f146111412b7583ee586e2d2d8709f9363e7b"
+        },
+        { "vname": "tokens", "type": "Uint128", "value": "1" }
+      ]
+    }
+  ]
 }

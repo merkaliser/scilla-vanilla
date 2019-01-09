@@ -1,6 +1,12 @@
 {
-    "_tag" : "totalSupply",
+    "_tag" : "balanceOf",
     "_amount" : "0",
     "_sender" : "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef",
-    "params" : []
+    "params" : [
+        {
+            "vname": "tokenOwner",
+            "type" : "ByStr20",
+            "value" : "0x1b5928d9e0f0667d106267f61de4c6e8312b3aef"
+        }
+    ]
 }

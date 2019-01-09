@@ -1,16 +1,10 @@
 {
-  "gas_remaining": "7059",
+  "scilla_major_version": "0",
+  "gas_remaining": "6939",
+  "_accepted": "false",
   "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
-    {
-      "vname": "balances",
-      "type": "Map (ByStr20) (Uint128)",
-      "value": [
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "992" },
-        { "key": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4", "val": "8" }
-      ]
-    },
     {
       "vname": "allowed",
       "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
@@ -26,7 +20,37 @@
         }
       ]
     },
+    {
+      "vname": "balances",
+      "type": "Map (ByStr20) (Uint128)",
+      "value": [
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "992" },
+        { "key": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4", "val": "8" }
+      ]
+    },
     { "vname": "_totalSupply", "type": "Uint128", "value": "1000" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "SentToken",
+      "params": [
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617"
+        },
+        {
+          "vname": "to",
+          "type": "ByStr20",
+          "value": "0x6d8794a2b6b98eabc1f466d0c5a4c1ee9e0f77f4"
+        },
+        {
+          "vname": "userData",
+          "type": "String",
+          "value": "sending 8 tokens to 5th account"
+        },
+        { "vname": "amount", "type": "Uint128", "value": "8" }
+      ]
+    }
+  ]
 }

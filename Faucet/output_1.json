@@ -1,15 +1,11 @@
 {
-  "gas_remaining": "7276",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-    "params": [ { "vname": "code", "type": "String", "value": "success" } ]
-  },
+  "scilla_major_version": "0",
+  "gas_remaining": "7305",
+  "_accepted": "false",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
-    { "vname": "maxAllowanceInclusive", "type": "Uint128", "value": "500" },
+    { "vname": "maxAllowanceInclusive", "type": "Uint128", "value": "50" },
     {
       "vname": "claimedTokens",
       "type": "Map (ByStr20) (Uint128)",
@@ -32,5 +28,17 @@
       "value": []
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "GetTokens",
+      "params": [
+        {
+          "vname": "account",
+          "type": "ByStr20",
+          "value": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a"
+        },
+        { "vname": "amount", "type": "Uint128", "value": "5" }
+      ]
+    }
+  ]
 }

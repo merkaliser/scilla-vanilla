@@ -1,29 +1,28 @@
 {
-  "gas_remaining": "7257",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a",
-    "params": [ { "vname": "has", "type": "String", "value": "true" } ]
-  },
+  "scilla_major_version": "0",
+  "gas_remaining": "7312",
+  "_accepted": "false",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
       "vname": "bearer",
       "type": "Map (String) (Map (ByStr20) (Int32))",
-      "value": [
-        {
-          "key": "myrole",
-          "val": [
-            {
-              "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a",
-              "val": "1"
-            }
-          ]
-        }
-      ]
+      "value": [ { "key": "myrole", "val": [] } ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "hasAccount",
+      "params": [
+        { "vname": "role", "type": "String", "value": "myrole" },
+        {
+          "vname": "account",
+          "type": "ByStr20",
+          "value": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a"
+        },
+        { "vname": "has", "type": "String", "value": "false" }
+      ]
+    }
+  ]
 }

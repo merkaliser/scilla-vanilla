@@ -1,19 +1,42 @@
 {
-  "gas_remaining": "7259",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a",
-    "params": [ { "vname": "code", "type": "Int32", "value": "0" } ]
-  },
+  "scilla_major_version": "0",
+  "gas_remaining": "7306",
+  "_accepted": "false",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
       "vname": "bearer",
       "type": "Map (String) (Map (ByStr20) (Int32))",
-      "value": [ { "key": "myrole", "val": [] } ]
+      "value": [
+        {
+          "key": "myrole",
+          "val": [
+            {
+              "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a",
+              "val": "0"
+            }
+          ]
+        }
+      ]
     }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Role Renounced",
+      "params": [
+        { "vname": "role", "type": "String", "value": "myrole" },
+        {
+          "vname": "from",
+          "type": "ByStr20",
+          "value": "0x2992d4dfafd282e8a8b3c776eb9fc907d321e21a"
+        },
+        {
+          "vname": "account",
+          "type": "ByStr20",
+          "value": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a"
+        }
+      ]
+    }
+  ]
 }

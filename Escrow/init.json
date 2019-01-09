@@ -1,4 +1,9 @@
 [
+    { 
+        "vname" : "_scilla_version",
+        "type" : "Uint32",
+        "value" : "0"
+    },
     {
         "vname" : "_creation_block",
         "type" : "BNum",
@@ -13,11 +18,7 @@
         "vname" : "payee",
         "type" : "ByStr20",
         "value" : "0x31B0921AC3E8BC6815DF52ECC7F7BC61A2B65DE2"
-    },
-	{
-        "vname" : "deposits",
-        "type" : "Uint128",
-        "value" : "1000"
     }
+	
 ]
 

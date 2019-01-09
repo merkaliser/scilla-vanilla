@@ -1,12 +1,12 @@
 {
-    "_tag": "deposit",
-    "_amount": "10",
-    "_sender" : "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2",
-    "params": [
-        {
+    "_tag": "depositsOf",
+    "_amount": "0",
+    "_sender": "0x1992d4dfafd282e8a8b3c776eb9fc907d321e21a",
+       "params": [ 
+{
             "vname" : "payee",
             "type" : "ByStr20",
-            "value" : "0x263C4CA003235AF83C4F4BC065D00D4A67FFB617"
+            "value" : "0x31b0921ac3e8bc6815df52ecc7f7bc61a2b65de2"
         }
-    ]
-} 
+]
+}

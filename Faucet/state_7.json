@@ -1,26 +1,10 @@
 [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
-      "vname": "allowed",
-      "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
-      "value": [
-        {
-          "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617",
-          "val": [
-            {
-              "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a",
-              "val": "3"
-            }
-          ]
-        }
-      ]
-    },
-    {
       "vname": "balances",
       "type": "Map (ByStr20) (Uint128)",
       "value": [
-        { "key": "0xab92d4dfafd282e8a8b3c776eb9fc907d321e21a", "val": "2" },
-        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "8" }
+        { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "10" }
       ]
     },
     { "vname": "maxAllowanceInclusive", "type": "Uint128", "value": "500" },
@@ -30,6 +14,12 @@
       "value": [
         { "key": "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "val": "0" }
       ]
-    }, { "vname": "isPaused", "type": "Uint128", "value": "0" }
+    },
+    { "vname": "isPaused", "type": "Uint128", "value": "0" },
    
-     ]
+    {
+      "vname": "allowed",
+      "type": "Map (ByStr20) (Map (ByStr20) (Uint128))",
+      "value": []
+    }
+  ]

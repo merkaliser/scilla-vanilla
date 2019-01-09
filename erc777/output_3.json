@@ -1,14 +1,8 @@
 {
-  "gas_remaining": "7480",
-  "message": {
-    "_tag": "Main",
-    "_amount": "0",
-    "_accepted": "false",
-    "_recipient": "0xffcdeabcde123456789012345678901234567890",
-    "params": [
-      { "vname": "tokenGranularity", "type": "Uint128", "value": "4" }
-    ]
-  },
+  "scilla_major_version": "0",
+  "gas_remaining": "7553",
+  "_accepted": "false",
+  "message": null,
   "states": [
     { "vname": "_balance", "type": "Uint128", "value": "0" },
     {
@@ -28,5 +22,12 @@
     },
     { "vname": "_totalSupply", "type": "Uint128", "value": "1000" }
   ],
-  "events": []
+  "events": [
+    {
+      "_eventname": "Granularity",
+      "params": [
+        { "vname": "tokenGranularity", "type": "Uint128", "value": "4" }
+      ]
+    }
+  ]
 }

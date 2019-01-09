@@ -1,0 +1,180 @@
+{
+  "scilla_major_version": "0",
+  "gas_remaining": "6646",
+  "_accepted": "false",
+  "message": null,
+  "states": [
+    { "vname": "_balance", "type": "Uint128", "value": "120" },
+    {
+      "vname": "_deposit",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "5" } ]
+    },
+    {
+      "vname": "_commitBalkline",
+      "type": "Map (Uint32) (BNum)",
+      "value": [ { "key": "1", "val": "5" } ]
+    },
+    {
+      "vname": "_commitDeadline",
+      "type": "Map (Uint32) (BNum)",
+      "value": [ { "key": "1", "val": "15" } ]
+    },
+    {
+      "vname": "_bnum",
+      "type": "Map (Uint32) (BNum)",
+      "value": [ { "key": "1", "val": "20" } ]
+    },
+    {
+      "vname": "_minParticipant",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "3" } ]
+    },
+    {
+      "vname": "participant",
+      "type": "Map (Uint32) (Map (ByStr20) (Pair (ByStr32) (Uint128)))",
+      "value": [
+        {
+          "key": "1",
+          "val": [
+            {
+              "key": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
+              "val": {
+                "constructor": "Pair",
+                "argtypes": [ "ByStr32", "Uint128" ],
+                "arguments": [
+                  "0x1316634517196279dafb71644435936d69d0fcaa1e11d5c41f7e3376385da3ce",
+                  "0"
+                ]
+              }
+            },
+            {
+              "key": "0xaf332ea57ac9e106e30d79d476f0449804142543",
+              "val": {
+                "constructor": "Pair",
+                "argtypes": [ "ByStr32", "Uint128" ],
+                "arguments": [
+                  "0x1928417eb686f7cb81393731b1bc0683526e86677a47da01d86a636003004bcc",
+                  "0"
+                ]
+              }
+            },
+            {
+              "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
+              "val": {
+                "constructor": "Pair",
+                "argtypes": [ "ByStr32", "Uint128" ],
+                "arguments": [
+                  "0x8e752b727746da1d2c1e9c68f243260f16d34f2775c86bb24b160c7610b574a7",
+                  "0"
+                ]
+              }
+            },
+            {
+              "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
+              "val": {
+                "constructor": "Pair",
+                "argtypes": [ "ByStr32", "Uint128" ],
+                "arguments": [
+                  "0xcc372bbece16b3487382c4fd8f4a77ca82cc86398dc8f79654c069df2f9b831d",
+                  "0"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vname": "revealed",
+      "type": "Map (Uint32) (Map (ByStr20) (Uint32))",
+      "value": [
+        {
+          "key": "1",
+          "val": [
+            {
+              "key": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
+              "val": "0"
+            },
+            {
+              "key": "0xaf332ea57ac9e106e30d79d476f0449804142543",
+              "val": "0"
+            },
+            {
+              "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
+              "val": "0"
+            },
+            {
+              "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
+              "val": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vname": "rewarded",
+      "type": "Map (Uint32) (Map (ByStr20) (Uint32))",
+      "value": [
+        {
+          "key": "1",
+          "val": [
+            {
+              "key": "0x7ca1e366c013b4beea8bb58d9cb57a9650b5666d",
+              "val": "0"
+            },
+            {
+              "key": "0xaf332ea57ac9e106e30d79d476f0449804142543",
+              "val": "0"
+            },
+            {
+              "key": "0xc589636e0c9a77d20a3c458a0972d6eaf856ce81",
+              "val": "0"
+            },
+            {
+              "key": "0x5c1f82f393c23a0301aa756e864d41671f5352e5",
+              "val": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vname": "_consumer",
+      "type": "Map (Uint32) (Pair (ByStr20) (Uint128))",
+      "value": [
+        {
+          "key": "1",
+          "val": {
+            "constructor": "Pair",
+            "argtypes": [ "ByStr20", "Uint128" ],
+            "arguments": [
+              "0x263c4ca003235af83c4f4bc065d00d4a67ffb617", "100"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "vname": "commitNum",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "4" } ]
+    },
+    {
+      "vname": "revealsNum",
+      "type": "Map (Uint32) (Uint128)",
+      "value": [ { "key": "1", "val": "0" } ]
+    },
+    {
+      "vname": "random",
+      "type": "Map (Uint32) (Uint256)",
+      "value": [ { "key": "1", "val": "0" } ]
+    }
+  ],
+  "events": [
+    {
+      "_eventname": "RandaoError",
+      "params": [ { "vname": "err_code", "type": "Int32", "value": "-5" } ]
+    }
+  ]
+}

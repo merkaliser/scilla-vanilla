@@ -1,0 +1,12 @@
+{
+    "_tag" : "burn",
+    "_amount" : "0",
+    "_sender" : "0x23271327e72f96aab882f614b467ebb5ed3003d9",
+    "params" : [
+        {
+            "vname": "value",
+            "type": "Uint128",
+            "value": "300"
+        }
+    ]
+}
